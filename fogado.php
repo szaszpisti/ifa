@@ -27,8 +27,7 @@ if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, O.onev, E.*"
 		. " WHERE O.oszt=E.oszt AND E.tip='d' AND E.esz=" . $id)) {
 	$USER = pg_fetch_array($result);
 }
-// phpinfo();
-// VARIABLES tömb-ben benn vannak a létezõ változók.
+$QUERY_LOG = array();
 
 Head("Fogadóóra - " . $USER['enev']);
 
@@ -157,65 +156,56 @@ if( $result = pg_exec("SELECT tanar, ido, diak FROM Fogado"
 	}
 }
 
-if ( $VAR_tip == 'mod' ) {
-	foreach ( $FOGADO as $tanar ) {
-		foreach ( array_keys($tanar) as $ido ) {
-			if ( $tanar[$ido] == $id ) {
-				$v = "VAR_c".$tanar['id'];
-				if ( !isset($$v) ) {
-					print "<h3>UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$ido</h3>";
-				}
-			}
-	// $CHECKBOX["c".$tanar['id']] = $id; }
-		}
-	}
-}
-
 function ValidateRadio ( $Teacher, $Time ) {
+// (ezeket jó lenne triggerként berakni a tábla-definícióba...)
 	global $FOGADO, $USER;
-	if ( $FOGADO[$Teacher][$Time] != 0 ) { return $FOGADO[$Teacher]['nev'] . " ezen idõpontja már foglalt, nem választhatja!"; }
-	foreach ( $FOGADO as $t ) {
-		if ( $t[$Time] == $USER['esz'] ) return "Önnek már foglalt ez az idõpontja (" . $t['nev'] . ") - elõbb onnan iratkozzon le!";
+	if ( $FOGADO[$Teacher][$Time] != 0 ) { return $FOGADO[$Teacher]['nev'] . " ezen idõpontja már foglalt, ide nem iratkozhat fel!"; }
+	foreach ( $FOGADO as $tan ) {
+		if ( $tan[$Time] == $USER['esz'] ) return "Önnek már foglalt ez az idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!";
 	}
 	if ( $FOGADO[$USER['ofo']][$Time] == -2 ) return "Önnek szülõi értekezlete van ebben az idõpontban!";
 	foreach ( $FOGADO[$Teacher] as $i ) {
-		if ( $i == $USER['esz'] ) { return "Egy tanárnál csak egy idõpontra iratkozhat fel - elõbb jelentkezzen le a másikról!"; }
+		if ( $i == $USER['esz'] ) { return "Egy tanárnál csak egy idõpontra iratkozhat fel - ha változtatni akar, elõbb a másikat törölje!"; }
 	}
 	return NULL;
 }
 
-foreach (explode(' ', $VARIABLES) as $var) {
-	print "$var <br>\n";
-	if ( ereg ("^r([0-9]+)$", $var, $match) ) {
-		$Teacher = $match[1];
-		$VAR = "VAR_$var";
-		$Time = $$VAR;
-//	print ValidateRadio ($Teacher, $Time) . "\n\n";
-		if ( $validate = ValidateRadio ($Teacher, $Time) ) {
-			print $validate;
-		}
-		else { // rendben, lehet adatbázisba rakni
-			print "<h3>UPDATE Fogado SET diak=$id WHERE tanar=$Teacher AND ido=$Time</h3>";
+//
+// checkboxok ellenõrzése (leiratkozás)
+//
+if ( $VAR_tip == 'mod' ) {
+	foreach ( $FOGADO as $tanar ) {
+		foreach ( array_keys($tanar) as $Time ) {
+			if ( $tanar[$Time] == $id ) {
+				$v = "VAR_c".$tanar['id'];
+				if ( !isset($$v) ) {
+					$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
+					if ( pg_exec($q) ) { $FOGADO[$tanar['id']][$Time] = "0"; $QUERY_LOG[] .= "RENDBEN: $q"; }
+					else { $QUERY_LOG[] .= "VALAMI NEM JÓL VAN: $q"; }
+				}
+			}
 		}
 	}
 }
 
-/*
-
-Esetleg: SELECT * FROM Fogado WHERE diak=$DIAK[id]
-trigger?
-for i in valtozo {
-	if valtozonev =~ /^r([0-9]+)$/
-		és tényleg üres a hely (különben print ez a hely már foglalt)
-		és user még nincs másnál bejegyezve erre az idõre (különben print önnek már van erre az idõpontra bejegyzése!)
-		és ennél a tanárnál még nincs felírva (különben print elõször iratkozzon le (tanar.enev-tõl))
-		(persze ezeket jó lenne valami triggerként berakni a tábla-definícióba...)
-
-			UPDATE Fogado set diak=$USER['id'] WHERE tanar=$1 AND ido=$valtozonev
-	else { print 
-*/
-
-
+//
+// rádiógombok ellenõrzése (feliratkozás)
+//
+foreach (explode(' ', $VARIABLES) as $var) {
+	if ( ereg ("^r([0-9]+)$", $var, $match) ) {
+		$Teacher = $match[1];
+		$VAR = "VAR_$var";
+		$Time = $$VAR;
+		if ( $validate = ValidateRadio ($Teacher, $Time) ) {
+			$QUERY_LOG[] .= "$validate";
+		}
+		else { // rendben, lehet adatbázisba rakni
+			$q = "UPDATE Fogado SET diak=$id WHERE tanar=$Teacher AND ido=$Time";
+			if ( pg_exec($q) ) { $FOGADO[$Teacher][$Time] = $id; $QUERY_LOG[] .= "RENDBEN: $q"; }
+			else { $QUERY_LOG[] .= "VALAMI NEM JÓL VAN: $q"; }
+		}
+	}
+}
 
 print "\n<form name=tabla><table border=1>";
 print $A . $B;
@@ -231,6 +221,14 @@ print "  <input type=submit value=' Mehet '>\n";
 print "</table>\n\n";
 print "</form>\n";
 
+foreach ($QUERY_LOG as $log) {
+	print "<b>$log</b><br>\n";
+}
+
+foreach (explode(' ', $VARIABLES) as $v) {
+	$V="VAR_$v";
+	print $V . " : " . $$V . "<br>\n";
+}
 
 pg_close ($db);
 Tail();
