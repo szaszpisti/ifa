@@ -1,6 +1,6 @@
 <?
 require('fogado.inc');
-head('Fogadó admin');
+Head('Fogadó admin');
 $B_ora=16; $B_perc=0; $E_ora=18; $E_perc=30;
 
 $ORA = "<select name=#NAME#>";
@@ -74,64 +74,5 @@ foreach ($Tanar as $t) {
 print "</table>\n";
 
 // var_dump($Tanar);
-
-/*
+Tail();
 ?>
-<form name=tabla><table border=1>
-<tr><td rowspan=2><th colspan=6>15<th colspan=6>16
-<tr>    <td>00<td>10<td>20<td>30<td>40<td>50<td>00<td>10<td>20<td>30<td>40<td>50
-
-<tr><td>Alma Aladár
-	<td class=tele>&nbsp;
-	<td class=tele>&nbsp;
-	<td class=jo><input type=checkbox name=almac checked>
-	<td>&nbsp;
-	<td><input type=radio name=almar value=5 checked>
-	<td><input type=radio name=almar value=6>
-	<td class=tele>&nbsp;
-	<td class=tele>&nbsp;
-	<td>&nbsp;
-	<td>&nbsp;
-	<td><input type=radio name=almar value=11 checked>
-	<td><input type=radio name=almar value=12>
-	<td><input type=button value=x onClick='torol("almar")'>
-
-<tr><td>Béta Boróka
-	<td><input type=radio name=betar value=1>
-	<td class=tele>&nbsp;
-	<td><input type=radio name=betar value=3>
-	<td>&nbsp;
-	<td>&nbsp;
-	<td><input type=radio name=betar value=6>
-	<td><input type=radio name=betar value=7>
-	<td class=tele>&nbsp;
-	<td><input type=radio name=betar value=9>
-	<td>&nbsp;
-	<td>&nbsp;
-	<td><input type=radio name=betar value=12>
-	<td><input type=button value=x onClick='torol("betar")'>
-
-<tr><td>Cérna Géza
-	<td class=tele>&nbsp;
-	<td class=tele>&nbsp;
-	<td class=tele>&nbsp;
-	<td>&nbsp;
-	<td><input type=radio name=cernar value=5 checked>
-	<td><input type=radio name=cernar value=6>
-	<td class=tele>&nbsp;
-	<td class=tele>&nbsp;
-	<td class=jo><input type=checkbox name=cernac checked>
-	<td>&nbsp;
-	<td><input type=radio name=cernar value=11 checked>
-	<td><input type=radio name=cernar value=12>
-	<td><input type=button value=x onClick='torol("cernar")'>
-
-</table>
-<input type=submit value=" Mehet ">
-</form>
-*/
-
-?>
-<p><hr><address><a href="mailto:dugo@szepi.hu">dugo@szepi.hu</a></address>
-</body>
-</html>
