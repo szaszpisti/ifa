@@ -51,12 +51,9 @@ td.szuloi { background-color: yellow; }
 /* Itt jönnek az admin.php stílusai */
 
 table.tanar {
-border-collapse: collapse;	border-spacing: 20px 22px;
-	border: 5px solid green;
+	border-spacing: 0px;
+	text-indent: 5pt;
 }
-TABLE.tanar[rules=rows] TR { border-top: solid }
-TABLE.tanar[rules=rows]    { border-collapse: collapse; 
-                       border-top: hidden }
 tr.paros { background-color: #EEEEEE; }
 
 address { font-size: 8 pt; }
