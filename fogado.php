@@ -45,6 +45,22 @@ print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
 // Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
 // function tim($time) { return gmdate('H:i', $time*300); }
 
+function tr_string($K, $id, $t) {
+	for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
+		$span = (count($K[$i])>1)?" colspan=".count($K[$i]):"";
+		switch ($K[$i][0]) {
+			case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
+			case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
+			case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=r$id value=$t>\n"; break;
+			case szabad2: $tmp .= "  <td class=szabad$span>&nbsp;\n"; break;
+			case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=c$id checked>\n"; break;
+			case sajat2:  $tmp .= "  <td class=sajat$span>&nbsp;\n"; break;
+		}
+		$t += count($K[$i]) * 2;
+	}
+	return $tmp;
+}
+
 function tanar_ki($tanar) {
 	global $IDO_min, $IDO_max, $USER, $K, $ADMIN;
 	// TANAR: [0]['diak']=25, [1]['diak']=-1, ...
@@ -76,11 +92,11 @@ function tanar_ki($tanar) {
 		if ( ( $d != $pred && $d != szabad2 && $d != sajat2 ) || $d == szabad ) {
 			array_push ( $K[$i%2], array($d) );
 			array_push ( $K[1-$i%2], array() );
-			print "\nNEW: $i (".($i%2).") -> $d";
+//			print "\nNEW: $i (".($i%2).") -> $d";
 		}
 		else {
 			array_push ( $K[$i%2][count($K[$i%2])-1], $d );
-			print "\n     $i (".($i%2).") -> $d";
+//			print "\n     $i (".($i%2).") -> $d";
 		}
 		$pred = $d;
 	}
@@ -89,43 +105,15 @@ function tanar_ki($tanar) {
 	$tmp = "\n<tr><th" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;" . $tanar['nev'] . " \n";
 // var_dump($tmp);
 
-	$t = $IDO_min; // a helye a tablazatban
-
 // párosak:
-	for ($i=1; $i<count($K[0]); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
-		$span = (count($K[0][$i])>1)?" colspan=".count($K[0][$i]):"";
-		switch ($K[0][$i][0]) {
-			case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
-			case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
-			case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=t" . $tanar['id'] . "r value=$t>\n"; break;
-			case szabad2: $tmp .= "  <td class=szabad$span>&nbsp;\n"; break;
-			case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=t" . $tanar['id'] . "c checked>\n"; break;
-			case sajat2:  $tmp .= "  <td class=sajat$span>&nbsp;\n"; break;
-		}
-		$t += count($K[0][$i]) * 2;
-	}
-	$tmp .= "  <td><input type=button value=x onClick='torol(\"t" . $tanar['tanar'] . "r\")'>\n";
+	$tmp .= tr_string($K[0], $tanar['id'], $IDO_min);
+	$tmp .= "  <td><input type=button value=x onClick='torol(\"r" . $tanar['id'] . "\")'>\n";
 
 // páratlanok:
-	$t = $IDO_min+1; // a helye a tablazatban
 	if (isset($tanar['paratlan'])) {
-		$tmp .= "<tr>";
-		for ($i=1; $i<count($K[1]); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
-			$span = (count($K[1][$i])>1)?" colspan=".count($K[1][$i]):"";
-			switch ($K[1][$i][0]) {
-				case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
-				case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
-				case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=t" . $tanar['id'] . "r value=$t>\n"; break;
-				case szabad2: $tmp .= "  <td class=szabad$span>&nbsp;\n"; break;
-				case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=t" . $tanar['id'] . "c checked>\n"; break;
-				case sajat2:  $tmp .= "  <td class=sajat$span>&nbsp;\n"; break;
-			}
-			$t += count($K[1][$i]) * 2;
-		}
+		$tmp .= "<tr>" . tr_string($K[1], $tanar['id'], $IDO_min+1);
 	}
 
-// var_dump($K[0]);
-// var_dump($K[1]);
 	return $tmp;
 
 }
@@ -139,8 +127,6 @@ $Idoszak = pg_fetch_array(pg_exec("SELECT min(ido) AS min, max(ido) AS max FROM 
 $IDO_min = $Idoszak['min']-($Idoszak['min']%2);
 $IDO_max = $Idoszak['max']-($Idoszak['max']%2);
 
-// var_dump($IDO_min);
-// var_dump($IDO_max);
 // A fejléc sorok kiíratásához
 for ($ido=$IDO_min; $ido<$IDO_max; $ido+=2) {
 	$ora = floor($ido/12);
@@ -176,12 +162,6 @@ if( $result = pg_exec("SELECT tanar, ido, diak FROM Fogado"
 	}
 }
 
-/*
--> ehelyett inkább egy kupacban kellene lekérdezni...
-
-foreach sor
-TANAR[$tanar
-*/
 print "\n<form name=tabla><table border=1>";
 print $A . $B;
 foreach ( $FOGADO as $tanar ) {
@@ -198,10 +178,6 @@ print "</form>\n";
 
 pg_close ($db);
 Tail();
-
-// SELECT max(ido) + INTERVAL '10 min' AS ido FROM Fogado;
-// SELECT extract(HOUR FROM max(ido))*12 + extract(MINUTE FROM max(ido))/5 AS ido FROM Fogado;
-// SELECT extract(HOUR FROM ido)*12 + extract(MINUTE FROM ido)/5 AS ido FROM Fogado WHERE ido LIKE '__:_0:__';
 
 ?>
 
