@@ -3,23 +3,8 @@ require('fogado.inc');
 
 $ADMIN = 0;
 
-if (!isset($VAR_id)) {
-	if ( isset($VAR_o) ) {
-		Head("Fogadóóra - $VAR_o");
-		print Osztaly_select($VAR_o);
-		if ( $result = pg_exec("SELECT esz AS esz,enev FROM Ember WHERE oszt='" . $VAR_o . "' ORDER BY enev")) {
-			foreach (pg_fetch_all($result) as $d) {
-				print "<li><a href=$Szulo?id=" . $d['esz'] . ">" . $d['enev'] . "</a>\n";
-			}
-		}
-		Tail();
-		return 0;
-	}
-	Head("Fogadóóra - iskola");
-	print Osztaly_select(0);
-	Tail();
-	return 0;
-}
+if ( !isset($VAR_id) ) { return 0; }
+
 $id = $VAR_id;
 
 if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, O.onev, E.*"
@@ -31,18 +16,11 @@ $QUERY_LOG = array();
 
 Head("Fogadóóra - " . $USER['enev']);
 
-print "<font size=+1><b>\n";
-print Osztaly_select($USER['oszt']);
-print "</b></font>\n";
-print Diak_select($USER['oszt'], $id);
-
-//var_dump($USER);
-
 print "\n<h3>" . $USER['enev'] . " (" . $USER['onev'] . ")<br>\n";
 print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
 
 // Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
-// function tim($time) { return gmdate('H:i', $time*300); }
+function tim($time) { return gmdate('H:i', $time*300); }
 
 function tr_string($K, $tid, $t) {
 	for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
@@ -91,16 +69,12 @@ function tanar_ki($tanar) {
 		if ( ( $d != $pred && $d != szabad2 && $d != sajat2 ) || $d == szabad ) {
 			array_push ( $K[$i%2], array($d) );
 			array_push ( $K[1-$i%2], array() );
-//			print "\nNEW: $i (".($i%2).") -> $d";
 		}
 		else {
 			array_push ( $K[$i%2][count($K[$i%2])-1], $d );
-//			print "\n     $i (".($i%2).") -> $d";
 		}
 		$pred = $d;
 	}
-//	print "\n===" . sizeof($K[0]) . "===\n" ;
-// var_dump($K);
 
 	$tmp = "\n<tr><th align=left" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;" . $tanar['nev'] . " \n";
 
@@ -159,13 +133,13 @@ if( $result = pg_exec("SELECT tanar, ido, diak FROM Fogado"
 function ValidateRadio ( $Teacher, $Time ) {
 // (ezeket jó lenne triggerként berakni a tábla-definícióba...)
 	global $FOGADO, $USER;
-	if ( $FOGADO[$Teacher][$Time] != 0 ) { return $FOGADO[$Teacher]['nev'] . " ezen idõpontja már foglalt, ide nem iratkozhat fel!"; }
+	if ( $FOGADO[$Teacher][$Time] != 0 ) { return $FOGADO[$Teacher]['nev'] . " " . tim($Time) . " idõpontja már foglalt, ide nem iratkozhat fel!"; }
 	foreach ( $FOGADO as $tan ) {
-		if ( $tan[$Time] == $USER['esz'] ) return "Önnek már foglalt ez az idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!";
+		if ( $tan[$Time] == $USER['esz'] ) return "Önnek már foglalt a " . tim($Time) . " idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!";
 	}
-	if ( $FOGADO[$USER['ofo']][$Time] == -2 ) return "Önnek szülõi értekezlete van ebben az idõpontban!";
+	if ( $FOGADO[$USER['ofo']][$Time] == -2 ) return "Önnek szülõi értekezlete van ebben az idõpontban (" . tim($Time) . ")!";
 	foreach ( $FOGADO[$Teacher] as $i ) {
-		if ( $i == $USER['esz'] ) { return "Egy tanárnál csak egy idõpontra iratkozhat fel - ha változtatni akar, elõbb a másikat törölje!"; }
+		if ( $i == $USER['esz'] ) { return $FOGADO[$Teacher]['nev'] . " " . tim($Time) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!"; }
 	}
 	return NULL;
 }
