@@ -45,15 +45,15 @@ print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
 // Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
 // function tim($time) { return gmdate('H:i', $time*300); }
 
-function tr_string($K, $id, $t) {
+function tr_string($K, $tid, $t) {
 	for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
 		$span = (count($K[$i])>1)?" colspan=".count($K[$i]):"";
 		switch ($K[$i][0]) {
 			case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
 			case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
-			case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=r$id value=$t>\n"; break;
+			case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=r$tid value=$t>\n"; break;
 			case szabad2: $tmp .= "  <td class=szabad$span>&nbsp;\n"; break;
-			case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=c$id checked>\n"; break;
+			case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=c$tid checked>\n"; break;
 			case sajat2:  $tmp .= "  <td class=sajat$span>&nbsp;\n"; break;
 		}
 		$t += count($K[$i]) * 2;
@@ -69,7 +69,7 @@ function tanar_ki($tanar) {
 	$K[0] = array(array()); // páros idõket tesszük ebbe
 	$K[1] = array(array()); // páratlanokat
 	for ($i=$IDO_min; $i<$IDO_max; $i++) {
-//		$d=$tanar[$i];
+		if (!isset($tanar['paratlan']) && $i%2) { continue; }
 		switch ($tanar[$i]) {
 			case -2:
 				if ( ($USER['ofo'] == $tanar['id']) || $ADMIN ) { $d = szuloi; }
@@ -79,12 +79,12 @@ function tanar_ki($tanar) {
 				$d = foglalt; break;
 			case -1:                   // az elõzõ folytatása
 				if ( $pred == szabad ) { $d = szabad2; }
+				if ( $pred == sajat ) { $d = sajat2; }
 				break;
 			case 0:
 				$d = szabad; break;
 			case $USER['esz']:
-				if ( $pred == sajat ) { $d = sajat2; }
-				else { $d = sajat; }
+				$d = sajat;
 				break;
 			default:
 				$d = foglalt; break;
@@ -101,9 +101,9 @@ function tanar_ki($tanar) {
 		$pred = $d;
 	}
 //	print "\n===" . sizeof($K[0]) . "===\n" ;
+// var_dump($K);
 
-	$tmp = "\n<tr><th" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;" . $tanar['nev'] . " \n";
-// var_dump($tmp);
+	$tmp = "\n<tr><th align=left" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;" . $tanar['nev'] . " \n";
 
 // párosak:
 	$tmp .= tr_string($K[0], $tanar['id'], $IDO_min);
@@ -116,11 +116,6 @@ function tanar_ki($tanar) {
 
 	return $tmp;
 
-}
-
-foreach (explode(' ', $VARIABLES) as $v) {
-	$V="VAR_$v";
-	print $V . " : " . $$V . "<br>\n";
 }
 
 $Idoszak = pg_fetch_array(pg_exec("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE diak IS NOT NULL"));
@@ -162,6 +157,66 @@ if( $result = pg_exec("SELECT tanar, ido, diak FROM Fogado"
 	}
 }
 
+if ( $VAR_tip == 'mod' ) {
+	foreach ( $FOGADO as $tanar ) {
+		foreach ( array_keys($tanar) as $ido ) {
+			if ( $tanar[$ido] == $id ) {
+				$v = "VAR_c".$tanar['id'];
+				if ( !isset($$v) ) {
+					print "<h3>UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$ido</h3>";
+				}
+			}
+	// $CHECKBOX["c".$tanar['id']] = $id; }
+		}
+	}
+}
+
+function ValidateRadio ( $Teacher, $Time ) {
+	global $FOGADO, $USER;
+	if ( $FOGADO[$Teacher][$Time] != 0 ) { return $FOGADO[$Teacher]['nev'] . " ezen idõpontja már foglalt, nem választhatja!"; }
+	foreach ( $FOGADO as $t ) {
+		if ( $t[$Time] == $USER['esz'] ) return "Önnek már foglalt ez az idõpontja (" . $t['nev'] . ") - elõbb onnan iratkozzon le!";
+	}
+	if ( $FOGADO[$USER['ofo']][$Time] == -2 ) return "Önnek szülõi értekezlete van ebben az idõpontban!";
+	foreach ( $FOGADO[$Teacher] as $i ) {
+		if ( $i == $USER['esz'] ) { return "Egy tanárnál csak egy idõpontra iratkozhat fel - elõbb jelentkezzen le a másikról!"; }
+	}
+	return NULL;
+}
+
+foreach (explode(' ', $VARIABLES) as $var) {
+	print "$var <br>\n";
+	if ( ereg ("^r([0-9]+)$", $var, $match) ) {
+		$Teacher = $match[1];
+		$VAR = "VAR_$var";
+		$Time = $$VAR;
+//	print ValidateRadio ($Teacher, $Time) . "\n\n";
+		if ( $validate = ValidateRadio ($Teacher, $Time) ) {
+			print $validate;
+		}
+		else { // rendben, lehet adatbázisba rakni
+			print "<h3>UPDATE Fogado SET diak=$id WHERE tanar=$Teacher AND ido=$Time</h3>";
+		}
+	}
+}
+
+/*
+
+Esetleg: SELECT * FROM Fogado WHERE diak=$DIAK[id]
+trigger?
+for i in valtozo {
+	if valtozonev =~ /^r([0-9]+)$/
+		és tényleg üres a hely (különben print ez a hely már foglalt)
+		és user még nincs másnál bejegyezve erre az idõre (különben print önnek már van erre az idõpontra bejegyzése!)
+		és ennél a tanárnál még nincs felírva (különben print elõször iratkozzon le (tanar.enev-tõl))
+		(persze ezeket jó lenne valami triggerként berakni a tábla-definícióba...)
+
+			UPDATE Fogado set diak=$USER['id'] WHERE tanar=$1 AND ido=$valtozonev
+	else { print 
+*/
+
+
+
 print "\n<form name=tabla><table border=1>";
 print $A . $B;
 foreach ( $FOGADO as $tanar ) {
@@ -170,7 +225,8 @@ foreach ( $FOGADO as $tanar ) {
 
 print $ttabla;
 print "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n";
-print "  <input type=hidden name=id value=" . $USER['esz'] . ">\n";
+print "  <input type=hidden name=tip value=mod>\n";
+print "  <input type=hidden name=id value=" . $id . ">\n";
 print "  <input type=submit value=' Mehet '>\n";
 print "</table>\n\n";
 print "</form>\n";
