@@ -8,12 +8,11 @@ function kuki_teszt() {
 	}
 	if (!$_SESSION['cookie']) {
 		if (session_id() == $_GET['FID']) {
-			$_SESSION['cookie'] = "1";
+			$_SESSION['cookie'] = true;
 			header ("Location: " . $_SERVER['PHP_SELF']);
 			exit;
 		} else {
-			$_SESSION['cookie'] = "0";
-			session_id($_GET['FID']);
+			$_SESSION['cookie'] = false;
 		}
 	}
 	session_write_close();
@@ -21,7 +20,8 @@ function kuki_teszt() {
 }
 
 if (!kuki_teszt()) {
-	echo "<a href=cookie.html>FIGYELEM!<br>Nincs cookie!</a>\n";
+	echo "<div align=center><font color=red><h3>FIGYELEM!</h3></font><br>\n";
+	echo "A böngészõjében engedélyeznie kell a süti (cookie) fogadását a www.szepi.hu géprõl!</div>\n";
 	exit;
 }
 ?>

@@ -94,7 +94,7 @@ print "\n\n<body$onload>\n";
 
 function Tail() {
 	print "\n<p><hr><a href=mailto:hiena@szepi.hu></a>\n";
-	print "<address><a href=\"mailto:dugo@szepi.hu\">dugo@szepi.hu</a></address>\n";
+	print "<img src=dugo.png align=top alt=dugo@szepi_PONT_hu>\n";
 	print "</body>\n</html>\n";
 }
 

@@ -6,7 +6,6 @@ session_start();
 
 if (isset($_REQUEST['kilep']) ) {
 	session_destroy();
-//	ulog (0, $user['nev'] . " (" . $user . ") kilépett."); # hmm... nincs is user...
 	redirect('leiras.html');
 }
 
@@ -20,7 +19,7 @@ function get_user($tip, $id) {
 	if (($tip != 'tanar') && ($tip != 'diak')) return (NULL);
 	if (($res = pg_query("SELECT * FROM $tip WHERE id=" . $id)) && pg_num_rows($res)===1) {
 		$user = pg_fetch_assoc($res);
-		$user['nev'] = $user['tnev'] . $user['dnev'];
+		$user['nev'] = $user['tnev'] . $user['dnev']; // pontosan az egyik létezik
 		return ($user);
 	}
 	else return(NULL);
@@ -85,12 +84,11 @@ elseif (isset($_POST['jelszo']) ) {
 
 if (!$_SESSION['valid']) {
 	session_destroy();
-	session_write_close();
 
 	head("Fogadóóra - " . $user['nev'], ' onLoad="document.login.jelszo.focus()"');
 
 	if (isset($hiba)) { hiba($hiba); }
-	print "\n<h3>" . $user['nev'] . "</h3>\n"
+	print "\n<h3>" . $user['nev'] . ($tip=='diak'?' ('.$user['onev'].')':'') . "</h3>\n"
 		. "<form name=login action='" . $_SERVER['REQUEST_URI'] . "' method=post>\n"
 		. "  Jelszó: <input type=password size=8 name=jelszo>\n"
 		. "  <input type=hidden name=id value=" . $id . ">\n"

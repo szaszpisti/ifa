@@ -4,6 +4,7 @@
 #use strict;
 use DBI;
 use Spreadsheet::WriteExcel;
+use POSIX qw(strftime);
 
 $DEBUG=0;
 
@@ -15,7 +16,8 @@ $t = $FA->fetchrow_hashref;
 my $fid = $t->{id} or die "Nincs fid!\n";
 
 ($fdat = $t->{datum}) =~ s/-/./g;
-my $filename ="fogado-$fdat.xls";
+# my $filename ="fogado-$fdat.xls";
+my $filename = strftime ("fogado-%Y.%m.%d-%H%M%S.xls", localtime);
 
 if(!$DEBUG) {
 	print "Content-type: application/vnd.ms-excel\n";
@@ -72,6 +74,9 @@ $FormatTanarNev = $workbook->add_format(bold => 1, size => 18);
 $book[0] = $workbook->add_worksheet('Összesített');
 
 $book[0]->set_column('A:A', 25);
+
+# A fogadóóra dátumát beírjuk a sarokba
+$book[0]->write (0, 0, $fdat);
 
 # Az idõpontok kiírása az összesítésbe
 $oszlop=1;
