@@ -41,6 +41,9 @@ class User {
 					}
 					$_SESSION['id'] = $this->id;
 					$this->good = true;
+					Ulog ($this->id, "Sikeres bejelentkezés");
+				} else {
+					Ulog ($this->id, "ROSSZ jelszó");
 				}
 				$this->probed = true;
 			}
@@ -57,17 +60,14 @@ class User {
 			$this->user_init($_SESSION['id']);
 		}
 
-		# Ha meg semmise nincsen, 
+		# Ha meg semmise nincsen (pl. normál kijelentkezés után)
 		else {
 			@readfile("leiras.html");
-#			Head("Hibás bejelentkezés");
-#			hiba ("Nincs megadva azonosító");
-#			print "Térj vissza a <a href=index.html target=_top>kezdõoldalra</a>!\n";
-#			Tail();
 			exit();
 		}
 	}
-			
+
+	# Az azonosítóhoz tartozó adatbázis bejegyzés beolvasása, mezõnként egy változó
 	function user_init($uid) {
 		if ($res = pg_query("SELECT * FROM Diak WHERE id=" . $uid) and pg_num_rows($res)==1) {
 			$u = pg_fetch_assoc($res);
@@ -83,7 +83,8 @@ class User {
 
 	function loginUrlap() {
 		Head('Fogatóóra bejelentkezés');
-		print "\n<h3>" . $this->dnev . " " . $this->onev . "</h3>\n"
+		print "\n<table width=100%><tr><td>\n<h3>" . $this->dnev . " " . $this->onev . "</h3>\n"
+			. "<td align=right valign=top><a href=leiras.html> Leírás </a>\n</table>\n"
 			. (($this->probed) ? "Rossz jelszót adtál!<br>\n" : "")
 			. "<script language=JavaScript><!--\n"
 			. "    document.forms[0].jelszo.focus();\n"

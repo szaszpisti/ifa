@@ -7,10 +7,12 @@ include("fogado.inc");
 class Fogadoora {
 
 	function Fogadoora() {
-		if ( $res = pg_query("SELECT * FROM Fogado_admin WHERE id=(SELECT MAX(id) FROM Fogado_admin)" )) {
-			$u = pg_fetch_assoc($res);
-			while(list($k, $v) = each($u)) {
-				$this->$k = $v;
+		if ($res = pg_query("SELECT * FROM Fogado_admin WHERE id=(SELECT MAX(id) FROM Fogado_admin)" )) {
+			if (pg_num_rows($res)) {
+				$u = pg_fetch_assoc($res);
+				while(list($k, $v) = each($u)) {
+					$this->$k = $v;
+				}
 			}
 		}
 	}

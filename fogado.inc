@@ -17,18 +17,20 @@ session_write_close();
 include("fogadoora.class");
 $FA = new Fogadoora();
 define("fid", $FA->id);
-# define("fIdoMin", $FA->id);
-# define("fIdoMax", $FA->id);
 
 function hiba($err) {
 	print "<p><hr><b>!!! - $err - !!!</b><hr>\n";
-	Ulog ($err);
+	Ulog (0, $err);
 }
 
 // Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
 function tim($time) { return gmdate('H:i', $time*300); }
 
 function Head($cimsor) {
+	header('Pragma: no-cache');
+	header('Cache-Control: no-store, no-cache, must-revalidate, post-c heck=0, pre-check=0');
+	header('Expires: Mon,26 Jul 1980 05:00:00 GMT');
+
 print <<< EnD
 <html>
 <head>

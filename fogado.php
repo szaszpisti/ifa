@@ -6,13 +6,15 @@ $USER = new User();
 
 Head("Fogadóóra - " . $USER->dnev);
 
-$QUERY_LOG = array();
 $USER_LOG = array();
 
-print "\n<table width=100%><tr><td>\n";
-print "<h3>" . $USER->dnev . " " . $USER->onev .  " (" . $FA->datum . ")<br>\n";
-print "<font size=-1>(Osztályfõnök: " . $USER->ofonev . ")</h3>\n";
-print "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n";
+$Fejlec = "\n<table width=100%><tr><td>\n"
+	. "<h3>" . $USER->dnev . " " . $USER->onev .  " (" . $FA->datum . ")<br>\n"
+	. "<font size=-1>(Osztályfõnök: " . $USER->ofonev . ")</h3>\n"
+	. "<td align=right valign=top>\n"
+	. "  <a href=osszesit.php?id=".$USER->id."> Összesítés </a> | \n"
+	. "  <a href=leiras.html> Leírás </a> | \n"
+	. "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='> Kilépés </a>\n</table>\n";
 
 function tr_string($K, $tid, $t) {
 	for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
@@ -68,22 +70,23 @@ function tanar_ki($tanar) {
 		$pred = $d;
 	}
 
-	$tmp = "\n<tr><th align=left" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;" . $tanar['nev'] . " \n";
+	$tmp = "\n<tr><th align=left".(isset($tanar['paratlan'])?" rowspan=2 valign=top":"").">&nbsp;"
+		. ($USER->admin?"<a href=tanar.php?id=".$tanar['id'].">".$tanar['nev']."</a>":$tanar['nev']) . "\n";
 
 // párosak:
 	$tmp .= tr_string($K[0], $tanar['id'], $IDO_min);
-	$tmp .= "  <td><input type=button value=x onClick='torol(\"r" . $tanar['id'] . "\")'>\n";
+	$tmp .= "  <td><input type=button value=x onClick='torol(\"r".$tanar['id']."\")'>\n";
 
 // páratlanok:
 	if (isset($tanar['paratlan'])) {
-		$tmp .= "<tr>" . tr_string($K[1], $tanar['id'], $IDO_min+1);
+		$tmp .= "<tr>".tr_string($K[1], $tanar['id'], $IDO_min+1);
 	}
 
 	return $tmp;
 
 }
 
-$Idoszak = pg_fetch_array(pg_query("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE fid=" . $FA->id . " AND diak IS NOT NULL"));
+$Idoszak = pg_fetch_array(pg_query("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE fid=".$FA->id." AND diak IS NOT NULL"));
 $IDO_min = $Idoszak['min']-($Idoszak['min']%2);
 $IDO_max = $Idoszak['max']-($Idoszak['max']%2)+2;
 
@@ -95,13 +98,14 @@ for ($ido=$IDO_min; $ido<$IDO_max; $ido+=2) {
 	array_push ($IDO[$ora], ($ido % 12)/2);
 }
 
-$A = "\n<tr><td rowspan=2>";
-$B = "\n<tr>";
+$A = "\n<tr bgcolor=lightblue><td rowspan=2>";
+$B = "\n<tr bgcolor=lightblue>";
 foreach (array_keys($IDO) as $ora) {
-	$A .= "<th colspan=" . count ($IDO[$ora]) . ">" . $ora;
+	$A .= "<th colspan=".count ($IDO[$ora]).">".$ora;
 	foreach (array_values($IDO[$ora]) as $perc )
-		$B .= "<td>" . $perc . "0";
+		$B .= "<td>".$perc."0";
 }
+$TablazatIdosor = $A.$B;
 
 // Az összes fogadó tanár nevét kigyûjtjük // FOGADO[id]=('id', 'nev')
 if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=" . $FA->id . " AND tanar=id GROUP BY tanar,tnev ORDER BY tnev")) {
@@ -116,7 +120,9 @@ if( $result = pg_query("SELECT tanar, ido, diak FROM Fogado"
 			. " WHERE fid=" . $FA->id . " AND ido BETWEEN '" . $IDO_min . "' AND '" . $IDO_max . "' ORDER BY ido")) {
 	foreach ( pg_fetch_all($result) as $entry ) {
 		// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
-		if ( $entry['ido']%2 && $entry['diak']>=0 ) { $FOGADO[$entry['tanar']]['paratlan'] = 1; }
+		if ( $entry['ido']%2 && $entry['diak']>=0 && ($entry['diak'] != "") ) {
+			$FOGADO[$entry['tanar']]['paratlan'] = 1;
+		}
 		$FOGADO[$entry['tanar']][$entry['ido']] = $entry['diak'];
 	}
 }
@@ -146,7 +152,7 @@ if ( $_POST['tip'] == 'mod' ) {
 				$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
 				if ( pg_query($q) ) {
 					$FOGADO[$tanar['id']][$Time] = "0";
-					$USER_LOG[] .= "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . tim($Time) . " - törölve.";
+					$USER_LOG[] = "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . tim($Time) . " - törölve.";
 					Ulog($USER->id, $q);
 				}
 				else { Ulog($USER->id, "Légy került a levesbe: $q!"); }
@@ -165,13 +171,13 @@ while (list($k, $v) = each($_POST)) {
 		$Time = $v;
 		if ( $validate = ValidateRadio ($Teacher, $Time) ) {
 			Ulog($USER->id, $validate);
-			$USER_LOG[] .= "$validate";
+			$USER_LOG[] = "$validate";
 		}
 		else { // rendben, lehet adatbázisba rakni
 			$q = "UPDATE Fogado SET diak=" . $USER->id . " WHERE tanar=$Teacher AND ido=$Time";
 			if ( pg_query($q) ) {
 				$FOGADO[$Teacher][$Time] = $USER->id;
-				$USER_LOG[] .= "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . tim($Time) . " - bejegyezve.";
+				$USER_LOG[] = "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . tim($Time) . " - bejegyezve.";
 				Ulog($USER->id, $q);
 			}
 			else { Ulog($USER->id, "Légy került a levesbe: $q!"); }
@@ -179,23 +185,37 @@ while (list($k, $v) = each($_POST)) {
 	}
 }
 
-print "\n<form name=tabla method=post><table border=1>";
-print $A . $B;
+# 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
+$szamlalo = 0;
+# $TablaOutput .= $TablazatIdosor;
 foreach ( $FOGADO as $tanar ) {
-	$ttabla .= tanar_ki($tanar);
+	if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;
+	$TablaOutput .= tanar_ki($tanar);
+	$szamlalo++;
 }
 
-print $ttabla;
-print "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n";
-print "  <input type=hidden name=tip value=mod>\n";
-print "  <input type=submit value=' Mehet '>\n";
-print "</table>\n\n";
-print "</form>\n";
 
-foreach ($USER_LOG as $log) print "<font size=-1><b>$log</b></font><br>\n";
+// Itt jön az összes kiírás
 
-pg_close ($db);
+print $Fejlec;
+
+if ($USER_LOG) {
+	print "<hr>\n";
+	foreach ($USER_LOG as $log) print "<font size=-1><b>$log</b></font><br>\n";
+}
+
+print "\n<form name=tabla method=post><table border=1>"
+	. "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n"
+	. "  <input type=submit value=' Mehet '>\n"
+	. $TablaOutput
+	. "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n"
+	. "  <input type=hidden name=tip value=mod>\n"
+	. "  <input type=submit value=' Mehet '>\n"
+	. "</table>\n\n"
+	. "</form>\n";
+
 Tail();
+pg_close ($db);
 
 ?>
 

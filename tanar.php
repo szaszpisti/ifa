@@ -4,9 +4,6 @@ require('fogado.inc');
 include("tanar.class");
 $TANAR = new Tanar();
 
-$QUERY_LOG = array();
-$USER_LOG = array();
-
 reset($_POST);
 while (list($k, $v) = each($_POST)) {
 	pg_query("BEGIN TRANSACTION");
@@ -35,8 +32,9 @@ $TABLA = "<table border=0><tr><td>\n" # A külsõ táblázat a jelmagyarázatnak
 # Ez akkor kell, ha az ötperceseket opcionálisra szeretném
 # for ($Time=$TANAR->IDO_min-($TANAR->IDO_min%2); $Time<=$TANAR->IDO_max; $Time+=2-$TANAR->ODD) {
 for ($Time=$TANAR->IDO_min; $Time<=$TANAR->IDO_max; $Time++) {
+	$TABLA .= ($Time%2?"<tr bgcolor=#eaeaea>":"<tr>");
 	$did = $TANAR->diak[$Time];
-	$TABLA .= "<tr><td>" . sprintf("%02d:%02d\n", floor($Time/12), ($Time%12)*5);
+	$TABLA .= "<td>" . sprintf("%02d:%02d\n", floor($Time/12), ($Time%12)*5);
 	$TABLA .= "  <td class=foglalt><input type=radio name=r$Time value=x" . ($did===NULL?" checked":"") . ">\n";
 	$TABLA .= "  <td class=szabad><input type=radio name=r$Time value=0" . ($did=="0"?" checked":"") . ">\n";
 	$TABLA .= "  <td class=szabad><input type=radio name=r$Time value=-1" . ($did=="-1"?" checked":"") . ">\n";
@@ -63,12 +61,6 @@ $TABLA .= "<tr><td colspan=7 align=right class=right>\n"
 	. "</ul></table>";
 
 print $TABLA;
-
-if (ADMIN) {
-	foreach ($QUERY_LOG as $log) print "<b>$log</b><br>\n";
-} else {
-	foreach ($USER_LOG as $log) print "<b>$log</b><br>\n";
-}
 
 pg_close ($db);
 Tail();
