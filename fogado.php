@@ -12,10 +12,16 @@ if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, O.onev, E.*"
 		. " WHERE O.oszt=E.oszt AND E.tip='d' AND E.esz=" . $id)) {
 	$USER = pg_fetch_array($result);
 }
+
+if ( $result = pg_exec("SELECT * FROM Fogado_admin WHERE id=(SELECT MAX(id) FROM Fogado_admin)" )) {
+	$FA = pg_fetch_array($result);
+}
+$fid = $FA['id'];
+
 $QUERY_LOG = array();
 $USER_LOG = array();
 
-Head("Fogadóóra - " . $USER['enev']);
+Head("Fogadóóra - " . $USER['enev'] . " (" . $FA['datum'] . ")");
 
 print "\n<h3>" . $USER['enev'] . " (" . $USER['onev'] . ")<br>\n";
 print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
@@ -55,7 +61,7 @@ function tanar_ki($tanar) {
 				break;
 			case NULL:
 				$d = foglalt; break;
-			case -1:                   // az elõzõ folytatása
+			case -1:  // az elõzõ folytatása
 				if ( $pred == szabad ) { $d = szabad2; }
 				if ( $pred == sajat ) { $d = sajat2; }
 				break;
@@ -92,9 +98,9 @@ function tanar_ki($tanar) {
 
 }
 
-$Idoszak = pg_fetch_array(pg_exec("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE diak IS NOT NULL"));
+$Idoszak = pg_fetch_array(pg_exec("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE fid=$fid AND diak IS NOT NULL"));
 $IDO_min = $Idoszak['min']-($Idoszak['min']%2);
-$IDO_max = $Idoszak['max']-($Idoszak['max']%2);
+$IDO_max = $Idoszak['max']-($Idoszak['max']%2)+2;
 
 // A fejléc sorok kiíratásához
 for ($ido=$IDO_min; $ido<$IDO_max; $ido+=2) {
@@ -112,22 +118,21 @@ foreach (array_keys($IDO) as $ora) {
 		$B .= "<td>" . $perc . "0";
 }
 
-// Vesszük az összes tanarakat:
-if( $result = pg_exec("SELECT tanar,enev FROM Fogado,Ember WHERE tip='t' AND tanar=esz GROUP BY tanar,enev ORDER BY enev")) {
-	$TANAR = pg_fetch_all($result);
-	foreach ( $TANAR as $tanar ) {
+// Az összes fogadó tanár nevét kigyûjtjük // FOGADO[id]=('id', 'nev')
+if( $result = pg_exec("SELECT tanar,enev FROM Fogado,Ember WHERE fid=$fid AND tip='t' AND tanar=esz GROUP BY tanar,enev ORDER BY enev")) {
+	foreach ( pg_fetch_all($result) as $tanar ) {
 		$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['enev']);
 	}
 }
 
-// mindegyikhez az összes idõ => elfoglaltságot:
-
+// mindegyikhez az összes idõ => elfoglaltságot (A FOGADO-hoz rakunk még mezõket)
+// FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
 if( $result = pg_exec("SELECT tanar, ido, diak FROM Fogado"
-			. " WHERE ido BETWEEN '" . $IDO_min . "' AND '" . $IDO_max . "' ORDER BY ido")) {
-	$KUPAC = pg_fetch_all($result);
-	foreach ( $KUPAC as $sor ) {
-		if ( $sor['ido']%2 ) { $FOGADO[$sor['tanar']]['paratlan'] = 1; } // jelzõ, hogy itt az 5 perceket is írni kell
-		$FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
+			. " WHERE fid=$fid AND ido BETWEEN '" . $IDO_min . "' AND '" . $IDO_max . "' ORDER BY ido")) {
+	foreach ( pg_fetch_all($result) as $entry ) {
+		// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
+		if ( $entry['ido']%2 && $entry['diak']>=0 ) { $FOGADO[$entry['tanar']]['paratlan'] = 1; }
+		$FOGADO[$entry['tanar']][$entry['ido']] = $entry['diak'];
 	}
 }
 
@@ -150,18 +155,16 @@ function ValidateRadio ( $Teacher, $Time ) {
 //
 if ( $VAR_tip == 'mod' ) {
 	foreach ( $FOGADO as $tanar ) {
+		$v = "VAR_c".$tanar['id'];
 		foreach ( array_keys($tanar) as $Time ) {
-			if ( $tanar[$Time] == $id ) {
-				$v = "VAR_c".$tanar['id'];
-				if ( !isset($$v) ) {
-					$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
-					if ( pg_exec($q) ) {
-						$FOGADO[$tanar['id']][$Time] = "0";
-						$USER_LOG[] .= "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . tim($Time) . " - törölve.";
-						$QUERY_LOG[] .= "$q";
-					}
-					else { $QUERY_LOG[] .= "Légy került a levesbe: $q!"; }
+			if ( ( $tanar[$Time] == $id ) && !isset($$v) ) {
+				$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
+				if ( pg_exec($q) ) {
+					$FOGADO[$tanar['id']][$Time] = "0";
+					$USER_LOG[] .= "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . tim($Time) . " - törölve.";
+					$QUERY_LOG[] .= "$q";
 				}
+				else { $QUERY_LOG[] .= "Légy került a levesbe: $q!"; }
 			}
 		}
 	}
