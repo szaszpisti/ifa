@@ -1,7 +1,7 @@
 <?
 require('fogado.inc');
 
-$ADMIN = 1;
+$ADMIN = 0;
 
 if (!isset($VAR_id)) {
 	if ( isset($VAR_o) ) {
@@ -16,7 +16,7 @@ if (!isset($VAR_id)) {
 		return 0;
 	}
 	Head("Fogadóóra - iskola");
-	print "<form>\n" . Osztaly_select(0) . "<input type=submit value=' OK '>\n</form>\n";
+	print Osztaly_select(0);
 	Tail();
 	return 0;
 }
@@ -41,9 +41,6 @@ print Diak_select($USER['oszt'], $id);
 
 print "\n<h3>" . $USER['enev'] . " (" . $USER['onev'] . ")<br>\n";
 print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
-
-// foreach ($VARIABLES as $v) {
-	
 
 // Egy cella kiírása
 function td_ki($i, $VAL, $rows, $class) {
@@ -73,9 +70,7 @@ function add() {
 
 function tanar_ki($tanar) {
 	global $IDO_min, $IDO_max, $USER, $TANAR, $K, $ADMIN;
-	print "\n<tr><th>&nbsp;" . $tanar['enev'] . " \n";
-	print "SELECT diak FROM Fogado WHERE tanar=" . $tanar['tanar']
-			. " AND ido BETWEEN '" . tim($IDO_min) . "' AND '" . tim($IDO_max) . "' ORDER BY ido";
+	$tmp = "\n<tr><th>&nbsp;" . $tanar['enev'] . " \n";
 	if( $result = pg_exec("SELECT diak FROM Fogado WHERE tanar=" . $tanar['tanar']
 			. " AND ido BETWEEN '" . tim($IDO_min) . "' AND '" . tim($IDO_max) . "' ORDER BY ido")) {
 		$TANAR = pg_fetch_all($result);
@@ -120,14 +115,15 @@ function tanar_ki($tanar) {
 		for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
 			$span = (count($K[$i])>1)?" colspan=".count($K[$i]):"";
 			switch ($K[$i][0]) {
-				case NULL: print "  <td class=foglalt$span>&nbsp;\n"; break;
-				case -2: print "  <td class=szuloi$span>&nbsp;\n"; break;
-				case 0: print "  <td class=szabad$span><input type=radio name=t" . $tanar['tanar'] . "r value=$t>\n"; break;
-				default: print "  <td class=sajat$span><input type=checkbox name=t" . $tanar['tanar'] . "c checked>\n"; break;
+				case NULL: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
+				case -2: $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
+				case 0: $tmp .= "  <td class=szabad$span><input type=radio name=t" . $tanar['tanar'] . "r value=$t>\n"; break;
+				default: $tmp .= "  <td class=sajat$span><input type=checkbox name=t" . $tanar['tanar'] . "c checked>\n"; break;
 			}
 			$t += count($K[$i]) * 2;
 		}
-		print "  <td><input type=button value=x onClick='torol(\"t" . $tanar['tanar'] . "r\")'>\n";
+		$tmp .= "  <td><input type=button value=x onClick='torol(\"t" . $tanar['tanar'] . "r\")'>\n";
+		return $tmp;
 
 	}
 }
@@ -149,7 +145,6 @@ for ($ido=$IDO_min; $ido<$IDO_max; $ido+=2) {
 	array_push ($IDO[$ora], ($ido % 12)/2);
 }
 
-var_dump($IDO);
 $A = "\n<tr><td rowspan=2>";
 $B = "\n<tr>";
 foreach (array_keys($IDO) as $ora) {
@@ -168,13 +163,21 @@ if( $result = pg_exec("SELECT tanar,enev FROM Fogado,Ember WHERE tip='t' AND tan
 // ha nem 0 -- azaz van 5 perces, akkor külön kell kezelni.
 // SELECT to_char(ido, 'HH24:MI') FROM Fogado WHERE ido LIKE '__:_0:__' AND diak IS NOT NULL AND NOT diak=-1 ORDER BY ido;
 
+foreach (explode(' ', $VARIABLES) as $v) {
+	$V="VAR_$v";
+	print $V . " : " . $$V . "<br>\n";
+}
+
 print "\n<form name=tabla><table border=1>";
 print $A . $B;
-reset ( $FOGADO_orig );
-array_walk ( $FOGADO_orig, 'tanar_ki' );
+foreach ( $FOGADO_orig as $tanar ) {
+	$ttabla .= tanar_ki($tanar);
+}
+
+print $ttabla;
 print "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n";
 print "  <input type=hidden name=id value=" . $USER['esz'] . ">\n";
-print "  <input type=submit name=submit value=' Mehet '>\n";
+print "  <input type=submit value=' Mehet '>\n";
 print "</table>\n\n";
 print "</form>\n";
 
