@@ -54,7 +54,7 @@ $mind = $db_fogado->prepare("SELECT tanar, ido, dnev, onev FROM Fogado AS F"
 	. "   ( SELECT * FROM Diak UNION"
 	. "     SELECT -2,NULL,'Szülõi',NULL,NULL,NULL,NULL ) AS D"
 	. "   ON (F.diak=D.id)"
-	. " WHERE F.fid=".$fid." AND F.diak>0 OR F.diak=-2 ORDER BY ido");
+	. " WHERE F.fid=".$fid." AND (F.diak>0 OR F.diak=-2) ORDER BY ido");
 $mind->execute();
 while ($t = $mind->fetchrow_hashref) {
 	($onev = $t->{onev}) =~ s/ //g;

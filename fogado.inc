@@ -8,6 +8,8 @@ $db = pg_connect("host=localhost dbname=fogado user=fadmin"
 
 set_include_path(get_include_path() . ":./classes");
 
+if (!vankuki()) { print "<b>Kérem engedélyezze a böngészõjében a sütik (cookies) fogadását!</b>"; exit; }
+
 session_start();
 if ($_SESSION['admin']) define("ADMIN", 1);
 else define("ADMIN", 0);
@@ -92,6 +94,27 @@ function ulog($id, $s) {
 	$q = "INSERT INTO Ulog (ido, uid, host, log) VALUES ('"
 		. date("Y-m-d H:i:s")."', ".$id.", '".$_SERVER['REMOTE_ADDR']."', '".pg_escape_string($s)."')";
 	pg_query($q);
+}
+
+function vankuki() {
+	session_start();
+	$self = $_SERVER['PHP_SELF'];
+	if (!$_GET['FID'] && !$_SESSION['cookie']) {
+		header ("Location: " . $_SERVER['PHP_SELF'] . "?FID=" . session_id());
+		exit;
+	}
+	if (!$_SESSION['cookie']) {
+		if (session_id() == $_GET['FID']) {
+			$_SESSION['cookie'] = "1";
+			header ("Location: " . $_SERVER['PHP_SELF']);
+			exit;
+		} else {
+			$_SESSION['cookie'] = "0";
+			session_id($_GET['FID']);
+		}
+	}
+	session_write_close();
+	return $_SESSION['cookie'];
 }
 
 ?>

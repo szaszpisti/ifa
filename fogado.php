@@ -70,7 +70,7 @@ function tanar_ki($tanar) {
 		$pred = $d;
 	}
 
-	$tmp = "\n<tr><th align=left".(isset($tanar['paratlan'])?" rowspan=2 valign=top":"").">&nbsp;"
+	$tmp = "\n<tr><th align=left nowrap".(isset($tanar['paratlan'])?" rowspan=2 valign=top":"").">&nbsp;"
 		. ($USER->admin?"<a href=tanar.php?id=".$tanar['id'].">".$tanar['nev']."</a>":$tanar['nev']) . "\n";
 
 // párosak:
