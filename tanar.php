@@ -1,15 +1,30 @@
 <?
 require('fogado.inc');
 
+/*
+Dezsoke
+fogad: x kezd, veg
+
+      nincs fogad folyt szuloi  diak
+15:50  ()    ()    ()     ()    nagyfeju
+*/
+
 $ADMIN = 0;
 
 if ( !isset($VAR_id) ) { return 0; }
 
 $id = $VAR_id;
 
+// A tanár adatai
 if ( $result = pg_exec("SELECT * FROM Ember WHERE tip='t' AND esz=$id") ) {
 	$USER = pg_fetch_array($result);
 }
+
+if ( $result = pg_exec("SELECT * FROM Fogado_admin WHERE id=(SELECT MAX(id) FROM Fogado_admin)" )) {
+	$FA = pg_fetch_array($result);
+}
+$fid = $FA['id'];
+
 $QUERY_LOG = array();
 $USER_LOG = array();
 
@@ -31,7 +46,7 @@ if ($result = pg_exec( "SELECT tanar, ido, diak, o, nev, ' (' || onev || ')' AS 
 					. "		) AS X"
 					. "		LEFT OUTER JOIN Osztaly_view AS O"
 					. "		ON (X.oszt=O.oszt)"
-					. "	) AS FOG WHERE tanar=$id AND diak IS NOT NULL ORDER BY ido" )) {
+					. "	) AS FOG WHERE fid=$fid AND tanar=$id AND diak IS NOT NULL ORDER BY ido" )) {
 
 	$rows = pg_numrows($result);
 	for($i=0; $i<$rows; $i++) {
@@ -44,9 +59,9 @@ if ($result = pg_exec( "SELECT tanar, ido, diak, o, nev, ' (' || onev || ')' AS 
 
 // print "_: $IDO_min, ^: $IDO_max\n";
 
-// Meg kellene nézni, hogy van-e benne páratlan, azaz kell-e 5-ösöket írni a táblába?
+// Meg kell nézni, hogy van-e benne páratlan, azaz kell-e 5-ösöket írni a táblába?
 $ODD = 0;
-for ($i=$IDO_min-($IDO_min%2)-1; $i<=$IDO_max; $i+=2) if ( isset($TANAR[$i]['diak']) ) $ODD = 1;
+for ($i=$IDO_min-($IDO_min%2)-1; $i<=$IDO_max; $i+=2) if ( isset($TANAR[$i]['diak']) && $TANAR[$i]['diak']>=0 ) $ODD = 1;
 
 $ORA_min=floor($IDO_min/12);
 $ORA_max=floor($IDO_max/12)+1;
