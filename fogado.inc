@@ -59,7 +59,7 @@ function tartam($name) {
 }
 
 
-function Head($cimsor) {
+function Head($cimsor, $onload = '') {
 	header('Pragma: no-cache');
 	header('Cache-Control: no-store, no-cache, must-revalidate, post-c heck=0, pre-check=0');
 	header('Expires: Mon,26 Jul 1980 05:00:00 GMT');
@@ -72,16 +72,9 @@ print <<< EnD
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
   <meta http-equiv="Expires" content="Tue, 20 Aug 1996 14:25:27 GMT">
   <link rel="stylesheet" href="default.css" type="text/css">
-  <script language=JavaScript><!--
-    function torol(sor) {
-    eval('var s = document.tabla.'+sor);
-    for (var i=0; i<s.length; i++)
-      s[i].checked=0;
-    }
-  //--></script>
 </head>
 EnD;
-print "\n\n<body>\n";
+print "\n\n<body$onload>\n";
 }
 
 function Tail() {

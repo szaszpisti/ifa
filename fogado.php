@@ -8,7 +8,15 @@ Head("Fogadóóra - " . $USER->dnev);
 
 $USER_LOG = array();
 
-$Fejlec = "\n<table width=100%><tr><td>\n"
+$Fejlec = 
+	  "  <script language=JavaScript><!--\n"
+	. "    function torol(sor) {\n"
+	. "    eval('var s = document.tabla.'+sor);\n"
+	. "    for (var i=0; i<s.length; i++)\n"
+	. "      s[i].checked=0;\n"
+	. "    }\n"
+	. "  //--></script>\n\n"
+	. "<table width=100%><tr><td>\n"
 	. "<h3>" . $USER->dnev . " " . $USER->onev .  " (" . $FA->datum . ")<br>\n"
 	. "<font size=-1>(Osztályfõnök: " . $USER->ofonev . ")</h3>\n"
 	. "<td align=right valign=top>\n"

@@ -53,11 +53,8 @@ class Tanar {
 						ulog ($this->id, $this->tnev . " -- LISTA - ROSSZ JELSZÓ!");
 					}
 				} else {
-					Head("Fogadóóra - " . $TANAR->tnev);
+					Head("Fogadóóra - " . $TANAR->tnev, ' onLoad="document.login.jelszo.focus()"');
 					print "\n<h3>" . $this->tnev . "</h3>\n"
-						. "<script language=JavaScript><!--\n"
-						. "    document.login.jelszo.focus();\n"
-						. "//--></script>\n"
 						. "<form name=login action='" . $_SERVER['PHP_SELF'] . "' method=post>\n"
 						. "  Jelszó: <input type=password size=8 name=jelszo>\n"
 						. "  <input type=hidden name=id value=" . $this->id . ">\n"

@@ -98,7 +98,7 @@ loginUrlap():   a megfelelõ bejelentkezési ürlap -- vagy: nem elérhetõ
 
 	function loginUrlap() {
 		global $FA;
-		Head('Fogatóóra bejelentkezés');
+		Head('Fogatóóra bejelentkezés', ' onLoad="document.login.jelszo.focus()"');
 		if (!$this->valid) {
 			print "<h3>Nincs bejelentkezési idõszak!</h3>\n";
 			print "<b>" . substr($FA->valid_kezd, 0, -3) . "</b> &nbsp; és &nbsp; <b>" . substr($FA->valid_veg, 0, -3) . "</b> &nbsp; között lehet bejelentkezni.\n";
@@ -110,9 +110,6 @@ loginUrlap():   a megfelelõ bejelentkezési ürlap -- vagy: nem elérhetõ
 			print "\n<table width=100%><tr><td>\n<h3>" . $this->dnev . " " . $this->onev . "</h3>\n"
 				. "<td align=right valign=top><a href=leiras.html> Leírás </a>\n</table>\n"
 				. (($this->probed) ? "Rossz jelszót adtál!<br>\n" : "")
-				. "<script language=JavaScript><!--\n"
-				. "    document.login.jelszo.focus();\n"
-				. "//--></script>\n"
 				. "<form name=login action='" . $_SERVER['PHP_SELF'] . "' method=post>\n"
 				. "  Jelszó: <input type=password size=8 name=jelszo>\n"
 				. "  <input type=hidden name=id value=" . $this->id . ">\n"
