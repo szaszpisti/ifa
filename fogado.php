@@ -1,4 +1,69 @@
 <?
+header('Location: http://www.szepi.hu/index1.html');
+//header("HTTP/1.0 404 Not Found");
+exit;
+print ("Content-Type: text/plain\n\n");
+header("Content-Type: text/plain");
+header("HTTP/1.0 404 Not Found");
+// header('Location: http://www.szepi.hu');
+// header('Cache-Control: no-cache, must-revalidate'); 
+// header('Pragma: no-cache'); 
+// header('Expires: Mon,26 Jul 1980 05:00:00 GMT');
+//
+// setcookie("neve", "erteke"); // , time()+120, "/fogado/", "ssi.sik.hu", 1);
+// 656.
+
+// print ("Expires: Mon,26 Jul 1980 05:00:00 GMT\n\n");
+// print ("Location: http://www.szepi.hu\n\n");
+function session_header($location) {
+	$location = "Location: " . $location;
+	if (defined("SID")) {
+		if (strpos ($location, "?") === false) {
+			$location .= "?";
+		} else {
+			$location .= "&";
+		}
+		$location .= "session=" . SID;
+	}
+	return ($location);
+}
+
+session_start();
+// session_destroy();
+
+// 648.
+print "\n\n\n";
+$p = session_get_cookie_params();
+while(list($k, $v) = each($p)) {
+	print "<br>Cookie parameter: " . $k . ", value: " . $v;
+}
+
+/*
+// 648.
+print "<br>" . session_id();
+$x = explode (" ", microtime());
+$id = session_id ("id" . $x[1] . substr ($x[0], 2) );
+print "<br>" . session_id();
+*/
+
+
+if (!isset($_SESSION['szamlalo'])) {
+   $_SESSION['szamlalo'] = 0;
+} else {
+   $_SESSION['szamlalo']++;
+}
+
+$szoveg = "hello";
+print $szamlalo;
+
+if (!session_register("szoveg")) print "<br>Session register failed\n";
+if (session_is_registered("szoveg")) print "<br>Mukodik\n";
+
+print session_header($PHP_SELF);
+
+print "<br>THE END";
+// phpinfo();
+return 0;
 require('fogado.inc');
 
 $ADMIN = 0;
@@ -21,9 +86,10 @@ $fid = $FA['id'];
 $QUERY_LOG = array();
 $USER_LOG = array();
 
-Head("Fogadóóra - " . $USER['enev'] . " (" . $FA['datum'] . ")");
+Head("Fogadóóra - " . $USER['enev']);
+print "\n<h3>szamlalo: " . $HTTP_SESSION_VARS['szamlalo'] . "</h3>\n";
 
-print "\n<h3>" . $USER['enev'] . " (" . $USER['onev'] . ")<br>\n";
+print "\n<h3>" . $USER['enev'] . " " . $USER['onev'] .  " (" . $FA['datum'] . ")<br>\n";
 print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
 
 // Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
@@ -219,6 +285,8 @@ if ($ADMIN) {
 }
 
 pg_close ($db);
+session_remove(SID);
+if(!session_destroy()){ print "<br><h2>Session destroy failed!</h2>\n"; }
 Tail();
 
 ?>
