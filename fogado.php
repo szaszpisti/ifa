@@ -1,293 +1,361 @@
 <?
-header('Location: http://www.szepi.hu/index1.html');
-//header("HTTP/1.0 404 Not Found");
-exit;
-print ("Content-Type: text/plain\n\n");
-header("Content-Type: text/plain");
-header("HTTP/1.0 404 Not Found");
-// header('Location: http://www.szepi.hu');
-// header('Cache-Control: no-cache, must-revalidate'); 
-// header('Pragma: no-cache'); 
-// header('Expires: Mon,26 Jul 1980 05:00:00 GMT');
-//
-// setcookie("neve", "erteke"); // , time()+120, "/fogado/", "ssi.sik.hu", 1);
-// 656.
+if (isset($VAR_id)) $USER_id = $VAR_id;
+else $USER_id = 23;
+$USER_oszt = 'd04c';
 
-// print ("Expires: Mon,26 Jul 1980 05:00:00 GMT\n\n");
-// print ("Location: http://www.szepi.hu\n\n");
-function session_header($location) {
-	$location = "Location: " . $location;
-	if (defined("SID")) {
-		if (strpos ($location, "?") === false) {
-			$location .= "?";
-		} else {
-			$location .= "&";
-		}
-		$location .= "session=" . SID;
-	}
-	return ($location);
-}
-
-session_start();
-// session_destroy();
-
-// 648.
-print "\n\n\n";
-$p = session_get_cookie_params();
-while(list($k, $v) = each($p)) {
-	print "<br>Cookie parameter: " . $k . ", value: " . $v;
-}
-
-/*
-// 648.
-print "<br>" . session_id();
-$x = explode (" ", microtime());
-$id = session_id ("id" . $x[1] . substr ($x[0], 2) );
-print "<br>" . session_id();
-*/
-
-
-if (!isset($_SESSION['szamlalo'])) {
-   $_SESSION['szamlalo'] = 0;
-} else {
-   $_SESSION['szamlalo']++;
-}
-
-$szoveg = "hello";
-print $szamlalo;
-
-if (!session_register("szoveg")) print "<br>Session register failed\n";
-if (session_is_registered("szoveg")) print "<br>Mukodik\n";
-
-print session_header($PHP_SELF);
-
-print "<br>THE END";
+//print "<html><head></head>\n\n<body>\n";
 // phpinfo();
-return 0;
-require('fogado.inc');
+// $OLDAL = 8; // hány oldalon szerepelhetnek hírek
+// $OCIM = array ('Nyitólap', 'Piaristák', 'Iskola', 'Diákság', 'Üzleti képzés', 'Templom', 'Irodalom', 'Kapcsolat');
+// $TIP = array ('mod' => ' Módosít ', 'uj' => ' Új hír ', 'fel' => ' Felvitel ');
 
-$ADMIN = 0;
+print <<< EnD
+<html>
+<head>
+  <title>Fogadóóra admin</title>
+  <meta name="Author" content="Szász Imre">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
+  <link rel="stylesheet" href="default.css" type="text/css">
+  <style type="text/css">
 
-if ( !isset($VAR_id) ) { return 0; }
+    td { text-align: center; }
+    td.sajat { background-color: red; }
+    td.foglalt { background-color: #D0E0E0; }
+    td.szuloi { background-color: yellow; }
+  </style>
+  <script language=JavaScript><!--
+    function torol(sor) {
+    eval('var s = document.tabla.'+sor);
+    for (var i=0; i<s.length; i++)
+      s[i].checked=0;
+    }
+  //--></script>
+</head>
 
-$id = $VAR_id;
+<body>
+EnD;
 
-if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, O.onev, E.*"
-		. " FROM Osztaly_view AS O, Ember AS E"
-		. " WHERE O.oszt=E.oszt AND E.tip='d' AND E.esz=" . $id)) {
-	$USER = pg_fetch_array($result);
-}
+$db = pg_connect("dbname=iskola user=szaszi") or die("Nem mén a kapcsolat, hö!");
 
-if ( $result = pg_exec("SELECT * FROM Fogado_admin WHERE id=(SELECT MAX(id) FROM Fogado_admin)" )) {
-	$FA = pg_fetch_array($result);
-}
-$fid = $FA['id'];
-
-$QUERY_LOG = array();
-$USER_LOG = array();
-
-Head("Fogadóóra - " . $USER['enev']);
-print "\n<h3>szamlalo: " . $HTTP_SESSION_VARS['szamlalo'] . "</h3>\n";
-
-print "\n<h3>" . $USER['enev'] . " " . $USER['onev'] .  " (" . $FA['datum'] . ")<br>\n";
-print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
-
-// Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
-function tim($time) { return gmdate('H:i', $time*300); }
-
-function tr_string($K, $tid, $t) {
-	for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
-		$span = (count($K[$i])>1)?" colspan=".count($K[$i]):"";
-		switch ($K[$i][0]) {
-			case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
-			case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
-			case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=r$tid value=$t>\n"; break;
-			case szabad2: $tmp .= "  <td class=szabad$span>&nbsp;\n"; break;
-			case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=c$tid checked>\n"; break;
-			case sajat2:  $tmp .= "  <td class=sajat$span>&nbsp;\n"; break;
-		}
-		$t += count($K[$i]) * 2;
-	}
-	return $tmp;
+function td_ki($i, $VAL, $rows, $class) {
+	global $TANAR;
+	$j=$i+1;
+	while ($TANAR[$j]['diak']==$VAL && $j<=$rows) $j++;
+	$td = "  <td class=" . $class;
+	if ( $j>$i+1 ) $td .= " colspan=" . ($j-$i);
+	$td .= ">";
+	return array('j' => $j, 'td' => $td);
 }
 
 function tanar_ki($tanar) {
-	global $IDO_min, $IDO_max, $USER, $K, $ADMIN;
-	// TANAR: [0]['diak']=25, [1]['diak']=-1, ...
+	global $IDO_min, $IDO_max, $USER_id, $TANAR;
+	print "<tr><th>" . $tanar['enev'] . "\n";
+	if( $result = pg_exec("SELECT diak FROM Fogado WHERE tanar=" . $tanar['tanar']
+			. "AND ido BETWEEN '$IDO_min' AND '$IDO_max' ORDER BY ido")) {
+		$TANAR = pg_fetch_all($result);
+		// TANAR: [0]['diak']=25, [1]['diak']=-1, ...
+		$rows = pg_numrows($result);
+		$i=0;
 
-	$State = -3; // nem érvényes kezdeti értéket adunk neki
-	$K[0] = array(array()); // páros idõket tesszük ebbe
-	$K[1] = array(array()); // páratlanokat
-	for ($i=$IDO_min; $i<$IDO_max; $i++) {
-		if (!isset($tanar['paratlan']) && $i%2) { continue; }
-		switch ($tanar[$i]) {
-			case -2:
-				if ( ($USER['ofo'] == $tanar['id']) || $ADMIN ) { $d = szuloi; }
-				else { $d = foglalt; }
-				break;
-			case NULL:
-				$d = foglalt; break;
-			case -1:  // az elõzõ folytatása
-				if ( $pred == szabad ) { $d = szabad2; }
-				if ( $pred == sajat ) { $d = sajat2; }
-				break;
-			case 0:
-				$d = szabad; break;
-			case $USER['esz']:
-				$d = sajat;
-				break;
-			default:
-				$d = foglalt; break;
-		}
-		if ( ( $d != $pred && $d != szabad2 && $d != sajat2 ) || $d == szabad ) {
-			array_push ( $K[$i%2], array($d) );
-			array_push ( $K[1-$i%2], array() );
-		}
-		else {
-			array_push ( $K[$i%2][count($K[$i%2])-1], $d );
-		}
-		$pred = $d;
+		while ($i<$rows) {
+			$j=$i;
+			switch($TANAR[$i]['diak']) {
+				case -2: // csak a saját szülõit kellene kiírni -- egyébként foglalt
+					$res = td_ki($i, -2, $rows, 'szuloi');
+					print $res['td'] . "&nbsp;";
+				/*
+					print "  <td class=szuloi";
+					while ($TANAR[$j]['diak']==-2 && $j<=$rows) $j++;
+					if ( $j>$i+1 ) print " colspan=" . ($j-$i);
+					print ">&nbsp;";
+				*/
+					break;
+
+				case NULL:
+					$res = td_ki($i, NULL, $rows, 'foglalt');
+					print $res['td'] . "&nbsp;";
+					/*
+					print "  <td class=foglalt";
+					while ($TANAR[$j]['diak']==NULL && $j<=$rows) $j++;
+					if ( $j>$i+1 ) print " colspan=" . ($j-$i);
+					print ">&nbsp;"; */
+					break;
+
+				case 0:
+					$res = td_ki($i, -1, $rows, 'szabad');
+					print $res['td'] . "<input type=radio name=t" . $tanar['tanar'] . "r value=" . $i . ">";
+					/*
+					print "  <td class=szabad";
+					$j++;
+					while ($TANAR[$j]['diak']==-1 && $j<=$rows) $j++;
+					if ( $j>$i+1 ) print " colspan=" . ($j-$i);
+					print "><input type=radio name=t" . $tanar['tanar'] . "r value=" . $i . ">";
+					*/
+					break;
+
+				default:
+					if ( $TANAR[$i]['diak'] == $USER_id ) { // bejelentkezett azonosító
+						$res = td_ki($i, -1, $rows, 'sajat');
+						print $res['td'] . "<input type=checkbox name=t" . $tanar['tanar'] . "c checked>";
+						/*
+						print "  <td class=sajat";
+						$j++;
+						while ($TANAR[$j]['diak']==-1 && $j<=$rows) $j++;
+						if ( $j>$i+1 ) print " colspan=" . ($j-$i);
+						print "><input type=checkbox name=t" . $tanar['tanar'] . "c checked>";
+						*/
+					} else { // másik diák, olyan mintha nem lenne itt
+						$res = td_ki($i, -1, $rows, 'foglalt');
+						print $res['td'] . "&nbsp;";
+						/*
+						print "  <td class=foglalt";
+						$j++;
+						while ($TANAR[$j]['diak']==-1 && $j<=$rows) $j++;
+						if ( $j>$i+1 ) print " colspan=" . ($j-$i);
+						print ">&nbsp;";
+						*/
+					}
+					break;
+			} // switch
+			$i=$res['j'];
+			print "\n";
+		} // while
+		print "<td><input type=hidden name=id value=" . $USER_id . ">\n";
+		print "<td><input type=button value=x onClick='torol(\"t" . $tanar['tanar'] . "r\")'>\n";
+
 	}
-
-	$tmp = "\n<tr><th align=left" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;" . $tanar['nev'] . " \n";
-
-// párosak:
-	$tmp .= tr_string($K[0], $tanar['id'], $IDO_min);
-	$tmp .= "  <td><input type=button value=x onClick='torol(\"r" . $tanar['id'] . "\")'>\n";
-
-// páratlanok:
-	if (isset($tanar['paratlan'])) {
-		$tmp .= "<tr>" . tr_string($K[1], $tanar['id'], $IDO_min+1);
-	}
-
-	return $tmp;
-
 }
 
-$Idoszak = pg_fetch_array(pg_exec("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE fid=$fid AND diak IS NOT NULL"));
-$IDO_min = $Idoszak['min']-($Idoszak['min']%2);
-$IDO_max = $Idoszak['max']-($Idoszak['max']%2)+2;
+// A minimális és maximális kiírandó idõ kiválasztása:
+$sor = pg_fetch_array(pg_exec("SELECT min(ido) FROM Fogado WHERE diak IS NOT NULL"));
+$IDO_min = $sor[0];
+$IDO_min_array = explode (':', $IDO_min);
+$sor = pg_fetch_array(pg_exec("SELECT max(ido) FROM Fogado WHERE diak IS NOT NULL"));
+$IDO_max = $sor[0];
+$IDO_max_array = explode (':', $IDO_max);
 
-// A fejléc sorok kiíratásához
-for ($ido=$IDO_min; $ido<$IDO_max; $ido+=2) {
-	$ora = floor($ido/12);
+$IDO_min_d = 6*$IDO_min_array[0]+floor($IDO_min_array[1]/6);
+$IDO_max_d = 6*$IDO_max_array[0]+floor($IDO_max_array[1]/6);
+
+for ($ido=$IDO_min_d; $ido<=$IDO_max_d; $ido++) {
+	$ora = floor($ido/6);
 	if (!isset($IDO[$ora]))
 		$IDO[$ora] = array();
-	array_push ($IDO[$ora], ($ido % 12)/2);
+	array_push ($IDO[$ora], $ido % 6);
 }
 
 $A = "\n<tr><td rowspan=2>";
 $B = "\n<tr>";
+
 foreach (array_keys($IDO) as $ora) {
 	$A .= "<th colspan=" . count ($IDO[$ora]) . ">" . $ora;
 	foreach (array_values($IDO[$ora]) as $perc )
 		$B .= "<td>" . $perc . "0";
 }
 
-// Az összes fogadó tanár nevét kigyûjtjük // FOGADO[id]=('id', 'nev')
-if( $result = pg_exec("SELECT tanar,enev FROM Fogado,Ember WHERE fid=$fid AND tip='t' AND tanar=esz GROUP BY tanar,enev ORDER BY enev")) {
-	foreach ( pg_fetch_all($result) as $tanar ) {
-		$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['enev']);
-	}
+print "Idõtartam: " . $IDO_min . " -- " . $IDO_max . "<br>\n";
+
+// Vesszük a tanarakat sorban:
+if( $result = pg_exec("SELECT tanar,enev FROM Fogado,Ember WHERE tip='t' AND tanar=esz GROUP BY tanar,enev ORDER BY enev")) {
+	$FOGADO_orig = pg_fetch_all($result);
 }
 
-// mindegyikhez az összes idõ => elfoglaltságot (A FOGADO-hoz rakunk még mezõket)
-// FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
-if( $result = pg_exec("SELECT tanar, ido, diak FROM Fogado"
-			. " WHERE fid=$fid AND ido BETWEEN '" . $IDO_min . "' AND '" . $IDO_max . "' ORDER BY ido")) {
-	foreach ( pg_fetch_all($result) as $entry ) {
-		// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
-		if ( $entry['ido']%2 && $entry['diak']>=0 ) { $FOGADO[$entry['tanar']]['paratlan'] = 1; }
-		$FOGADO[$entry['tanar']][$entry['ido']] = $entry['diak'];
-	}
-}
+// Külön kéne nézni az egész és az öt perceseket
+// SELECT count(*) FROM Fogado WHERE ido LIKE '__:_5:__' AND diak IS NOT NULL AND NOT diak=-1 ORDER BY ido;
+// ha nem 0 -- azaz van 5 perces, akkor külön kell kezelni.
 
-function ValidateRadio ( $Teacher, $Time ) {
-// (ezeket jó lenne triggerként berakni a tábla-definícióba...)
-	global $FOGADO, $USER;
-	if ( $FOGADO[$Teacher][$Time] != 0 ) { return $FOGADO[$Teacher]['nev'] . " " . tim($Time) . " idõpontja már foglalt, ide nem iratkozhat fel!"; }
-	foreach ( $FOGADO as $tan ) {
-		if ( $tan[$Time] == $USER['esz'] ) return "Önnek már foglalt a " . tim($Time) . " idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!";
-	}
-	if ( $FOGADO[$USER['ofo']][$Time] == -2 ) return "Önnek szülõi értekezlete van ebben az idõpontban (" . tim($Time) . ")!";
-	foreach ( array_keys($FOGADO[$Teacher]) as $k ) {
-		if ( $FOGADO[$Teacher][$k] == $USER['esz'] ) { return $FOGADO[$Teacher]['nev'] . " " . tim($k) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!"; }
-	}
-	return NULL;
-}
-
-//
-// checkboxok ellenõrzése (leiratkozás)
-//
-if ( $VAR_tip == 'mod' ) {
-	foreach ( $FOGADO as $tanar ) {
-		$v = "VAR_c".$tanar['id'];
-		foreach ( array_keys($tanar) as $Time ) {
-			if ( ( $tanar[$Time] == $id ) && !isset($$v) ) {
-				$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
-				if ( pg_exec($q) ) {
-					$FOGADO[$tanar['id']][$Time] = "0";
-					$USER_LOG[] .= "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . tim($Time) . " - törölve.";
-					$QUERY_LOG[] .= "$q";
-				}
-				else { $QUERY_LOG[] .= "Légy került a levesbe: $q!"; }
-			}
-		}
-	}
-}
-
-//
-// rádiógombok ellenõrzése (feliratkozás)
-//
-foreach (explode(' ', $VARIABLES) as $var) {
-	if ( ereg ("^r([0-9]+)$", $var, $match) ) {
-		$Teacher = $match[1];
-		$VAR = "VAR_$var";
-		$Time = $$VAR;
-		if ( $validate = ValidateRadio ($Teacher, $Time) ) {
-			$QUERY_LOG[] .= "$validate";
-			$USER_LOG[] .= "$validate";
-		}
-		else { // rendben, lehet adatbázisba rakni
-			$q = "UPDATE Fogado SET diak=$id WHERE tanar=$Teacher AND ido=$Time";
-			if ( pg_exec($q) ) {
-				$FOGADO[$Teacher][$Time] = $id;
-				$USER_LOG[] .= "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . tim($Time) . " - bejegyezve.";
-				$QUERY_LOG[] .= "$q";
-			}
-			else { $QUERY_LOG[] .= "Légy került a levesbe: $q!"; }
-		}
-	}
-}
-
-print "\n<form name=tabla><table border=1>";
+// SELECT to_char(ido, 'HH24:MI') FROM Fogado WHERE ido LIKE '__:_0:__' AND diak IS NOT NULL AND NOT diak=-1 ORDER BY ido;
+//var_dump($IDO);
+print "<form name=tabla><table border=1>\n";
 print $A . $B;
-foreach ( $FOGADO as $tanar ) {
-	$ttabla .= tanar_ki($tanar);
-}
-
-print $ttabla;
-print "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n";
-print "  <input type=hidden name=tip value=mod>\n";
-print "  <input type=hidden name=id value=" . $id . ">\n";
-print "  <input type=submit value=' Mehet '>\n";
-print "</table>\n\n";
+reset ( $FOGADO_orig );
+array_walk ( $FOGADO_orig, 'tanar_ki' );
+print "</table>\n";
+print "<input type=submit value=' Mehet '>\n";
 print "</form>\n";
 
-if ($ADMIN) {
-	foreach ($QUERY_LOG as $log) print "<b>$log</b><br>\n";
-	foreach (explode(' ', $VARIABLES) as $v) {
-		$V="VAR_$v";
-		print $V . " : " . $$V . "<br>\n";
+	/*
+	var_dump( $sor[0] );
+	print ($sor[0]['tanar']);
+//	tanar_ki(34);
+	$rows = pg_numrows($result);
+	for($i=0; $i<$rows; $i++) {
+		$sor = pg_fetch_array($result, $i);
+		print $sor['tanar'] . ": " . $sor['enev'] . "<br>\n";
+		tanar_ki($sor['tanar']);
 	}
-} else {
-	foreach ($USER_LOG as $log) print "<b>$log</b><br>\n";
 }
+	*/
 
+print "<h1>== VÉGE ==</h1>\n";
 pg_close ($db);
-session_remove(SID);
-if(!session_destroy()){ print "<br><h2>Session destroy failed!</h2>\n"; }
-Tail();
+
+print "</body>\n";
+print "</html>\n";
+return(0);
 
 ?>
+function hir_ki($hir) {
+	global $OLDAL, $OCIM, $TIP, $tip;
+	print "<form>\n<input type=radio name=m value=hir onChange='Betolt(\"m=hir\")' checked> Hír\n";
+	print "<input type=radio name=m value=hely onChange='Betolt(\"m=hely\")'> Hely\n</form>\n";
+	if( $result = pg_exec("SELECT * FROM Hir ORDER BY id")) {
+		$rows = pg_numrows($result);
+			print ("<form>\n");
+			print "<input type=submit name=tip value=\"".$TIP['uj']."\"><br><hr align=left width=30%>\n";
+			if($rows){
+				print "<select name=id onChange='Betolt(\"id=\"+this.value+\"&m=hir\")'>\n";
+				for($i=0; $i<$rows; $i++) {
+					$sor = pg_fetch_array($result, $i);
+					print "<option value=".$sor['id'];
+					if($i == $hir['id']-1) print " selected";
+					print "> ".$sor['id']." ".$sor['cim']."\n";
+				}
+				if($tip == $TIP['uj']) print "<option selected>\n";
+				print "</select>\n";
+//					print "<input type=submit value=Go>\n"; // Nem kell, ha van JavaScript
+			}
+			print ("</form>\n\n");
+	}
 
+	echo "<form method=post>\n";
+	if( $result = pg_exec("SELECT * FROM Hely WHERE id=".$hir['id'])) {
+		$rows = pg_numrows($result);
+		for($i=0; $i<$rows; $i++) {
+			$sor = pg_fetch_array($result, $i);
+			$hely[$sor['oldal']] = 'On';
+		}
+	}
+	for( $i=0; $i<$OLDAL; $i++) {
+		$ch = isset($hely[$i])?' checked':'';
+		print "<input type=checkbox name=x$i$ch>".$OCIM[$i]."<br>\n";
+	}
+
+	echo "<td valign=top>\n";
+	print "<table><tr><td align=right><b>Id:&nbsp;</b><td><b>".$hir['id']."</b>\n";
+	print "<input name=id type=hidden value=".$hir['id'].">\n";
+//	print "<tr><td align=right>URL:&nbsp;<td><input name=url type=text size=80 value=\"".$hir['url']."\">\n";
+	print "<tr><td align=right>Cim:&nbsp;<td><input name=cim type=text size=80 value=\"".$hir['cim']."\">\n";
+	print "<tr><td align=right>Lied:&nbsp;<td><input name=lied type=text size=80 value=\"".$hir['lied']."\">\n";
+	print "<tr><td align=right>Szöveg:&nbsp;<td><textarea name=duma cols=80 rows=20>\n".$hir['duma']."</textarea>\n";
+	print "<tr><td align=center colspan=2>\n";
+	if($tip == $TIP['uj']){ print "<input type=submit name=tip value=\"".$TIP['fel']."\">\n"; }
+	print "<input type=submit name=tip value=\"".$TIP['mod']."\">\n";
+	print "<input type=reset value=\"Reset\">\n";
+	print "</table></form>\n";
+}
+
+if(!isset($m)) $m='hir';
+
+if( $m == 'hely' ) { // $m == 'hely'
+	if(!isset($oldal)) $oldal=0;
+	print "\n\n<form>\n<input type=radio name=m value=hir onChange='Betolt(\"m=hir\")'> Hír\n";
+	print "<input type=radio name=m value=hely onChange='Betolt(\"m=hely\")' checked> Hely\n</form>\n";
+
+	print "\n<form>\n";
+	print "<select name=oldal onChange='Betolt(\"oldal=\"+this.value+\"&m=hely\")'>\n";
+	for( $i=0; $i<$OLDAL; $i++ ) {
+		print "<option value=".$i;
+		if($i == $oldal) print " selected";
+		print "> ".$OCIM[$i]."\n";
+	}
+	print "</select>\n";
+	print "</form>\n";
+
+	if($tip == $TIP['mod']) {
+		$sor = pg_fetch_array(pg_exec("SELECT max(id) as id FROM hir"));
+		for( $i=1; $i<=$sor['id']; $i++) {
+			if(isset(${'x'.$i})) @pg_exec("INSERT INTO Hely (id, oldal) VALUES ($i, $oldal)");
+			else @pg_exec("DELETE FROM Hely WHERE id='$i' AND oldal='$oldal'");
+		}
+	}
+
+	echo "\n<form method=post>\n";
+	$Q = "SELECT A.cim,A.id,B.id AS van FROM";
+	$Q .= "  (SELECT id,cim FROM Hir ORDER BY id) AS A";
+	$Q .= "  LEFT OUTER JOIN";
+	$Q .= "  (SELECT id FROM Hely WHERE oldal=".$oldal.") AS B";
+	$Q .= "  ON (A.id=B.id)";
+
+	if( $result = pg_exec($Q)) {
+		$rows = pg_numrows($result);
+		for($i=0; $i<$rows; $i++) {
+			$sor = pg_fetch_array($result, $i);
+			print "<input type=checkbox name=x".($i+1);
+			if( $sor['id'] == $sor['van'] ) print " checked";
+			print ">".$sor['cim']."<br>\n";
+		}
+	}
+	print "<input type=submit name=tip value=\"".$TIP['mod']."\"><br>\n";
+
+	print ("</form>\n\n");
+}
+
+else { // $m == 'hir'
+
+	echo "\n\n<table width=100%>\n<tr><td>\n"; //  width=20%>";
+
+	if(!isset($id)) $tip=$TIP['uj'];
+	switch ($tip) {
+		case $TIP['uj']:
+			$sor = pg_fetch_array(pg_exec("SELECT max(id) as id FROM hir"), 0);
+			$hir = array ('id'=>$sor['id']+1, 'url'=>'', 'cim'=>'', 'lied'=>'', 'duma'=>'');
+			hir_ki($hir);
+			break;
+
+		case $TIP['mod']:
+			pg_exec("UPDATE Hir SET url='$url', cim='$cim', lied='$lied', duma='$duma' WHERE id=$id");
+			$hir = array ('id'=>$id, 'url'=>$url, 'cim'=>$cim, 'lied'=>$lied, 'duma'=>$duma);
+			for( $i=0; $i<$OLDAL; $i++) {
+				if(isset(${'x'.$i})) @pg_exec("INSERT INTO Hely (id, oldal) VALUES ($id, $i)");
+				else @pg_exec("DELETE FROM Hely WHERE id='$id' AND oldal='$i'");
+			}
+			hir_ki($hir);
+			break;
+
+		case $TIP['fel']:
+			pg_exec("INSERT INTO Hir (url, cim, lied, duma) VALUES ('$url', '$cim', '$lied', '$duma')");
+			$hir = array ('id'=>$id, 'url'=>$url, 'cim'=>$cim, 'lied'=>$lied, 'duma'=>$duma);
+			for( $i=0; $i<$OLDAL; $i++) {
+				if(isset(${'x'.$i})) @pg_exec("INSERT INTO Hely (id, oldal) VALUES ($id, $i)");
+				else @pg_exec("DELETE FROM Hely WHERE id='$id' AND oldal='$i'");
+			}
+			hir_ki($hir);
+			break;
+
+		default:
+			if( $result = pg_exec("SELECT * FROM Hir WHERE id=$id")) {
+				$hir = pg_fetch_array($result);
+			}
+			hir_ki($hir);
+			break;
+	}
+
+	print "</table>\n\n<br><p>\n<hr>\n";
+	print "<table align=center width=760 border=2>\n\n";
+	print "<tr><td bgimage=back.jpg colspan=3><br>\n";
+	print "<tr><td class=bal width=120>\n";
+	print "      <table>\n";
+	print "      <tr><td class=bal>\n";
+	print "          <p class=elso><a href=".$hir['url'].">".$hir['cim']."<img src=nyil.gif></a>\n";
+	print "          <p>".$hir['lied']."\n";
+	print "      <tr><td class=sep>\n\n";
+	print "      </table>\n";
+	print "  <td width=20>&nbsp;\n\n";
+	print "  <td width=620>\n\n";
+	print "<h3>".$hir['cim']."</h3>\n\n";
+	print "<ul><font size=-1><i>" . $hir['lied'] . "</i></font></ul>";
+	$hir['duma'] = preg_replace('/\r/', '', $hir['duma']);
+	$hir['duma'] = preg_replace('/\n\n/', "\n\n<p>", $hir['duma']);
+	$hir['duma'] = preg_replace('/`([^`]*)`/', '<i>$1</i>', $hir['duma']);
+	$hir['duma'] = preg_replace('/\*([^\*]*)\*/', '<b>$1</b>', $hir['duma']);
+	print      $hir['duma'];
+	print "</table>\n\n";
+
+} // else - $m == 'hir'
+
+pg_close ($db);
+
+print "</body>\n";
+print "</html>\n";
+return 0;
