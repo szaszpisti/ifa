@@ -20,12 +20,16 @@ class Tanar {
 		$this->Veg(ora,perc)    # vége óra, perc
 */
 
+		if (isset($_REQUEST['kilep'])) {
+			session_start();
+			session_destroy();
+			header('Location: ' . $_SERVER['PHP_SELF'] . "?id=" . $_REQUEST['id']);
+		}
+
 		session_start();
-		if (!$_SESSION['admin']) $this->id = NULL;                    # ha nem az admin van bejelentkezve, nem foglalkozunk vele
-		elseif (isset($tid)) $this->id = $tid;                        # ha van paraméter, azt vesszük id-nek
+		if (isset($tid)) $this->id = $tid;                            # ha van paraméter, azt vesszük id-nek
 		elseif (isset($_REQUEST['id'])) $this->id = $_REQUEST['id'];  # egyébként az elküldött id-et
 		else $this->id = NULL;                                        # ha az sincs, ejtjük
-		session_write_close();
 
 		# Feltöltjük a tanár tulajdonságait
 		if (($result = @pg_query("SELECT * FROM Tanar WHERE id=".$this->id)) && (pg_num_rows($result)==1)) {
@@ -37,12 +41,32 @@ class Tanar {
 		# Ha az id nem szerepel az adatbázisban, nem tudunk mit csinálni
 		else $this->id = NULL;
 
-		if (!$this->id) {
-			Head("Permission denied");
-//			hiba ("Csak az ADMIN számára hozzáférhetõ");
-			Tail();
-			exit();
+		if (!$this->id) hiba ("Nem érényes ID: " . $this->id);
+
+		if (!$_SESSION['admin']) {                                    # ha nem admin, megnézzük, hogy tanár-e?
+			if ($_SESSION['tanar'] != $this->id) {                     # ha még nincs tanárként regisztrálva
+				if ( isset($this->emil)                                 # akkor kell az emil, jelszo a bejelentkezéshez
+						&& isset($_POST['jelszo'])
+						&& pam_auth($this->emil, $_POST['jelszo'], &$error) ) {
+					$_SESSION['tanar'] = $this->id;
+				} else {
+					Head("Fogadóóra - " . $TANAR->tnev);
+					print "\n<h3>" . $this->tnev . "</h3>\n"
+						. "<script language=JavaScript><!--\n"
+						. "    document.login.jelszo.focus();\n"
+						. "//--></script>\n"
+						. "<form name=login action='" . $_SERVER['PHP_SELF'] . "' method=post>\n"
+						. "  Jelszó: <input type=password size=8 name=jelszo>\n"
+						. "  <input type=hidden name=id value=" . $this->id . ">\n"
+						. "  <input type=submit value='Belépés'>\n"
+						. "</form>\n\n";
+					Tail();
+					exit;
+				}
+			}
 		}
+
+		if ($_SESSION['admin']) { $this->ListaID = 0; } else { $this->ListaID = $_SESSION['tanar']; }
 
 		$q = "SELECT ido, diak, dnev, onev FROM Fogado AS F"
 			. " LEFT OUTER JOIN Diak AS D ON (F.diak=D.id AND D.id>0)"
@@ -63,6 +87,7 @@ class Tanar {
 			$this->Veg   = FiveToTime($this->IDO_max);
 		}
 	}
+
 }
 
 ?>
