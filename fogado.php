@@ -2,23 +2,38 @@
 require('fogado.inc');
 
 $ADMIN = 1;
-if (!isset($VAR_id)) { $VAR_id = 275; }
 
-
-if (isset($VAR_id)) {
-	if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, E.*"
-			. " FROM Osztaly_view AS O, Ember AS E"
-			. " WHERE O.oszt=E.oszt AND E.tip='d' AND E.esz=" . $VAR_id)) {
-		$USER = pg_fetch_array($result);
+if (!isset($VAR_id)) {
+	if ( isset($VAR_o) ) {
+		Head("Fogadóóra - $VAR_o");
+		print Osztaly_select($VAR_o);
+		print Diak_select($VAR_o, 0);
+		Tail();
+		return 0;
 	}
-} else {
-	$USER['id'] = 300;
-	$USER['enev'] = 'Eleki Gergely';
+	Head("Fogadóóra - iskola");
+	print "<form>\n" . Osztaly_select(0) . "<input type=submit value=' OK '>\n</form>\n";
+	Tail();
+	return 0;
+}
+$id = $VAR_id;
+
+if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, O.onev, E.*"
+		. " FROM Osztaly_view AS O, Ember AS E"
+		. " WHERE O.oszt=E.oszt AND E.tip='d' AND E.esz=" . $id)) {
+	$USER = pg_fetch_array($result);
 }
 
-head("Fogadóóra - " . $USER['enev']);
+Head("Fogadóóra - " . $USER['enev']);
 
-print "\n<h3>" . $USER['enev'] . "<br>\n";
+print "<font size=+1><b>\n";
+print Osztaly_select($id);
+print "</b></font>\n";
+print Diak_select($USER['oszt'], $id);
+
+//var_dump($USER);
+
+print "\n<h3>" . $USER['enev'] . " (" . $USER['onev'] . ")<br>\n";
 print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
 
 function td_ki($i, $VAL, $rows, $class) {
@@ -150,9 +165,7 @@ print "</form>\n";
 
 
 pg_close ($db);
-print "\n</body>\n";
-print "</html>\n";
-return(0);
+Tail();
 
 ?>
 
