@@ -1,7 +1,7 @@
 <?
-require('fogado.inc');
+require('fogado.inc.php');
 
-include("user.class");
+include("user.class.php");
 $USER = new User();
 
 Head("Fogadóóra - " . $USER->dnev);

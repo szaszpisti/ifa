@@ -1,7 +1,7 @@
 <?
-require('fogado.inc');
+require('fogado.inc.php');
 
-include("tanar.class");
+include("tanar.class.php");
 $TANAR = new Tanar();
 
 switch ($_REQUEST['mod']) {
