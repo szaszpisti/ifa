@@ -1,6 +1,10 @@
 <?
 require('fogado.inc');
 
+$ADMIN = 1;
+if (!isset($VAR_id)) { $VAR_id = 275; }
+
+
 if (isset($VAR_id)) {
 	if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, E.*"
 			. " FROM Osztaly_view AS O, Ember AS E"
@@ -27,8 +31,18 @@ function td_ki($i, $VAL, $rows, $class) {
 	return array('j' => $j, 'td' => $td);
 }
 
+function uj($d) {
+	global $K;
+	array_push ( $K, array($d) );
+}
+
+function add() {
+	global $K;
+	array_push ( $K[count($K)-1], 'x' );
+}
+
 function tanar_ki($tanar) {
-	global $IDO_min, $IDO_max, $USER, $TANAR;
+	global $IDO_min, $IDO_max, $USER, $TANAR, $K, $ADMIN;
 	print "\n<tr><th>&nbsp;" . $tanar['enev'] . " \n";
 	if( $result = pg_exec("SELECT diak FROM Fogado WHERE tanar=" . $tanar['tanar']
 			. "AND ido BETWEEN '$IDO_min' AND '$IDO_max' ORDER BY ido")) {
@@ -36,37 +50,50 @@ function tanar_ki($tanar) {
 		// TANAR: [0]['diak']=25, [1]['diak']=-1, ...
 		$rows = pg_numrows($result);
 
-		$i=0;
-		while ($i<$rows) {
-			switch($TANAR[$i]['diak']) {
-				case -2: // csak a saját szülõit kell kiírni -- egyébként foglalt
-					$res = td_ki($i, -2, $rows, ($USER['ofo'] == $tanar['tanar'])?'szuloi':'foglalt');
-					print $res['td'] . "&nbsp;";
-					break;
-
+		$State = -3; // ilyen nincs
+		$K = array(array());
+		for ($i=0; $i<$rows; $i++) {
+			$d=$TANAR[$i]['diak'];
+			switch ($d) {
+				case -2:
+					if ( ($USER['ofo'] == $tanar['tanar']) || $ADMIN ) {
+						if ($State != szuloi) { uj($d); $State = szuloi; }
+						else add();
+						break;
+					}                       // különben továbbcsúszunk:
 				case NULL:
-					$res = td_ki($i, NULL, $rows, 'foglalt');
-					print $res['td'] . "&nbsp;";
+					if ($State != foglalt) { uj($d); $State = foglalt; }
+					else add();
 					break;
-
+				case -1:                   // helyben marad
+					add();
+					break;
 				case 0:
-					$res = td_ki($i, -1, $rows, 'szabad');
-					print $res['td'] . "<input type=radio name=t" . $tanar['tanar'] . "r value=" . $i . ">";
+					uj($d); $State = szabad;
 					break;
-
 				default:
-					if ( $TANAR[$i]['diak'] == $USER['esz'] ) { // bejelentkezett azonosító
-						$res = td_ki($i, -1, $rows, 'sajat');
-						print $res['td'] . "<input type=checkbox name=t" . $tanar['tanar'] . "c checked>";
-					} else { // másik diák, olyan mintha nem lenne itt
-						$res = td_ki($i, -1, $rows, 'foglalt');
-						print $res['td'] . "&nbsp;";
+					if ($d == $USER['esz']) {
+						if ($State != sajat) { uj($d); $State = sajat; }
+						else add();
+					}
+					else {
+						if ($State != foglalt) { uj(NULL); $State = foglalt; }
+						else add();
 					}
 					break;
-
 			}
-			$i=$res['j'];
-			print "\n";
+		}
+
+		$t = 0; // a helye a tablazatban
+		for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
+			$span = (count($K[$i])>1)?" colspan=".count($K[$i]):"";
+			switch ($K[$i][0]) {
+				case NULL: print "  <td class=foglalt$span>&nbsp;\n"; break;
+				case -2: print "  <td class=szuloi$span>&nbsp;\n"; break;
+				case 0: print "  <td class=szabad$span><input type=radio name=t" . $tanar['tanar'] . "r value=$t>\n"; break;
+				default: print "  <td class=sajat$span><input type=checkbox name=t" . $tanar['tanar'] . "c checked>\n"; break;
+			}
+			$t += count($K[$i]);
 		}
 		print "  <td><input type=button value=x onClick='torol(\"t" . $tanar['tanar'] . "r\")'>\n";
 
