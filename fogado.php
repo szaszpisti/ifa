@@ -33,13 +33,13 @@ function tr_string($K, $tid, $t) {
 }
 
 function tanar_ki($tanar) {
-	global $IDO_min, $IDO_max, $USER, $K;
+	global $FA, $USER, $K;
 	// TANAR: [0]['diak']=25, [1]['diak']=-1, ...
 
 	$State = -3; // nem érvényes kezdeti értéket adunk neki
 	$K[0] = array(array()); // páros idõket tesszük ebbe
 	$K[1] = array(array()); // páratlanokat
-	for ($i=$IDO_min; $i<$IDO_max; $i++) {
+	for ($i=$FA->IDO_min; $i<$FA->IDO_max; $i++) {
 		if (!isset($tanar['paratlan']) && $i%2) { continue; }
 		switch ($tanar[$i]) {
 			case -2:
@@ -74,24 +74,25 @@ function tanar_ki($tanar) {
 		. ($USER->admin?"<a href=tanar.php?id=".$tanar['id'].">".$tanar['nev']."</a>":$tanar['nev']) . "\n";
 
 // párosak:
-	$tmp .= tr_string($K[0], $tanar['id'], $IDO_min);
+	$tmp .= tr_string($K[0], $tanar['id'], $FA->IDO_min);
 	$tmp .= "  <td><input type=button value=x onClick='torol(\"r".$tanar['id']."\")'>\n";
 
 // páratlanok:
 	if (isset($tanar['paratlan'])) {
-		$tmp .= "<tr>".tr_string($K[1], $tanar['id'], $IDO_min+1);
+		$tmp .= "<tr>".tr_string($K[1], $tanar['id'], $FA->IDO_min+1);
 	}
 
 	return $tmp;
 
 }
 
-$Idoszak = pg_fetch_array(pg_query("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE fid=".$FA->id." AND diak IS NOT NULL"));
-$IDO_min = $Idoszak['min']-($Idoszak['min']%2);
-$IDO_max = $Idoszak['max']-($Idoszak['max']%2)+2;
-
-// A fejléc sorok kiíratásához
-for ($ido=$IDO_min; $ido<$IDO_max; $ido+=2) {
+/*
+A fejléc sorok kiíratásához
+IDO: ebben lesznek a kiírandó idõpontok
+IDO[16] = (30, 40, 50)
+IDO[17] = (00, 10, 20, ...)
+*/
+for ($ido=$FA->IDO_min; $ido<$FA->IDO_max; $ido+=2) {
 	$ora = floor($ido/12);
 	if (!isset($IDO[$ora]))
 		$IDO[$ora] = array();
@@ -108,7 +109,7 @@ foreach (array_keys($IDO) as $ora) {
 $TablazatIdosor = $A.$B;
 
 // Az összes fogadó tanár nevét kigyûjtjük // FOGADO[id]=('id', 'nev')
-if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=" . $FA->id . " AND tanar=id GROUP BY tanar,tnev ORDER BY tnev")) {
+if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=".fid." AND tanar=id GROUP BY tanar,tnev ORDER BY tnev")) {
 	foreach ( pg_fetch_all($result) as $tanar ) {
 		$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
 	}
@@ -116,14 +117,11 @@ if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=" . $FA->i
 
 // mindegyikhez az összes idõ => elfoglaltságot (A FOGADO-hoz rakunk még mezõket)
 // FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
-if( $result = pg_query("SELECT tanar, ido, diak FROM Fogado"
-			. " WHERE fid=" . $FA->id . " AND ido BETWEEN '" . $IDO_min . "' AND '" . $IDO_max . "' ORDER BY ido")) {
-	foreach ( pg_fetch_all($result) as $entry ) {
+if( $result = pg_query("SELECT tanar, ido, diak FROM Fogado WHERE fid=".fid." ORDER BY ido")) {
+	foreach ( pg_fetch_all($result) as $sor ) {
 		// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
-		if ( $entry['ido']%2 && $entry['diak']>=0 && ($entry['diak'] != "") ) {
-			$FOGADO[$entry['tanar']]['paratlan'] = 1;
-		}
-		$FOGADO[$entry['tanar']][$entry['ido']] = $entry['diak'];
+		if ( $sor['ido']%2 && $sor['diak']>=0 && ($sor['diak'] != "") ) $FOGADO[$sor['tanar']]['paratlan'] = 1;
+		$FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
 	}
 }
 
@@ -153,6 +151,8 @@ function ValidateRadio ( $Teacher, $Time ) {
 	return array(true, NULL);
 }
 
+// Az Ulog-ot meg köllene csinálni, hogy az adminnál 0 legyen az id
+// és figyelmeztetéseket ne logolja
 //
 // checkboxok ellenõrzése (leiratkozás)
 //
@@ -220,10 +220,10 @@ if ($USER_LOG) {
 }
 
 print "\n<form name=tabla method=post><table border=1>"
-	. "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n"
+	. "<tr><td colspan=" . (($FA->IDO_max-$FA->IDO_min)/2+2) . " align=right class=right>\n"
 	. "  <input type=submit value=' Mehet '>\n"
 	. $TablaOutput
-	. "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n"
+	. "<tr><td colspan=" . (($FA->IDO_max-$FA->IDO_min)/2+2) . " align=right class=right>\n"
 	. "  <input type=hidden name=tip value=mod>\n"
 	. "  <input type=submit value=' Mehet '>\n"
 	. "</table>\n\n"

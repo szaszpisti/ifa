@@ -66,7 +66,10 @@ $TABLA = "<table border=0><tr><td>\n";
 
 if ($TANAR->fogad) {
 	$TABLA .= "<form method=post name=tabla>\n<table border=1>\n"
-		. "<tr><th><th>A<th>B<th>C<th>D<th>E<td align=right>\n";
+		. "<tr><th><th>A<th>B<th>C<th>D<th>E\n"
+		. "    <td colspan=2 align=right><input type=hidden name=mod value=1>\n"
+		. "       <input type=reset value='RESET'>\n"
+		. "       <input type=submit value=' Mehet '>\n";
 	for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido++) {
 		$TABLA .= ($ido%2?"<tr bgcolor=#eaeaea>":"<tr>");
 		$diak = $TANAR->diak[$ido];
@@ -82,11 +85,14 @@ if ($TANAR->fogad) {
 			$TABLA .= "  <td colspan=2>&nbsp;\n";
 		}
 	}
-	$TABLA .= "</table>\n"
-		. "<td>&nbsp;<td valign=top>\n"
-		. "  <input type=hidden name=mod value=1>\n"
-		. "<p class=menu align=center><input type=submit value=' Mehet '></p>\n"
-		. "</form>\n";
+	$TABLA .= "<tr><td colspan=7 align=right><input type=hidden name=mod value=1>\n"
+		. "       <input type=reset value='RESET'>\n"
+		. "       <input type=submit value=' Mehet '>\n"
+		. "</form>\n"
+		. "</table>\n"
+# A külsõ táblázat második cellája
+		. "<td>&nbsp;\n"
+		. "<td valign=top>\n";
 }
 
 $TABLA .= "<br><b>Jelmagyarázat:</b><ul>\n"

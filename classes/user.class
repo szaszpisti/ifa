@@ -6,6 +6,19 @@ include("fogado.inc");
 
 class User {
 
+/* változók:
+valid:  ezzel az azonosítóval be lehet-e jelentkezni ebben az idõben?
+good:   ha a jelszó egyezik
+probed: volt már próbálkozás
+admin:  admin-e
+id:     kívánt azonosító
+
+függvények
+user_init(id):  az id-hez tartozó db-rekordot beolvassa tulajdonságokba
+kilep():        session lezárás
+loginUrlap():   a megfelelõ bejelentkezési ürlap -- vagy: nem elérhetõ
+*/
+
 	function User() {
 		if (isset($_REQUEST['kilep'])) { $this->kilep(); }
 		$this->good = false;
@@ -48,7 +61,8 @@ class User {
 				$this->probed = true;
 			}
 
-			if (!$this->good) {
+			$this->valid = ( ($FA->valid) || ($this->admin) || ($this->id === "0") );
+			if (!$this->valid || !$this->good) {
 				$this->loginUrlap();
 				exit();
 			}
@@ -83,18 +97,26 @@ class User {
 
 	function loginUrlap() {
 		Head('Fogatóóra bejelentkezés');
-		print "\n<table width=100%><tr><td>\n<h3>" . $this->dnev . " " . $this->onev . "</h3>\n"
-			. "<td align=right valign=top><a href=leiras.html> Leírás </a>\n</table>\n"
-			. (($this->probed) ? "Rossz jelszót adtál!<br>\n" : "")
-			. "<script language=JavaScript><!--\n"
-			. "    document.forms[0].jelszo.focus();\n"
-			. "//--></script>\n"
-			. "<form action='" . $_SERVER['PHP_SELF'] . "' method=post>\n"
-			. "  Jelszó: <input type=password size=8 name=jelszo>\n"
-			. "  <input type=hidden name=id value=" . $this->id . ">\n"
-			. "  <input type=submit value='Belépés'>\n"
-			. "</form>\n\n";
-		Tail();
+		if (!$this->valid) {
+			print "<h3>Nincs bejelentkezési idõszak!</h3>\n";
+			Tail();
+			exit;
+		}
+
+		else {
+			print "\n<table width=100%><tr><td>\n<h3>" . $this->dnev . " " . $this->onev . "</h3>\n"
+				. "<td align=right valign=top><a href=leiras.html> Leírás </a>\n</table>\n"
+				. (($this->probed) ? "Rossz jelszót adtál!<br>\n" : "")
+				. "<script language=JavaScript><!--\n"
+				. "    document.login.jelszo.focus();\n"
+				. "//--></script>\n"
+				. "<form name=login action='" . $_SERVER['PHP_SELF'] . "' method=post>\n"
+				. "  Jelszó: <input type=password size=8 name=jelszo>\n"
+				. "  <input type=hidden name=id value=" . $this->id . ">\n"
+				. "  <input type=submit value='Belépés'>\n"
+				. "</form>\n\n";
+			Tail();
+		}
 	}
 }
 

@@ -12,10 +12,10 @@ class Tanar {
 		$this->fogad = false;   # Van-e a tanárnál fogadóóra bejegyezve
 
 /*
-      $this->diak[ido]        # Adott idõpontban a diák azonosítója
+		$this->diak[ido]        # Adott idõpontban a diák azonosítója
 		$this->dnev[ido]        # Adott idõpontban a diák azonosítója
-  		$this->IDO_min          # elsõ idõpontja
-  		$this->IDO_max          # utolsó idõpontja + 1
+		$this->IDO_min          # elsõ idõpontja
+		$this->IDO_max          # utolsó idõpontja + 1
 		$this->Kezdo(ora,perc)  # kezdete óra, perc
 		$this->Veg(ora,perc)    # vége óra, perc
 */
@@ -28,7 +28,7 @@ class Tanar {
 		session_write_close();
 
 		# Feltöltjük a tanár tulajdonságait
-		if (($result = pg_query("SELECT * FROM Tanar WHERE id=".$this->id)) && (pg_num_rows($result)==1)) {
+		if (($result = @pg_query("SELECT * FROM Tanar WHERE id=".$this->id)) && (pg_num_rows($result)==1)) {
 			$tan = pg_fetch_assoc($result);
 			while(list($k, $v) = each($tan)) {
 				$this->$k = $v;
@@ -39,7 +39,7 @@ class Tanar {
 
 		if (!$this->id) {
 			Head("Permission denied");
-			hiba ("Csak az ADMIN számára hozzáférhetõ");
+//			hiba ("Csak az ADMIN számára hozzáférhetõ");
 			Tail();
 			exit();
 		}

@@ -9,7 +9,8 @@ if (!$USER->admin) {
    exit();
 }
 
-$Datum = date('Y-m-d');
+$MaiDatum = date('Y-m-d');
+$HosszuDatum = date("Y-m-d H:i:s");
 
 if (!isset($_REQUEST['page'])) $_REQUEST['page'] = 0;
 Head("Fogadó admin - ".$_REQUEST['page'].". oldal");
@@ -21,35 +22,44 @@ ha van, akkor mindjárt a második oldalra ugrik, egyébként az elsõ az alapértelme
 
 
 $Cim = "\n<table width=100%><tr><td>\n"
-   . "<b><font color=#777777># ADMIN #</font></b> - <a href=admin.php>Vissza</a>\n"
-   . "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n";
+   . "<b><font color=#777777>".$USER->dnev."</font></b>\n"
+   . "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n\n";
+
+// Jelenleg nem elérhetõ az admin lap
+// $_REQUEST['page'] = 0;
 
 print $Cim;
 switch ($_REQUEST['page']) {
 	case 0:
-		print "\n<ul>\n<li><a href=admin.php?page=1>Új idõpont létrehozása</a>\n"
+		$out = "\n<ul>\n<li><a href=admin.php?page=1>Új idõpont létrehozása</a>\n"
 			. "<li><a href=admin.php?page=2&datum=".$FA->datum.">A jelenlegi (".$FA->datum.") módosítása</a>\n"
+			. "<li><a href=fogado-xls.pl>Táblázat letöltése</a>\n"
    		. "</ul>\n";
+		print $out;
 		break;
 	case 1:  // 1. ADMIN OLDAL
 
-		print "<form><table class=tanar>\n<tr><td class=left>Dátum:<td><input name=datum type=text size=10 value=$Datum><br>\n";
+		$out = "<form><table class=tanar>\n<tr><td class=left>Dátum:"
+			. "<td><input name=datum type=text size=10 value=\"$MaiDatum\">\n"
 
-		$B .= "\n<tr><td class=left>Fogadóóra: <td>"
-			. SelectOra("kora", $KezdoOra) . SelectPerc("kperc", $KezdoPerc) . "\n"
-			. SelectOra("vora", $VegOra) . SelectPerc("vperc", $VegPerc) . "\n";
-		$B .= "\n<tr><td class=left>Szülõi: <td>"
-			. SelectOra("skora", $SzuloiKezdoOra) . SelectPerc("skperc", $SzuloiKezdoPerc) . "\n"
-			. SelectOra("svora", $SzuloiVegOra) . SelectPerc("svperc", $SzuloiVegPerc) . "\n";
+			. "<tr><td class=left>Bejelentkezés:"
+			. "<td><input name=valid_kezd type=text size=16 value=\"$MaiDatum 08:00\">-tól "
+			. "<tr><td><td><input name=valid_veg type=text size=16 value=\"$MaiDatum 14:00\">-ig\n"
 
-		print $B . $E;
+			. "<tr><td class=left>Fogadóóra: <td>\n"
+			. "    ".SelectOra("kora", $KezdoOra).SelectPerc("kperc", $KezdoPerc)."\n"
+			. "    ".SelectOra("vora", $VegOra).SelectPerc("vperc", $VegPerc)."\n"
+			. "<tr><td class=left>Szülõi: <td>\n"
+			. "    ".SelectOra("skora", $SzuloiKezdoOra).SelectPerc("skperc", $SzuloiKezdoPerc)."\n"
+			. "    ".SelectOra("svora", $SzuloiVegOra).SelectPerc("svperc", $SzuloiVegPerc)."\n"
 
-		print "<tr><td class=left>Tartam: <td>" . tartam('tartam') . " perc\n";
-		print "<tr><td><td><input type=hidden name=page value=2>\n";
-		print "<input type=submit value=\" Mehet \">\n";
-		print "</table>\n";
-		print "</form>\n";
+			. "<tr><td class=left>Tartam: <td>" . tartam('tartam') . " perc\n"
+			. "<tr><td><td><input type=hidden name=page value=2>\n"
+			. "    <input type=submit value=\" Mehet \">\n"
+			. "</table>\n"
+			. "</form>\n";
 
+		print $out;
 		break;
 
 	case 2:  // 2. ADMIN OLDAL
@@ -68,9 +78,13 @@ switch ($_REQUEST['page']) {
 		if ( !$result || (count($result) == 0) ) { // nincs ilyen
 			$kezd = $_REQUEST['kora']*12+$_REQUEST['kperc'];
 			$veg  = $_REQUEST['vora']*12+$_REQUEST['vperc'];
-			if ( $_REQUEST['datum'] && $kezd && $veg && $_REQUEST['tartam'] ) {
-				$q = "INSERT INTO Fogado_admin (datum, kezd, veg, tartam) VALUES"
-					. " ('".$_REQUEST['datum']."', $kezd, $veg, ".$_REQUEST['tartam'].")";
+			if ( $_REQUEST['datum'] && $kezd && $veg && $_REQUEST['tartam']
+							&& $_REQUEST['valid_kezd'] && $_REQUEST['valid_veg'] ) {
+				$q = "INSERT INTO Fogado_admin (datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES"
+					." ('".$_REQUEST['datum']."', $kezd, $veg, "
+					.floor($_REQUEST['tartam']/5).", '"
+					.$_REQUEST['valid_kezd']."', '"
+					.$_REQUEST['valid_veg']."')";
 			} else {
 				hiba ("Valami nincs megadva");
 				return 1;
@@ -78,7 +92,7 @@ switch ($_REQUEST['page']) {
 
 //			print $q;
 			if ( $result = pg_query($q) ) {
-				Ulog("RENDBEN: $q");
+				Ulog(0, "RENDBEN: $q");
 			} else {
 				hiba ("Nem sikerült regisztrálni a fogadóórát");
 				return 1;
@@ -152,14 +166,14 @@ switch ($_REQUEST['page']) {
 		if ( $res['num'] > 0 ) { hiba ("E napon már vannak bejegyzések - valami nem jó"); return 1; }
 
 		// A változókat rendezzük használható tömbökbe
-		//    $Jelen[id](id, kezd, veg, tartam)
+		//    $JelenVan[id](id, kezd, veg, tartam)
 		//    $Szuloi[id](id, kezd, veg)
 		//
 		reset($_REQUEST);
-		while (list($k, $v) = each ($_REQUEST)) { //explode(' ', $VARIABLES) as $var) {
+		while (list($k, $v) = each ($_REQUEST)) {
 			if ( ereg ("^a([0-9]+)$", $k, $match) ) {
 				$id = $match[1];
-				$Jelen[$id] = array('id' => $id,
+				$JelenVan[$id] = array('id' => $id,
 					'kezd' => $_REQUEST["b".$id]*12+$_REQUEST["c".$id],
 					'veg' => $_REQUEST["d".$id]*12+$_REQUEST["e".$id],
 					'tartam' => $_REQUEST["f".$id] );
@@ -173,7 +187,7 @@ switch ($_REQUEST['page']) {
 		}
 
 		// Feltöltjük a Tanar tömböt
-		foreach ($Jelen as $t) {
+		foreach ($JelenVan as $t) {
 			if ( $t['kezd'] && $t['veg'] && $t['tartam'] ) {
 				for ($i=$t['kezd']; $i<$t['veg']; $i++) $Tanar[$t['id']][$i]=-1;
 				for ($i=$t['kezd']; $i<$t['veg']; $i+=$t['tartam']) $Tanar[$t['id']][$i]=0;
@@ -181,7 +195,7 @@ switch ($_REQUEST['page']) {
 		}
 
 		foreach ($Szuloi as $t) {
-			if ( $t['kezd'] && $t['veg'] && isset($Jelen[$t['id']]) ) {
+			if ( $t['kezd'] && $t['veg'] && isset($JelenVan[$t['id']]) ) {
 				for ($i=$t['kezd']; $i<$t['veg']; $i++) $Tanar[$t['id']][$i]=-2;
 			}
 		}
