@@ -1,42 +1,18 @@
 <?
-session_start();
-if (!isset($_SESSION['szamlalo'])) {
-   $_SESSION['szamlalo'] = 0;
-} else {
-   $_SESSION['szamlalo']++;
-}
-
-phpinfo();
 require('fogado.inc');
 
-$ADMIN = 0;
+include("user.class");
+$USER = new User();
 
-if ( !isset($VAR_id) ) { return 0; }
-
-$id = $VAR_id;
-
-if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, O.onev, E.*"
-		. " FROM Osztaly_view AS O, Ember AS E"
-		. " WHERE O.oszt=E.oszt AND E.tip='d' AND E.esz=" . $id)) {
-	$USER = pg_fetch_array($result);
-}
-
-if ( $result = pg_exec("SELECT * FROM Fogado_admin WHERE id=(SELECT MAX(id) FROM Fogado_admin)" )) {
-	$FA = pg_fetch_array($result);
-}
-$fid = $FA['id'];
+Head("Fogadóóra - " . $USER->dnev);
 
 $QUERY_LOG = array();
 $USER_LOG = array();
 
-Head("Fogadóóra - " . $USER['enev']);
-print "\n<h3>szamlalo: " . $HTTP_SESSION_VARS['szamlalo'] . "</h3>\n";
-
-print "\n<h3>" . $USER['enev'] . " " . $USER['onev'] .  " (" . $FA['datum'] . ")<br>\n";
-print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
-
-// Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
-function tim($time) { return gmdate('H:i', $time*300); }
+print "\n<table width=100%><tr><td>\n";
+print "<h3>" . $USER->dnev . " " . $USER->onev .  " (" . $FA->datum . ")<br>\n";
+print "<font size=-1>(Osztályfõnök: " . $USER->ofonev . ")</h3>\n";
+print "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n";
 
 function tr_string($K, $tid, $t) {
 	for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
@@ -55,7 +31,7 @@ function tr_string($K, $tid, $t) {
 }
 
 function tanar_ki($tanar) {
-	global $IDO_min, $IDO_max, $USER, $K, $ADMIN;
+	global $IDO_min, $IDO_max, $USER, $K;
 	// TANAR: [0]['diak']=25, [1]['diak']=-1, ...
 
 	$State = -3; // nem érvényes kezdeti értéket adunk neki
@@ -65,7 +41,7 @@ function tanar_ki($tanar) {
 		if (!isset($tanar['paratlan']) && $i%2) { continue; }
 		switch ($tanar[$i]) {
 			case -2:
-				if ( ($USER['ofo'] == $tanar['id']) || $ADMIN ) { $d = szuloi; }
+				if ( ($USER->ofo == $tanar['id']) || $USER->admin ) { $d = szuloi; }
 				else { $d = foglalt; }
 				break;
 			case NULL:
@@ -76,7 +52,7 @@ function tanar_ki($tanar) {
 				break;
 			case 0:
 				$d = szabad; break;
-			case $USER['esz']:
+			case $USER->id:
 				$d = sajat;
 				break;
 			default:
@@ -107,7 +83,7 @@ function tanar_ki($tanar) {
 
 }
 
-$Idoszak = pg_fetch_array(pg_exec("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE fid=$fid AND diak IS NOT NULL"));
+$Idoszak = pg_fetch_array(pg_query("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE fid=" . $FA->id . " AND diak IS NOT NULL"));
 $IDO_min = $Idoszak['min']-($Idoszak['min']%2);
 $IDO_max = $Idoszak['max']-($Idoszak['max']%2)+2;
 
@@ -128,16 +104,16 @@ foreach (array_keys($IDO) as $ora) {
 }
 
 // Az összes fogadó tanár nevét kigyûjtjük // FOGADO[id]=('id', 'nev')
-if( $result = pg_exec("SELECT tanar,enev FROM Fogado,Ember WHERE fid=$fid AND tip='t' AND tanar=esz GROUP BY tanar,enev ORDER BY enev")) {
+if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=" . $FA->id . " AND tanar=id GROUP BY tanar,tnev ORDER BY tnev")) {
 	foreach ( pg_fetch_all($result) as $tanar ) {
-		$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['enev']);
+		$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
 	}
 }
 
 // mindegyikhez az összes idõ => elfoglaltságot (A FOGADO-hoz rakunk még mezõket)
 // FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
-if( $result = pg_exec("SELECT tanar, ido, diak FROM Fogado"
-			. " WHERE fid=$fid AND ido BETWEEN '" . $IDO_min . "' AND '" . $IDO_max . "' ORDER BY ido")) {
+if( $result = pg_query("SELECT tanar, ido, diak FROM Fogado"
+			. " WHERE fid=" . $FA->id . " AND ido BETWEEN '" . $IDO_min . "' AND '" . $IDO_max . "' ORDER BY ido")) {
 	foreach ( pg_fetch_all($result) as $entry ) {
 		// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
 		if ( $entry['ido']%2 && $entry['diak']>=0 ) { $FOGADO[$entry['tanar']]['paratlan'] = 1; }
@@ -150,11 +126,11 @@ function ValidateRadio ( $Teacher, $Time ) {
 	global $FOGADO, $USER;
 	if ( $FOGADO[$Teacher][$Time] != 0 ) { return $FOGADO[$Teacher]['nev'] . " " . tim($Time) . " idõpontja már foglalt, ide nem iratkozhat fel!"; }
 	foreach ( $FOGADO as $tan ) {
-		if ( $tan[$Time] == $USER['esz'] ) return "Önnek már foglalt a " . tim($Time) . " idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!";
+		if ( $tan[$Time] == $USER->id ) return "Önnek már foglalt a " . tim($Time) . " idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!";
 	}
-	if ( $FOGADO[$USER['ofo']][$Time] == -2 ) return "Önnek szülõi értekezlete van ebben az idõpontban (" . tim($Time) . ")!";
+	if ( $FOGADO[$USER->ofo][$Time] == -2 ) return "Önnek szülõi értekezlete van ebben az idõpontban (" . tim($Time) . ")!";
 	foreach ( array_keys($FOGADO[$Teacher]) as $k ) {
-		if ( $FOGADO[$Teacher][$k] == $USER['esz'] ) { return $FOGADO[$Teacher]['nev'] . " " . tim($k) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!"; }
+		if ( $FOGADO[$Teacher][$k] == $USER->id ) { return $FOGADO[$Teacher]['nev'] . " " . tim($k) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!"; }
 	}
 	return NULL;
 }
@@ -162,18 +138,18 @@ function ValidateRadio ( $Teacher, $Time ) {
 //
 // checkboxok ellenõrzése (leiratkozás)
 //
-if ( $VAR_tip == 'mod' ) {
+if ( $_POST['tip'] == 'mod' ) {
 	foreach ( $FOGADO as $tanar ) {
-		$v = "VAR_c".$tanar['id'];
+		$v = "c".$tanar['id'];
 		foreach ( array_keys($tanar) as $Time ) {
-			if ( ( $tanar[$Time] == $id ) && !isset($$v) ) {
+			if ( ( $tanar[$Time] == $USER->id ) && !isset($_POST[$v]) ) {
 				$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
-				if ( pg_exec($q) ) {
+				if ( pg_query($q) ) {
 					$FOGADO[$tanar['id']][$Time] = "0";
 					$USER_LOG[] .= "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . tim($Time) . " - törölve.";
-					$QUERY_LOG[] .= "$q";
+					Ulog($USER->id, $q);
 				}
-				else { $QUERY_LOG[] .= "Légy került a levesbe: $q!"; }
+				else { Ulog($USER->id, "Légy került a levesbe: $q!"); }
 			}
 		}
 	}
@@ -182,28 +158,28 @@ if ( $VAR_tip == 'mod' ) {
 //
 // rádiógombok ellenõrzése (feliratkozás)
 //
-foreach (explode(' ', $VARIABLES) as $var) {
-	if ( ereg ("^r([0-9]+)$", $var, $match) ) {
+reset($_POST);
+while (list($k, $v) = each($_POST)) {
+	if ( ereg ("^r([0-9]+)$", $k, $match) ) {
 		$Teacher = $match[1];
-		$VAR = "VAR_$var";
-		$Time = $$VAR;
+		$Time = $v;
 		if ( $validate = ValidateRadio ($Teacher, $Time) ) {
-			$QUERY_LOG[] .= "$validate";
+			Ulog($USER->id, $validate);
 			$USER_LOG[] .= "$validate";
 		}
 		else { // rendben, lehet adatbázisba rakni
-			$q = "UPDATE Fogado SET diak=$id WHERE tanar=$Teacher AND ido=$Time";
-			if ( pg_exec($q) ) {
-				$FOGADO[$Teacher][$Time] = $id;
+			$q = "UPDATE Fogado SET diak=" . $USER->id . " WHERE tanar=$Teacher AND ido=$Time";
+			if ( pg_query($q) ) {
+				$FOGADO[$Teacher][$Time] = $USER->id;
 				$USER_LOG[] .= "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . tim($Time) . " - bejegyezve.";
-				$QUERY_LOG[] .= "$q";
+				Ulog($USER->id, $q);
 			}
-			else { $QUERY_LOG[] .= "Légy került a levesbe: $q!"; }
+			else { Ulog($USER->id, "Légy került a levesbe: $q!"); }
 		}
 	}
 }
 
-print "\n<form name=tabla><table border=1>";
+print "\n<form name=tabla method=post><table border=1>";
 print $A . $B;
 foreach ( $FOGADO as $tanar ) {
 	$ttabla .= tanar_ki($tanar);
@@ -212,20 +188,11 @@ foreach ( $FOGADO as $tanar ) {
 print $ttabla;
 print "<tr><td colspan=" . (($IDO_max-$IDO_min)/2+2) . " align=right class=right>\n";
 print "  <input type=hidden name=tip value=mod>\n";
-print "  <input type=hidden name=id value=" . $id . ">\n";
 print "  <input type=submit value=' Mehet '>\n";
 print "</table>\n\n";
 print "</form>\n";
 
-if ($ADMIN) {
-	foreach ($QUERY_LOG as $log) print "<b>$log</b><br>\n";
-	foreach (explode(' ', $VARIABLES) as $v) {
-		$V="VAR_$v";
-		print $V . " : " . $$V . "<br>\n";
-	}
-} else {
-	foreach ($USER_LOG as $log) print "<b>$log</b><br>\n";
-}
+foreach ($USER_LOG as $log) print "<font size=-1><b>$log</b></font><br>\n";
 
 pg_close ($db);
 Tail();

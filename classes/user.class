@@ -1,0 +1,100 @@
+<?
+if (defined("user.class")) return;
+define("user.class", "1");
+
+include("fogado.inc");
+
+class User {
+
+	function User() {
+		if (isset($_REQUEST['kilep'])) { $this->kilep(); }
+		$this->good = false;
+		$this->probed = false;
+
+		# Ha kaptunk az URL-ben id-et:
+		session_start();
+		$this->admin = $_SESSION['admin'];
+		if (isset($_REQUEST['id'])) {
+
+			# Elõször az id alapján beállítjuk, ha minden jól megy, ez lesz a juzer.
+			$this->user_init($_REQUEST['id']);
+
+			# Aztán megnézzük, hogy lehet-e rögzíteni?  Ha admin, akkor igen.
+			if ($this->admin) {
+				$_SESSION['id'] = $_REQUEST['id'];
+				$this->good = true;
+			}
+
+			# Ha eddig is ez volt az érvényes user, akkor jó.
+			elseif ($_SESSION['id'] == $_REQUEST['id']) {
+				$this->good = true;
+			}
+
+			# Különben jelszavazni kell, megnézzük, van-e
+			elseif (isset($_REQUEST["jelszo"])) {
+
+				# Ha jó a jelszó, regisztráljuk
+				if (md5($_REQUEST['jelszo']) === $this->jelszo) {
+					if ($this->id === "0") {
+						$_SESSION['admin'] = true;
+						$this->admin = true;
+					}
+					$_SESSION['id'] = $this->id;
+					$this->good = true;
+				}
+				$this->probed = true;
+			}
+
+			if (!$this->good) {
+				$this->loginUrlap();
+				exit();
+			}
+		session_write_close();
+		}
+
+		# Ha nincs az URL-ben id, de legalább a session-ben van:
+		elseif (isset($_SESSION['id'])) {
+			$this->user_init($_SESSION['id']);
+		}
+
+		# Ha meg semmise nincsen, 
+		else {
+			@readfile("leiras.html");
+#			Head("Hibás bejelentkezés");
+#			hiba ("Nincs megadva azonosító");
+#			print "Térj vissza a <a href=index.html target=_top>kezdõoldalra</a>!\n";
+#			Tail();
+			exit();
+		}
+	}
+			
+	function user_init($uid) {
+		if ($res = pg_query("SELECT * FROM Diak WHERE id=" . $uid) and pg_num_rows($res)==1) {
+			$u = pg_fetch_assoc($res);
+			while(list($k, $v) = each($u)) $this->$k = $v;
+		}
+	}
+
+	function kilep() {
+		session_start();
+		session_destroy();
+		header('Location: ' . $_SERVER['PHP_SELF']);
+	}
+
+	function loginUrlap() {
+		Head('Fogatóóra bejelentkezés');
+		print "\n<h3>" . $this->dnev . " " . $this->onev . "</h3>\n"
+			. (($this->probed) ? "Rossz jelszót adtál!<br>\n" : "")
+			. "<script language=JavaScript><!--\n"
+			. "    document.forms[0].jelszo.focus();\n"
+			. "//--></script>\n"
+			. "<form action='" . $_SERVER['PHP_SELF'] . "' method=post>\n"
+			. "  Jelszó: <input type=password size=8 name=jelszo>\n"
+			. "  <input type=hidden name=id value=" . $this->id . ">\n"
+			. "  <input type=submit value='Belépés'>\n"
+			. "</form>\n\n";
+		Tail();
+	}
+}
+
+?>

@@ -1,15 +1,32 @@
 <?
 
-$DataBase = "iskola";
-$Szulo = "fogado.php";
-// $Host = "www.szepi.hu";
+if (defined("fogado.inc")) return;
+define("fogado.inc", "1");
 
-// $db = pg_connect("dbname=" . $DataBase . " user=" . $_SERVER['REMOTE_USER']) or die("Nem mén a kapcsolat, hö!");
-$db = pg_connect("dbname=" . $DataBase . " user=szaszi") or die("Nem mén a kapcsolat, hö!");
+$db = pg_connect("host=localhost dbname=fogado user=fadmin"
+	. " password='" . '$1$JV6c.fJ6$PZLyMROI/Pct3ywWyNhgQ.' . "'")
+   	or die("Nem mén a kapcsolat, hö!");
 
-function Err($hiba) {
-	print "<p><hr><b>!!! - $hiba - !!!</b><hr>\n";
+set_include_path(get_include_path() . ":./classes");
+
+session_start();
+if ($_SESSION['admin']) define("ADMIN", 1);
+else define("ADMIN", 0);
+session_write_close();
+
+include("fogadoora.class");
+$FA = new Fogadoora();
+define("fid", $FA->id);
+# define("fIdoMin", $FA->id);
+# define("fIdoMax", $FA->id);
+
+function hiba($err) {
+	print "<p><hr><b>!!! - $err - !!!</b><hr>\n";
+	Ulog ($err);
 }
+
+// Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
+function tim($time) { return gmdate('H:i', $time*300); }
 
 function Head($cimsor) {
 print <<< EnD
@@ -38,36 +55,10 @@ function Tail() {
 	print "</body>\n</html>\n";
 }
 
-function get_var($var){
-	global ${"VAR_".$var}, $$var;
-	if (isset(${"VAR_".$var})) {
-		$$var = preg_replace("/^.*#/", '', ${"VAR_".$var});
-//		print $var."='".$$var."' (".${"VAR_".$var}.") | ";
-	}
-}
-
-function Diak_select($oszt, $id) {
-	if ( $result = pg_exec("SELECT esz AS esz,enev FROM Ember WHERE oszt='" . $oszt . "' ORDER BY enev")) {
-		$OSZTALY = pg_fetch_all($result);
-		$res = "<form>\n<select name=id>\n";
-		foreach ($OSZTALY as $d) {
-			$res .= "<option value=" . $d['esz'] . (($d['esz']==$id)?" selected>":">") . $d['enev'] . "\n";
-		}
-		$res .= "</select>\n<input type=submit value=' OK '>\n</form>\n";
-		return $res;
-	}
-}
-
-function Osztaly_select($oszt) {
-	if( $result = pg_exec("SELECT * FROM Osztaly_view ORDER BY evf, ab")) {
-		$ISKOLA = pg_fetch_all($result);
-		$res = "<form>\n<select name=o>\n";
-		foreach ($ISKOLA as $d) {
-			$res .= "<option value=" . $d['oszt'] . (($d['oszt']===$oszt)?" selected>":">") . $d['onev'] . "\n";
-		}
-		$res .= "</select>\n<input type=submit value=' OK '>\n</form>\n";
-		return $res;
-	}
+function ulog($id, $s) {
+	$q = "INSERT INTO Ulog (ido, uid, host, log) VALUES ('"
+		. date("Y-m-d H:i:s")."', ".$id.", '".$_SERVER['REMOTE_ADDR']."', '".pg_escape_string($s)."')";
+	pg_query($q);
 }
 
 ?>

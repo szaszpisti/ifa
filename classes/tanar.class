@@ -1,0 +1,53 @@
+<?
+if (defined("tanar.class")) return;
+define("tanar.class", "1");
+
+include("fogado.inc");
+
+class Tanar {
+
+	function Tanar() {
+		$this->id = "";
+		session_start();
+		# Feltöltjük a tanár tulajdonságait
+		if (isset($_REQUEST['id']) && $_SESSION['admin']) {
+			if ($res = pg_query("SELECT * FROM Tanar WHERE id=".$_REQUEST["id"]) and pg_num_rows($res)==1) {
+				$u = pg_fetch_assoc($res);
+				while(list($k, $v) = each($u)) {
+					$this->$k = $v;
+				}
+			}
+		}
+		session_write_close();
+
+		if ($this->id == "") {
+			Head("Permission denied");
+			hiba ("Csak az ADMIN számára hozzáférhetõ");
+			Tail();
+			exit();
+		}
+
+		$q = "SELECT ido, diak, dnev, onev FROM Fogado AS F"
+   		. " LEFT OUTER JOIN Diak AS D ON (F.diak=D.id AND D.id>0)"
+			. " WHERE F.fid=".fid." AND F.tanar=".$this->id." ORDER BY ido";
+		if ($result = pg_query($q)) {
+   		$rows = pg_num_rows($result);
+   		for($i=0; $i<$rows; $i++) {
+      		$sor = pg_fetch_array($result, $i);
+      		if ($i==0) { $this->IDO_min = $sor['ido']; }
+      		$this->diak[$sor['ido']] = $sor['diak'];
+      		$this->dnev[$sor['ido']] = $sor['dnev']." (".$sor['onev'].")";
+
+   		}
+   		$this->IDO_max = $sor['ido'];
+		}
+
+		# Megnézzük, hogy van-e benne páratlan (5 perces) idõpont
+		$this->ODD = false;
+		for ($i=$this->IDO_min-($this->IDO_min%2)-1; $i<=$this->IDO_max; $i+=2)
+			if ( isset($this->diak[$i]) && $this->diak[$i]>=0 ) $this->ODD = true;
+
+	}
+}
+
+?>
