@@ -85,7 +85,7 @@ switch ($VAR_page) {
 		*/
 
 		if ( !isset($VAR_datum) ) {
-			Err ("Nincs dátum megadva");
+			hiba ("Nincs dátum megadva");
 			return 1;
 		}
 
@@ -98,7 +98,7 @@ print "megvan";
 				$q = "INSERT INTO Fogado_admin (datum, kezd, veg, tartam) VALUES"
 					. " ('$VAR_datum', $kezd, $veg, $VAR_tartam)";
 			} else {
-				Err ("Valami nincs megadva");
+				hiba ("Valami nincs megadva");
 				return 1;
 			}
 
@@ -106,16 +106,16 @@ print "megvan";
 			if ( $result = pg_exec($q) ) {
 				print "RENDBEN: $q\n";
 			} else {
-				Err ("Nem sikerült regisztrálni a fogadóórát");
+				hiba ("Nem sikerült regisztrálni a fogadóórát");
 				return 1;
 			}
 
 		} elseif ( count($result) == 1 ) { // van egy ilyen
 			$res = pg_fetch_array(pg_exec("SELECT count(*) as num FROM Fogado WHERE fid=" . $result[0]['id'] ));
-			if ( $res['num'] > 0 ) { Err ("E napon már vannak bejegyzések - valami nem jó"); return 1; }
+			if ( $res['num'] > 0 ) { hiba ("E napon már vannak bejegyzések - valami nem jó"); return 1; }
 
 		} else {
-			Err ("HAJAJ! Nagy GÁZ van... (több egyforma dátum?)");
+			hiba ("HAJAJ! Nagy GÁZ van... (több egyforma dátum?)");
 			return 1;
 		}
 
@@ -168,13 +168,13 @@ print "megvan";
 //		print "<h3>Nincs több oldal... mit tegyek?!</h3>\n";
 
 		// ha van bejegyezve már ilyen id az idõpontoknál, akkor már jártunk itt -> hiba
-		if (!isset($VAR_fid)) { Err ("Nincs fogadó-azonosító"); return 1; }
+		if (!isset($VAR_fid)) { hiba ("Nincs fogadó-azonosító"); return 1; }
 
 		$res = pg_fetch_array(pg_exec("SELECT count(*) as num FROM Fogado_admin WHERE id=$VAR_fid" ));
-		if ( $res['num'] != 1 ) { Err ("Nincs ilyen nap regisztrálva"); return 1; }
+		if ( $res['num'] != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
 
 		$res = pg_fetch_array(pg_exec("SELECT count(*) as num FROM Fogado WHERE fid=$VAR_fid" ));
-		if ( $res['num'] > 0 ) { Err ("E napon már vannak bejegyzések - valami nem jó"); return 1; }
+		if ( $res['num'] > 0 ) { hiba ("E napon már vannak bejegyzések - valami nem jó"); return 1; }
 
 		// A változókat rendezzük használható tömbökbe
 		//    $Jelen[id](id, kezd, veg, tartam)

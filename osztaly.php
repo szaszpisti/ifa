@@ -8,15 +8,16 @@
 </head>
 <body>
 
+<? $f = $DOCUMENT_NAME ?>
 <table><!-- border=1 cellpadding=1 cellspacing=1> -->
 <tr><td colspan=3 align=center><a href=install.php?page=1 target=duma>ADMIN</a><td>&nbsp;<td>&nbsp;
-<tr><td><a href=?o=d09a>7.a</a> <td>&nbsp;<td>&nbsp;
-<tr><td><a href=?o=d08a>8.a</a> <td>&nbsp;<td>&nbsp;
-<tr><td><a href=?o=d07a>9.a</a> <td><a href=?o=d07b>9.b</a> <td>&nbsp;
-<tr><td><a href=?o=d06a>10.a</a><td><a href=?o=d06b>10.b</a><td>&nbsp;
-<tr><td><a href=?o=d05a>11.a</a><td><a href=?o=d05b>11.b</a><td>&nbsp;
-<tr><td><a href=?o=d04a>12.a</a><td><a href=?o=d04b>12.b</a><td><a href=?o=d04c>12.c</a>
-<tr><td colspan=3><a href=?o=t>tanárok</a><td>&nbsp;<td>&nbsp;
+<tr><td><a href=<?echo $f?>?o=d09a>7.a</a> <td>&nbsp;<td>&nbsp;
+<tr><td><a href=<?echo $f?>?o=d08a>8.a</a> <td>&nbsp;<td>&nbsp;
+<tr><td><a href=<?echo $f?>?o=d07a>9.a</a> <td><a href=<?echo $f?>?o=d07b>9.b</a> <td>&nbsp;
+<tr><td><a href=<?echo $f?>?o=d06a>10.a</a><td><a href=<?echo $f?>?o=d06b>10.b</a><td>&nbsp;
+<tr><td><a href=<?echo $f?>?o=d05a>11.a</a><td><a href=<?echo $f?>?o=d05b>11.b</a><td>&nbsp;
+<tr><td><a href=<?echo $f?>?o=d04a>12.a</a><td><a href=<?echo $f?>?o=d04b>12.b</a><td><a href=<?echo $f?>?o=d04c>12.c</a>
+<tr><td colspan=3><a href=<?echo $f?>?o=t>tanárok</a><td>&nbsp;<td>&nbsp;
 </table>
 
 <?

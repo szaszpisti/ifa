@@ -1,12 +1,67 @@
 <?
+
+header('Pragma: no-cache'); 
+header('Cache-Control: no-store, no-cache, must-revalidate, post-c heck=0, pre-check=0');
+header('Expires: Mon,26 Jul 1980 05:00:00 GMT');
+
 session_start();
-if (!isset($_SESSION['szamlalo'])) {
-   $_SESSION['szamlalo'] = 0;
-} else {
-   $_SESSION['szamlalo']++;
+if (defined("SID") && SID != "") {
+	print "Az oldal használatához engedélyezni kell a böngészõben"
+		. SID . " a sütik (cookies) fogadását a www.szepi.hu géprõl!\n";
+	session_destroy();
+	return 0;
 }
 
-phpinfo();
+//print session_id()."<br>";
+//header("HTTP/1.0 404 Not Found");
+// header('Location: http://www.szepi.hu');
+//
+//setcookie("neve", "erteke"); // , time()+120, "/fogado/", "ssi.sik.hu", 1);
+//setcookie("neve", "erteke", time()+120, "/fogado/", "ssi.sik.hu", 1);
+// 656.
+
+// $location = "https://" . $_SERVER["HTTP_HOST"] . $_SERVER['REQUEST_URI'];
+// header (session_header("Location: " . $location));
+
+//session_destroy();
+//phpinfo();
+// 648.
+$p = session_get_cookie_params();
+while(list($k, $v) = each($p)) {
+	print "<br>Cookie parameter: " . $k . ", value: " . $v;
+}
+
+//if (defined("SID")) { print "van SID"; } else { print "nincs SID"; }
+
+//echo "=".$_SESSION['SID']."=";
+/*
+// 648.
+print "<br>" . session_id();
+$x = explode (" ", microtime());
+$id = session_id ("id" . $x[1] . substr ($x[0], 2) );
+print "<br>" . session_id();
+*/
+
+
+if (!isset($_SESSION['szamlalo'])) {
+   $_SESSION['szamlalo'] = 0;
+//	print "nem volt";
+} else {
+   $_SESSION['szamlalo']++;
+//	print $_SESSION['szamlalo'];
+}
+
+$szoveg = "hello";
+print "<h3>=" . $_SESSION['szamlalo'] . "=</h3>\n";
+
+print "<form><input type=submit></form>\n";
+//if (!session_register("szoveg")) print "<br>Session register failed\n";
+//session_register("szoveg");
+if (isset($_SESSION['szamlalo'])) print "<br>Mukodik\n";
+
+print "<br>THE END";
+//phpinfo();
+return 0;
 require('fogado.inc');
 
 $ADMIN = 0;
@@ -228,6 +283,8 @@ if ($ADMIN) {
 }
 
 pg_close ($db);
+session_remove(SID);
+if(!session_destroy()){ print "<br><h2>Session destroy failed!</h2>\n"; }
 Tail();
 
 ?>
