@@ -42,19 +42,8 @@ print Diak_select($USER['oszt'], $id);
 print "\n<h3>" . $USER['enev'] . " (" . $USER['onev'] . ")<br>\n";
 print "<font size=-1>(Osztályfõnök: " . $USER['ofonev'] . ")</h3>\n";
 
-// Egy cella kiírása
-function td_ki($i, $VAL, $rows, $class) {
-	global $TANAR;
-	$j=$i+1;
-	while ($TANAR[$j]['diak']==$VAL && $j<=$rows) $j++;
-	$td = "  <td class=" . $class;
-	if ( $j>$i+1 ) $td .= " colspan=" . ($j-$i);
-	$td .= ">";
-	return array('j' => $j, 'td' => $td);
-}
-
 // Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
-function tim($time) { return gmdate('H:i', $time*300); }
+// function tim($time) { return gmdate('H:i', $time*300); }
 
 function tanar_ki($tanar) {
 	global $IDO_min, $IDO_max, $USER, $K, $ADMIN;
@@ -67,24 +56,31 @@ function tanar_ki($tanar) {
 //		$d=$tanar[$i];
 		switch ($tanar[$i]) {
 			case -2:
-				if ( ($USER['ofo'] == $tanar['tanar']) || $ADMIN ) { $d = szuloi; }
+				if ( ($USER['ofo'] == $tanar['id']) || $ADMIN ) { $d = szuloi; }
+				else { $d = foglalt; }
+				break;
 			case NULL:
 				$d = foglalt; break;
-			case -1:                   // helyben marad
+			case -1:                   // az elõzõ folytatása
+				if ( $pred == szabad ) { $d = szabad2; }
 				break;
 			case 0:
 				$d = szabad; break;
 			case $USER['esz']:
-				$d = sajat; break;
+				if ( $pred == sajat ) { $d = sajat2; }
+				else { $d = sajat; }
+				break;
 			default:
 				$d = foglalt; break;
 		}
-		if ( $d != $pred || $d == szabad ) {
-			array_push ( $K[0], array($d) );
-			array_push ( $K[1], array($d) );
+		if ( ( $d != $pred && $d != szabad2 && $d != sajat2 ) || $d == szabad ) {
+			array_push ( $K[$i%2], array($d) );
+			array_push ( $K[1-$i%2], array() );
+			print "\nNEW: $i (".($i%2).") -> $d";
 		}
 		else {
-			array_push ( $K[$i%2][count($K[$i%2])-1], 'x' );
+			array_push ( $K[$i%2][count($K[$i%2])-1], $d );
+			print "\n     $i (".($i%2).") -> $d";
 		}
 		$pred = $d;
 	}
@@ -102,7 +98,9 @@ function tanar_ki($tanar) {
 			case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
 			case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
 			case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=t" . $tanar['id'] . "r value=$t>\n"; break;
+			case szabad2: $tmp .= "  <td class=szabad$span>&nbsp;\n"; break;
 			case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=t" . $tanar['id'] . "c checked>\n"; break;
+			case sajat2:  $tmp .= "  <td class=sajat$span>&nbsp;\n"; break;
 		}
 		$t += count($K[0][$i]) * 2;
 	}
@@ -118,12 +116,16 @@ function tanar_ki($tanar) {
 				case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
 				case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
 				case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=t" . $tanar['id'] . "r value=$t>\n"; break;
+				case szabad2: $tmp .= "  <td class=szabad$span>&nbsp;\n"; break;
 				case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=t" . $tanar['id'] . "c checked>\n"; break;
+				case sajat2:  $tmp .= "  <td class=sajat$span>&nbsp;\n"; break;
 			}
 			$t += count($K[1][$i]) * 2;
 		}
 	}
 
+// var_dump($K[0]);
+// var_dump($K[1]);
 	return $tmp;
 
 }
@@ -135,8 +137,10 @@ foreach (explode(' ', $VARIABLES) as $v) {
 
 $Idoszak = pg_fetch_array(pg_exec("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE diak IS NOT NULL"));
 $IDO_min = $Idoszak['min']-($Idoszak['min']%2);
-$IDO_max = $Idoszak['max']-($Idoszak['min']%2);
+$IDO_max = $Idoszak['max']-($Idoszak['max']%2);
 
+// var_dump($IDO_min);
+// var_dump($IDO_max);
 // A fejléc sorok kiíratásához
 for ($ido=$IDO_min; $ido<$IDO_max; $ido+=2) {
 	$ora = floor($ido/12);
