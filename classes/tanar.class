@@ -45,10 +45,13 @@ class Tanar {
 
 		if (!$_SESSION['admin']) {                                    # ha nem admin, megnézzük, hogy tanár-e?
 			if ($_SESSION['tanar'] != $this->id) {                     # ha még nincs tanárként regisztrálva
-				if ( isset($this->emil)                                 # akkor kell az emil, jelszo a bejelentkezéshez
-						&& isset($_POST['jelszo'])
-						&& pam_auth($this->emil, $_POST['jelszo'], &$error) ) {
-					$_SESSION['tanar'] = $this->id;
+				if ( isset($this->emil) && isset($_POST['jelszo']) ) {  # akkor kell az emil, jelszo a bejelentkezéshez
+					if (pam_auth($this->emil, $_POST['jelszo'], &$error) ) {
+						$_SESSION['tanar'] = $this->id;
+						ulog ($this->id, $this->tnev . " -- LISTA");
+					} else {
+						ulog ($this->id, $this->tnev . " -- LISTA - ROSSZ JELSZÓ!");
+					}
 				} else {
 					Head("Fogadóóra - " . $TANAR->tnev);
 					print "\n<h3>" . $this->tnev . "</h3>\n"
