@@ -11,13 +11,13 @@
 
 <? $f = $DOCUMENT_NAME ?>
 <table><!-- border=1 cellpadding=1 cellspacing=1> -->
-<tr><td colspan=3><a href=admin.php?id=0 target=duma>ADMIN</a><td>&nbsp;<td>&nbsp;
-<tr><td><a href=<?=$f?>?o=d09a>7.a</a> <td>&nbsp;<td>&nbsp;
-<tr><td><a href=<?=$f?>?o=d08a>8.a</a> <td>&nbsp;<td>&nbsp;
-<tr><td><a href=<?=$f?>?o=d07a>9.a</a> <td><a href=<?=$f?>?o=d07b>9.b</a> <td>&nbsp;
-<tr><td><a href=<?=$f?>?o=d06a>10.a</a><td><a href=<?=$f?>?o=d06b>10.b</a><td>&nbsp;
-<tr><td><a href=<?=$f?>?o=d05a>11.a</a><td><a href=<?=$f?>?o=d05b>11.b</a><td>&nbsp;
-<tr><td><a href=<?=$f?>?o=d04a>12.a</a><td><a href=<?=$f?>?o=d04b>12.b</a><td><a href=<?=$f?>?o=d04c>12.c</a>
+<tr><td colspan=3><a href=admin.php?id=0 target=duma>ADMIN</a><td>&nbsp;
+<tr><td><a href=<?=$f?>?o=d10a>7.a</a> <td>&nbsp;
+<tr><td><a href=<?=$f?>?o=d09a>8.a</a> <td>&nbsp;
+<tr><td><a href=<?=$f?>?o=d08a>9.a</a> <td><a href=<?=$f?>?o=d08b>9.b</a>
+<tr><td><a href=<?=$f?>?o=d07a>10.a</a><td><a href=<?=$f?>?o=d07b>10.b</a>
+<tr><td><a href=<?=$f?>?o=d06a>11.a</a><td><a href=<?=$f?>?o=d06b>11.b</a>
+<tr><td><a href=<?=$f?>?o=d05a>12.a</a><td><a href=<?=$f?>?o=d05b>12.b</a>
 <tr><td colspan=3><a href=<?=$f?>?o=t>tanárok</a><td>&nbsp;<td>&nbsp;
 </table>
 
