@@ -1,5 +1,5 @@
 <?
-$db = pg_connect("dbname=iskola user=szaszi") or die("Nem mén a kapcsolat, hö!");
+require('fogado.inc');
 
 if (isset($VAR_id)) {
 	if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, E.*"
@@ -11,33 +11,9 @@ if (isset($VAR_id)) {
 	$USER['id'] = 300;
 	$USER['enev'] = 'Eleki Gergely';
 }
-$USER_nev = $USER['enev'];
 
-print <<< EnD
-<html>
-<head>
-  <title>Fogadóóra - $USER_nev </title>
-  <meta name="Author" content="Szász Imre">
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
-  <link rel="stylesheet" href="default.css" type="text/css">
-  <style type="text/css">
+head("Fogadóóra - " . $USER['enev']);
 
-    td { text-align: center; }
-    td.sajat { background-color: red; }
-    td.foglalt { background-color: #D0E0E0; }
-    td.szuloi { background-color: yellow; }
-  </style>
-  <script language=JavaScript><!--
-    function torol(sor) {
-    eval('var s = document.tabla.'+sor);
-    for (var i=0; i<s.length; i++)
-      s[i].checked=0;
-    }
-  //--></script>
-</head>
-
-<body>
-EnD;
 print "\n<h3>" . $USER['enev'] . "<br>\n";
 print "<font size=-1>(Osztályfőnök: " . $USER['ofonev'] . ")</h3>\n";
 
@@ -105,8 +81,8 @@ $sor = pg_fetch_array(pg_exec("SELECT max(ido) FROM Fogado WHERE diak IS NOT NUL
 $IDO_max = $sor[0];
 $IDO_max_array = explode (':', $IDO_max);
 
-$IDO_min_d = 6*$IDO_min_array[0]+floor($IDO_min_array[1]/6);
-$IDO_max_d = 6*$IDO_max_array[0]+floor($IDO_max_array[1]/6);
+$IDO_min_d = 6*$IDO_min_array[0]+floor($IDO_min_array[1]/10);
+$IDO_max_d = 6*$IDO_max_array[0]+floor($IDO_max_array[1]/10);
 
 for ($ido=$IDO_min_d; $ido<=$IDO_max_d; $ido++) {
 	$ora = floor($ido/6);
@@ -123,7 +99,7 @@ foreach (array_keys($IDO) as $ora) {
 		$B .= "<td>" . $perc . "0";
 }
 
-// print "Időtartam: " . $IDO_min . " -- " . $IDO_max . "<br>\n";
+print "\nFogadóóra: " . $IDO_min . " -- " . $IDO_max . "<br>\n";
 
 // Vesszük a tanarakat sorban:
 if( $result = pg_exec("SELECT tanar,enev FROM Fogado,Ember WHERE tip='t' AND tanar=esz GROUP BY tanar,enev ORDER BY enev")) {
@@ -139,9 +115,10 @@ print "\n<form name=tabla><table border=1>";
 print $A . $B;
 reset ( $FOGADO_orig );
 array_walk ( $FOGADO_orig, 'tanar_ki' );
+print "<tr><td colspan=" . ($IDO_max_d-$IDO_min_d+3) . " align=right class=right>\n";
+print "  <input type=hidden name=id value=" . $USER['esz'] . ">\n";
+print "  <input type=submit name=submit value=' Mehet '>\n";
 print "</table>\n\n";
-print "<input type=hidden name=id value=" . $USER['esz'] . ">\n";
-print "<input type=submit name=submit value=' Mehet '>\n";
 print "</form>\n";
 
 
