@@ -12,7 +12,7 @@ print "\n<h3>Fogadóóra: " . $FA->datum . "<br>\n"
 
 if ($res = pg_query("SELECT MIN(ido) AS eleje, MAX(ido) AS vege FROM Fogado WHERE fid=".$FA->id." AND tanar=".$USER->ofo." AND diak=-2")) {
 	$szuloi = pg_fetch_array($res);
-	$SzuloiSor = "<br><b>" . tim($szuloi['eleje']) . "-" . tim($szuloi['vege']+1) . " -- szülõi értekezlet</b>\n";
+	$SzuloiSor = "<br><b>" . FiveToString($szuloi['eleje']) . "-" . FiveToString($szuloi['vege']+1) . " -- szülõi értekezlet</b>\n";
 	$SzuloiEleje = $szuloi['eleje'];
 }
 
@@ -23,7 +23,7 @@ if ($res = pg_query("SELECT ido, tnev FROM Fogado, Tanar WHERE Tanar.id=tanar"
 			$Output .= $SzuloiSor;
 			$SzuloiSor = "";
 		}
-		$Output .= "<br>".tim($sor['ido'])." -- ".$sor['tnev']."\n";
+		$Output .= "<br>".FiveToString($sor['ido'])." -- ".$sor['tnev']."\n";
 	}
 }
 $Output .= $SzuloiSor;

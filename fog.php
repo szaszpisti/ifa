@@ -4,6 +4,11 @@ require('fogado.inc');
 include("user.class");
 $USER = new User();
 
+print "elso: ".$USER->id;
+$USER = new User(12);
+print "masodik: ".$USER->id;
+
+exit;
 Head("Fogadóóra - " . $USER->dnev);
 
 $USER_LOG = array();

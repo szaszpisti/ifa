@@ -36,11 +36,11 @@ switch ($_REQUEST['page']) {
 		print "<form><table class=tanar>\n<tr><td class=left>Dátum:<td><input name=datum type=text size=10 value=$Datum><br>\n";
 
 		$B .= "\n<tr><td class=left>Fogadóóra: <td>"
-			. ora("kora", $KezdoOra) . perc("kperc", $KezdoPerc) . "\n"
-			. ora("vora", $VegOra) . perc("vperc", $VegPerc) . "\n";
+			. SelectOra("kora", $KezdoOra) . SelectPerc("kperc", $KezdoPerc) . "\n"
+			. SelectOra("vora", $VegOra) . SelectPerc("vperc", $VegPerc) . "\n";
 		$B .= "\n<tr><td class=left>Szülõi: <td>"
-			. ora("skora", $SzuloiKezdoOra) . perc("skperc", $SzuloiKezdoPerc) . "\n"
-			. ora("svora", $SzuloiVegOra) . perc("svperc", $SzuloiVegPerc) . "\n";
+			. SelectOra("skora", $SzuloiKezdoOra) . SelectPerc("skperc", $SzuloiKezdoPerc) . "\n"
+			. SelectOra("svora", $SzuloiVegOra) . SelectPerc("svperc", $SzuloiVegPerc) . "\n";
 
 		print $B . $E;
 
@@ -118,13 +118,13 @@ switch ($_REQUEST['page']) {
 			$id=$t['id'];
 			print "<tr" . ($paros?" class=paros":"") . "><td>" . $t['tnev'] . "\n";
 			print "  <td><input type=checkbox name=a$id checked>\n";
-			print "  <td>" . ora("b$id", $KezdoOra) . "\n" . perc("c$id", $KezdoPerc) . "<td>\n";
-			print "  <td>" . ora("d$id", $VegOra) . "\n" . perc("e$id", $VegPerc) . "<td>\n";
+			print "  <td>" . SelectOra("b$id", $KezdoOra) . "\n" . SelectPerc("c$id", $KezdoPerc) . "<td>\n";
+			print "  <td>" . SelectOra("d$id", $VegOra) . "\n" . SelectPerc("e$id", $VegPerc) . "<td>\n";
 			print "  <td>" . tartam("f$id") . "<td>\n";
 			if ( isset($t['ofo']) ) {
 				print "  <td><input type=checkbox name=g$id checked>\n";
-				print "  <td>" . ora("h$id", $_REQUEST['skora']) . "\n" . perc("i$id", $_REQUEST['skperc']) . "<td>\n";
-				print "  <td>" . ora("j$id", $_REQUEST['svora']) . "\n" . perc("k$id", $_REQUEST['svperc']) . "\n";
+				print "  <td>" . SelectOra("h$id", $_REQUEST['skora']) . "\n" . SelectPerc("i$id", $_REQUEST['skperc']) . "<td>\n";
+				print "  <td>" . SelectOra("j$id", $_REQUEST['svora']) . "\n" . SelectPerc("k$id", $_REQUEST['svperc']) . "\n";
 			} else {
 				print "  <td colspan=4>\n";
 			}

@@ -135,20 +135,20 @@ function ValidateRadio ( $Teacher, $Time ) {
 	global $FOGADO, $USER;
 	$ret = array (valid => true, value => NULL);
 	if ( $FOGADO[$Teacher][$Time] != 0 ) {
-		return array(false, $FOGADO[$Teacher]['nev'] . " " . tim($Time) . " idõpontja már foglalt, ide nem iratkozhat fel!");
+		return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " idõpontja már foglalt, ide nem iratkozhat fel!");
 	}
 	foreach ( $FOGADO as $tan ) {
 		if ( $tan[$Time] == $USER->id ) {
-			return array(false, "Önnek már foglalt a " . tim($Time) . " idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!");
+			return array(false, "Önnek már foglalt a " . FiveToString($Time) . " idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!");
 		}
 	}
 	foreach ( array_keys($FOGADO[$Teacher]) as $k ) {
 		if ( $FOGADO[$Teacher][$k] == $USER->id ) {
-			return array(false, $FOGADO[$Teacher]['nev'] . " " . tim($k) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!");
+			return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($k) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!");
 		}
 	}
 	if ( $FOGADO[$USER->ofo][$Time] == -2 ) {
-		return array(true, "Önnek szülõi értekezlete van ebben az idõpontban (" . tim($Time) . ")!");
+		return array(true, "Önnek szülõi értekezlete van ebben az idõpontban (" . FiveToString($Time) . ")!");
 	}
 	return array(true, NULL);
 }
@@ -164,7 +164,7 @@ if ( $_POST['tip'] == 'mod' ) {
 				$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
 				if ( pg_query($q) ) {
 					$FOGADO[$tanar['id']][$Time] = "0";
-					$USER_LOG[] = "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . tim($Time) . " - törölve.";
+					$USER_LOG[] = "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - törölve.";
 					Ulog($USER->id, $q);
 				}
 				else { Ulog($USER->id, "Légy került a levesbe: $q!"); }
@@ -190,7 +190,7 @@ while (list($k, $v) = each($_POST)) {
 			$q = "UPDATE Fogado SET diak=" . $USER->id . " WHERE tanar=$Teacher AND ido=$Time";
 			if ( pg_query($q) ) {
 				$FOGADO[$Teacher][$Time] = $USER->id;
-				$USER_LOG[] = "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . tim($Time) . " - bejegyezve.";
+				$USER_LOG[] = "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . FiveToString($Time) . " - bejegyezve.";
 				Ulog($USER->id, $q);
 			}
 			else { Ulog($USER->id, "Légy került a levesbe: $q!"); }

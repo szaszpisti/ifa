@@ -6,21 +6,38 @@ include("fogado.inc");
 
 class Tanar {
 
-	function Tanar() {
-		$this->id = "";
+	function Tanar($tid = NULL) {
+		$this->id = NULL;       # A tanár azonosítója
+		$this->ODD = false;     # Ezzel nézzük, hogy van-e benne páratlan (5 perces) idõpont
+		$this->fogad = false;   # Van-e a tanárnál fogadóóra bejegyezve
+
+/*
+      $this->diak[ido]        # Adott idõpontban a diák azonosítója
+		$this->dnev[ido]        # Adott idõpontban a diák azonosítója
+  		$this->IDO_min          # elsõ idõpontja
+  		$this->IDO_max          # utolsó idõpontja + 1
+		$this->Kezdo(ora,perc)  # kezdete óra, perc
+		$this->Veg(ora,perc)    # vége óra, perc
+*/
+
 		session_start();
-		# Feltöltjük a tanár tulajdonságait
-		if (isset($_REQUEST['id']) && $_SESSION['admin']) {
-			if ($res = pg_query("SELECT * FROM Tanar WHERE id=".$_REQUEST["id"]) and pg_num_rows($res)==1) {
-				$u = pg_fetch_assoc($res);
-				while(list($k, $v) = each($u)) {
-					$this->$k = $v;
-				}
-			}
-		}
+		if (!$_SESSION['admin']) $this->id = NULL;                    # ha nem az admin van bejelentkezve, nem foglalkozunk vele
+		elseif (isset($tid)) $this->id = $tid;                        # ha van paraméter, azt vesszük id-nek
+		elseif (isset($_REQUEST['id'])) $this->id = $_REQUEST['id'];  # egyébként az elküldött id-et
+		else $this->id = NULL;                                        # ha az sincs, ejtjük
 		session_write_close();
 
-		if ($this->id == "") {
+		# Feltöltjük a tanár tulajdonságait
+		if (($result = pg_query("SELECT * FROM Tanar WHERE id=".$this->id)) && (pg_num_rows($result)==1)) {
+			$tan = pg_fetch_assoc($result);
+			while(list($k, $v) = each($tan)) {
+				$this->$k = $v;
+			}
+		}
+		# Ha az id nem szerepel az adatbázisban, nem tudunk mit csinálni
+		else $this->id = NULL;
+
+		if (!$this->id) {
 			Head("Permission denied");
 			hiba ("Csak az ADMIN számára hozzáférhetõ");
 			Tail();
@@ -28,27 +45,23 @@ class Tanar {
 		}
 
 		$q = "SELECT ido, diak, dnev, onev FROM Fogado AS F"
-   		. " LEFT OUTER JOIN Diak AS D ON (F.diak=D.id AND D.id>0)"
-			. " WHERE F.fid=".fid." AND F.tanar=".$this->id." AND F.diak IS NOT NULL ORDER BY ido";
-		if ($result = pg_query($q)) {
-   		$rows = pg_num_rows($result);
-   		for($i=0; $i<$rows; $i++) {
-      		$sor = pg_fetch_array($result, $i);
-      		if ($i==0) { $this->IDO_min = $sor['ido']; }
-      		$this->diak[$sor['ido']] = $sor['diak'];
-      		$this->dnev[$sor['ido']] = $sor['dnev']." (".$sor['onev'].")";
-
-   		}
-   		$this->IDO_max = $sor['ido'];
-			$this->Kezdo = array ('ora' => floor($this->IDO_min/12), 'perc' => 5*($this->IDO_min%12));
-			$this->Veg = array ('ora' => floor(($this->IDO_max+1)/12), 'perc' => 5*(($this->IDO_max+1)%12));
+			. " LEFT OUTER JOIN Diak AS D ON (F.diak=D.id AND D.id>0)"
+			. " WHERE F.fid=".fid." AND F.tanar=".$this->id." ORDER BY ido";
+		if (($result = pg_query($q)) && ($rows = pg_num_rows($result)) > 0) {
+			$this->fogad = true;
+			for($i=0; $i<$rows; $i++) {
+				$sor = pg_fetch_array($result, $i);
+				if ($i==0) { $this->IDO_min = $sor['ido']; }
+				if (($sor['ido']%2) && ($sor['diak']>=0)) $this->ODD = true;
+				$this->diak[$sor['ido']] = $sor['diak'];
+				if (isset($sor['dnev'])) {
+					$this->dnev[$sor['ido']] = $sor['dnev']." (".$sor['onev'].")";
+				}
+			}
+			$this->IDO_max = $sor['ido']+1;
+			$this->Kezdo = FiveToTime($this->IDO_min);
+			$this->Veg   = FiveToTime($this->IDO_max);
 		}
-
-		# Megnézzük, hogy van-e benne páratlan (5 perces) idõpont
-		$this->ODD = false;
-		for ($i=$this->IDO_min-($this->IDO_min%2)-1; $i<=$this->IDO_max; $i+=2)
-			if ( isset($this->diak[$i]) && $this->diak[$i]>=0 ) $this->ODD = true;
-
 	}
 }
 
