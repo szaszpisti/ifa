@@ -13,6 +13,7 @@ if ( $result = pg_exec("SELECT O.esz AS ofo, O.enev AS ofonev, O.onev, E.*"
 	$USER = pg_fetch_array($result);
 }
 $QUERY_LOG = array();
+$USER_LOG = array();
 
 Head("Fogadóóra - " . $USER['enev']);
 
@@ -138,8 +139,8 @@ function ValidateRadio ( $Teacher, $Time ) {
 		if ( $tan[$Time] == $USER['esz'] ) return "Önnek már foglalt a " . tim($Time) . " idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!";
 	}
 	if ( $FOGADO[$USER['ofo']][$Time] == -2 ) return "Önnek szülõi értekezlete van ebben az idõpontban (" . tim($Time) . ")!";
-	foreach ( $FOGADO[$Teacher] as $i ) {
-		if ( $i == $USER['esz'] ) { return $FOGADO[$Teacher]['nev'] . " " . tim($Time) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!"; }
+	foreach ( array_keys($FOGADO[$Teacher]) as $k ) {
+		if ( $FOGADO[$Teacher][$k] == $USER['esz'] ) { return $FOGADO[$Teacher]['nev'] . " " . tim($k) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!"; }
 	}
 	return NULL;
 }
@@ -154,8 +155,12 @@ if ( $VAR_tip == 'mod' ) {
 				$v = "VAR_c".$tanar['id'];
 				if ( !isset($$v) ) {
 					$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
-					if ( pg_exec($q) ) { $FOGADO[$tanar['id']][$Time] = "0"; $QUERY_LOG[] .= "RENDBEN: $q"; }
-					else { $QUERY_LOG[] .= "VALAMI NEM JÓL VAN: $q"; }
+					if ( pg_exec($q) ) {
+						$FOGADO[$tanar['id']][$Time] = "0";
+						$USER_LOG[] .= "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . tim($Time) . " - törölve.";
+						$QUERY_LOG[] .= "$q";
+					}
+					else { $QUERY_LOG[] .= "Légy került a levesbe: $q!"; }
 				}
 			}
 		}
@@ -172,11 +177,16 @@ foreach (explode(' ', $VARIABLES) as $var) {
 		$Time = $$VAR;
 		if ( $validate = ValidateRadio ($Teacher, $Time) ) {
 			$QUERY_LOG[] .= "$validate";
+			$USER_LOG[] .= "$validate";
 		}
 		else { // rendben, lehet adatbázisba rakni
 			$q = "UPDATE Fogado SET diak=$id WHERE tanar=$Teacher AND ido=$Time";
-			if ( pg_exec($q) ) { $FOGADO[$Teacher][$Time] = $id; $QUERY_LOG[] .= "RENDBEN: $q"; }
-			else { $QUERY_LOG[] .= "VALAMI NEM JÓL VAN: $q"; }
+			if ( pg_exec($q) ) {
+				$FOGADO[$Teacher][$Time] = $id;
+				$USER_LOG[] .= "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . tim($Time) . " - bejegyezve.";
+				$QUERY_LOG[] .= "$q";
+			}
+			else { $QUERY_LOG[] .= "Légy került a levesbe: $q!"; }
 		}
 	}
 }
@@ -195,13 +205,14 @@ print "  <input type=submit value=' Mehet '>\n";
 print "</table>\n\n";
 print "</form>\n";
 
-foreach ($QUERY_LOG as $log) {
-	print "<b>$log</b><br>\n";
-}
-
-foreach (explode(' ', $VARIABLES) as $v) {
-	$V="VAR_$v";
-	print $V . " : " . $$V . "<br>\n";
+if ($ADMIN) {
+	foreach ($QUERY_LOG as $log) print "<b>$log</b><br>\n";
+	foreach (explode(' ', $VARIABLES) as $v) {
+		$V="VAR_$v";
+		print $V . " : " . $$V . "<br>\n";
+	}
+} else {
+	foreach ($USER_LOG as $log) print "<b>$log</b><br>\n";
 }
 
 pg_close ($db);
