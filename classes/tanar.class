@@ -1,90 +1,49 @@
 <?
-if (defined("tanar.class")) return;
-define("tanar.class", "1");
-
-include("fogado.inc");
+require_once('login.php');
+require_once('fogado.inc');
 
 class Tanar {
 
-	function Tanar($tid = NULL) {
-		$this->id = NULL;       # A tanár azonosítója
+	function Tanar($tid) {
+
+		$this->id = $tid;       # A tanár azonosítója
 		$this->ODD = false;     # Ezzel nézzük, hogy van-e benne páratlan (5 perces) idõpont
 		$this->fogad = false;   # Van-e a tanárnál fogadóóra bejegyezve
 
 /*
-		$this->diak[ido]        # Adott idõpontban a diák azonosítója
-		$this->dnev[ido]        # Adott idõpontban a diák azonosítója
+		$this->diak[ido]        # "ido" idõpontban a diák azonosítója
+		$this->dnev[ido]        # "ido" idõpontban a diák neve
 		$this->IDO_min          # elsõ idõpontja
 		$this->IDO_max          # utolsó idõpontja + 1
-		$this->Kezdo(ora,perc)  # kezdete óra, perc
-		$this->Veg(ora,perc)    # vége óra, perc
 */
 
-		if (isset($_REQUEST['kilep'])) {
-			session_start();
-			session_destroy();
-			header('Location: ' . $_SERVER['PHP_SELF'] . "?id=" . $_REQUEST['id']);
-		}
-
-		session_start();
-		if (isset($tid)) $this->id = $tid;                            # ha van paraméter, azt vesszük id-nek
-		elseif (isset($_REQUEST['id'])) $this->id = $_REQUEST['id'];  # egyébként az elküldött id-et
-		else $this->id = NULL;                                        # ha az sincs, ejtjük
-
 		# Feltöltjük a tanár tulajdonságait
-		if (($result = @pg_query("SELECT * FROM Tanar WHERE id=".$this->id)) && (pg_num_rows($result)==1)) {
+		if (($result = @pg_query("SELECT * FROM Tanar WHERE id=" . $this->id)) && (pg_num_rows($result)==1)) {
 			$tan = pg_fetch_assoc($result);
 			while(list($k, $v) = each($tan)) {
 				$this->$k = $v;
 			}
 		}
-		# Ha az id nem szerepel az adatbázisban, nem tudunk mit csinálni
-		else $this->id = NULL;
-
-		if (!$this->id) hiba ("Nem érényes ID: " . $this->id);
-
-		if (!$_SESSION['admin']) {                                    # ha nem admin, megnézzük, hogy tanár-e?
-			if ($_SESSION['tanar'] != $this->id) {                     # ha még nincs tanárként regisztrálva
-				if ( isset($this->emil) && isset($_POST['jelszo']) ) {  # akkor kell az emil, jelszo a bejelentkezéshez
-					if (pam_auth($this->emil, $_POST['jelszo'], &$error) ) {
-						$_SESSION['tanar'] = $this->id;
-						ulog ($this->id, $this->tnev . " -- LISTA");
-					} else {
-						ulog ($this->id, $this->tnev . " -- LISTA - ROSSZ JELSZÓ!");
-					}
-				} else {
-					Head("Fogadóóra - " . $TANAR->tnev, ' onLoad="document.login.jelszo.focus()"');
-					print "\n<h3>" . $this->tnev . "</h3>\n"
-						. "<form name=login action='" . $_SERVER['PHP_SELF'] . "' method=post>\n"
-						. "  Jelszó: <input type=password size=8 name=jelszo>\n"
-						. "  <input type=hidden name=id value=" . $this->id . ">\n"
-						. "  <input type=submit value='Belépés'>\n"
-						. "</form>\n\n";
-					Tail();
-					exit;
-				}
-			}
-		}
-
-		if ($_SESSION['admin']) { $this->ListaID = 0; } else { $this->ListaID = $_SESSION['tanar']; }
 
 		$q = "SELECT ido, diak, dnev, onev FROM Fogado AS F"
 			. " LEFT OUTER JOIN Diak AS D ON (F.diak=D.id AND D.id>0)"
-			. " WHERE F.fid=".fid." AND F.tanar=".$this->id." ORDER BY ido";
+			. " WHERE F.fid=" . fid . " AND F.tanar=" . $tid . " ORDER BY ido";
 		if (($result = pg_query($q)) && ($rows = pg_num_rows($result)) > 0) {
-			$this->fogad = true;
+			$this->fogad = true;                             # ha van idõpontja akkor fogad
 			for($i=0; $i<$rows; $i++) {
 				$sor = pg_fetch_array($result, $i);
-				if ($i==0) { $this->IDO_min = $sor['ido']; }
-				if (($sor['ido']%2) && ($sor['diak']>=0)) $this->ODD = true;
-				$this->diak[$sor['ido']] = $sor['diak'];
-				if (isset($sor['dnev'])) {
-					$this->dnev[$sor['ido']] = $sor['dnev']." (".$sor['onev'].")";
+				if ($i==0) {                                  # a 0. a kezdõidõpont
+					$this->IDO_min = $sor['ido'];
+				}
+				if (($sor['ido']%2) && ($sor['diak']>=0)) {   # ha páratlan
+					$this->ODD = true;
+				}
+				$this->diak[$sor['ido']] = $sor['diak'];      # az idõponthoz beírjuk az azonosítót
+				if (isset($sor['dnev'])) {                    # és a nevet
+					$this->dnev[$sor['ido']] = $sor['dnev'] . " (" . $sor['onev'] . ")";
 				}
 			}
-			$this->IDO_max = $sor['ido']+1;
-			$this->Kezdo = FiveToTime($this->IDO_min);
-			$this->Veg   = FiveToTime($this->IDO_max);
+			$this->IDO_max = $sor['ido']+1;                  # az utolsó idõpont
 		}
 	}
 

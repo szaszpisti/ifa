@@ -1,0 +1,117 @@
+echo 'COPY fogado_diak (id, jelszo) FROM stdin;'
+psql -A -t -q -F'\t' -h bakker -c 'select * from diak' fogado > fogado.regi
+echo '\\.'
+
+Minden tanár megnézheti a hozzá feliratkozók listáját, ehhez neki is be kell
+jelentkezni. Mivel a tanári azonosító-jelszó pár már adott, praktikus
+ezt használni. Ehhez a `php4-auth-pam` modult használom, így illeszkedik a
+jelenlegi authentikációs sémába.
+
+Idõpontok: az egyszerûbb kezelés végett az idõpontok egy egész
+számként vannak tárolva 5 perces felosztásban (azaz ha `n` az idõpont, az
+`floor(n/12)` óra `n-floor(n/12)` percet jelent). Ez alól kivétel csak az
+ini fájl, ahol az átláthatóság miatt ,,normál'' óra-perc értékek
+vannak -- ezek elsõ használat elõtt konvertálva lesznek.
+
+Bejelentkezés:
+- diák választás
+// - ha még nem volt -> automatikus regisztráció (anyja neve, TAJ, ...)
+// - ha már volt -> jelszó kérdezés (opció: elfelejtett jelszó elküldése?)
+
+  alsa-base alsa-utils
+
+az összes .php -> fogado.inc
+fogado.inc -> fogadoora.class
+
+Ezen kívül:
+admin.php -> user.class
+fogado.php -> user.class
+admin.php -> user.class
+osszesit.php -> user.class
+tanar.php -> tanar.class
+osztaly.php
+
+
+Bártházi András elõadása a PHP konferencián
+
+register_globals=off
+safe_mode=on
+open_basedir beállítása
+display_errors=off
+log_errors=on
+allow_url_fopen kikapcsolása
+upload_tmp_dir beállítása
+is_uploaded_file használata
+move_uploaded_file használata
+
+
+DB: fogado
+tid: -> tanar.id
+date: YYYY.MM.DD (kell?)
+ido: HH:MM:SS (öt perces?) intervallumok kezdete (vagy csak egy egész szám legyen?)
+diak: -> diak.id
+
+did:
+NULL: nincs fogadás
+0: tartam kezdete, ilyenkor ide lehet nevet írni
+-1: tartam folytatása, ha nem öt percet kér (alap: 10)
+-2: szülõi értekezlet, ilyenkor nincs fogadás
+did: diak.id
+
+i: 1  2   3  4  5 6  7  8  9   10 11 12 13 14 15 16 17 18 19  20   21
+NULL NULL 0 -1 -1 0 -1 -1 1283 -1 0 341 -2 -2 -2 0 -1 534 -1 NULL NULL
+    x    |   _   |   _   |   x   |_| x |    S   | _  |  x   |    x
+cols: 2  |   3   |   3   |   2   | |   |    3   | 2  |  2   |    2
+
+kiírás eleje:
+SELECT MIN(ido) FROM Fogado WHERE did=0;
+vége:
+SELECT MAX(ido) FROM Fogado WHERE did=0;
+
+Egy diák kiírása:
+for t in
+SELECT tanar FROM Fogado UNIQUE
+	d[*] = SELECT diak FROM Fogado ORDER BY ido WHERE ido BETWEEN eleje AND vege;
+	i=eleje;
+	while i<vege
+		j=i;
+
+		switch(d[i]) {
+			case -2:
+				print "<td class=szuloi"
+				while (d[j]==-2 && j<=vege) j++
+				if j>i+1 print "colspan = j-i"
+				print ">"
+				break
+
+			case 0:
+				print "<td class=szabad"
+				j++
+				while (d[j]==-1 && j<=vege) j++
+				if j>i+1 print "colspan = j-i"
+				print "><input type=radio name=almar value=", i, ">"
+				break
+
+			case NULL:
+				print "<td class=nincs"
+				while (d[j]==NULL && j<=vege) j++
+				if j>i+1 print "colspan = j-i"
+				print ">"
+				break
+
+			default:
+				if (d[i] == bejelentkezett azonosító)
+					print "<td class=szabad"
+					j++
+					while (d[j]==-1 && j<=vege) j++
+					if j>i+1 print "colspan = j-i"
+					print "><input type=checkbox name=", t, " checked>"
+				else // másik diák, olyan mintha nem lenne itt
+					print "<td class=nincs"
+					while (d[j]==NULL && j<=vege) j++
+					if j>i+1 print "colspan = j-i"
+					print ">"
+				break
+		} // switch
+		i=j
+	} // while

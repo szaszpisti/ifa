@@ -17,6 +17,10 @@ td {
 	font-weight: bold;
 }
 
+tr.paratlan {
+	background: yellow;
+}
+
 li {
 	text-indent: 0em; margin: .4ex .0ex;
 	background: #00799c; 

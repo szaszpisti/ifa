@@ -1,4 +1,4 @@
-<? require('fogado.inc'); ?>
+<?  require_once('fogado.inc'); ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
@@ -11,7 +11,7 @@
 
 <? $f = $DOCUMENT_NAME ?>
 <table><!-- border=1 cellpadding=1 cellspacing=1> -->
-<tr><td colspan=3><a href=admin.php?id=0 target=duma>ADMIN</a><td>&nbsp;
+<tr><td colspan=3><a href=admin.php?tip=admin&id=0 target=duma>ADMIN</a><td>&nbsp;
 <tr><td><a href=<?=$f?>?o=d10a>7.a</a> <td>&nbsp;
 <tr><td><a href=<?=$f?>?o=d09a>8.a</a> <td>&nbsp;
 <tr><td><a href=<?=$f?>?o=d08a>9.a</a> <td><a href=<?=$f?>?o=d08b>9.b</a>
@@ -32,7 +32,7 @@ if (isset($_REQUEST['o'])) {
 		$rows = pg_num_rows($result);
 		for($i=0; $i<$rows; $i++) {
 			$sor = pg_fetch_array($result, $i);
-			print "<a href=".($o=='t'?'tanar':'fogado').".php?id=" . $sor['id'] . " target=duma>" . $sor['dnev'] . "</a><br>\n";
+			print "<a href=".($o=='t'?'tanar.php?tip=tanar&':'fogado.php?tip=diak&')."id=" . $sor['id'] . " target=duma>" . $sor['dnev'] . "</a><br>\n";
 		}
 	}
 	print "\n";

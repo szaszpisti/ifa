@@ -1,8 +1,9 @@
 <?
-require('fogado.inc.php');
+require_once('login.php');
+require_once('fogado.inc');
+require_once('tanar.class');
 
-include("tanar.class.php");
-$TANAR = new Tanar();
+$TANAR = new Tanar($_REQUEST['id']);
 
 switch ($_REQUEST['mod']) {
 	# az egyes idõpontok módosítása
@@ -14,12 +15,12 @@ switch ($_REQUEST['mod']) {
 				unset($q);
 				$ido = $match[1];
 				if (isset($TANAR->diak[$ido])) {
-					if ($diak=="x") $q = "DELETE FROM Fogado WHERE fid=".fid." AND tanar=".$TANAR->id." AND ido=".$ido;
+					if ($diak=="x") $q = "DELETE FROM Fogado WHERE fid=" . fid . " AND tanar=" . $TANAR->id . " AND ido=" . $ido;
 					elseif ($diak != $TANAR->diak[$ido])
-						$q = "UPDATE Fogado SET diak=".$diak." WHERE fid=".fid." AND tanar=".$TANAR->id." AND ido=".$ido;
+						$q = "UPDATE Fogado SET diak=" . $diak . " WHERE fid=" . fid . " AND tanar=" . $TANAR->id . " AND ido=" . $ido;
 				}
 				else {
-					if ($diak != "x") $q = "INSERT INTO Fogado VALUES (".fid.", ".$TANAR->id.", ".$ido.", ".$diak.")";
+					if ($diak != "x") $q = "INSERT INTO Fogado VALUES (" . fid . ", " . $TANAR->id . ", " . $ido . ", " . $diak . ")";
 				}
 				if (isset($q)) {
 					pg_query($q);
@@ -32,31 +33,40 @@ switch ($_REQUEST['mod']) {
 
 	# az intervallum bõvítése
 	case 2:
-		$UJ_min = TimeToFive($_REQUEST['kora'], $_REQUEST['kperc']);
-		$UJ_max = TimeToFive($_REQUEST['vora'], $_REQUEST['vperc']);
-		pg_query("BEGIN TRANSACTION");
+		$UJ_min = $_REQUEST['kora'] +  $_REQUEST['kperc'];
+		$UJ_max = $_REQUEST['vora'] +  $_REQUEST['vperc'];
+		$tartam = $_REQUEST['tartam'];
+		unset ($INSERT);
+
+		while ($UJ_min%$tartam) $UJ_min++;
+
+		/* Ha már van bejegyzett idõpontja, akkor a bõvítés az ez elõtti
+		   és az ez utáni idõkre vonatkozik */
 		if ($TANAR->fogad) {
-			for ($ido = $UJ_min; $ido < $TANAR->IDO_min; $ido++) {
-				pg_query ("INSERT INTO Fogado VALUES (".fid.", ".$TANAR->id.", ".$ido.", 0)");
-				$BOVIT .= " $ido";
+			for ($ido = $UJ_min; $ido < $TANAR->IDO_min; $ido++ ) {
+				$INSERT[] = fid . "\t" . $TANAR->id . "\t$ido\t" . ($ido%$tartam?-1:0) . "\n";
 			}
 			for ($ido = $TANAR->IDO_max+1; $ido < $UJ_max; $ido++) {
-				pg_query ("INSERT INTO Fogado VALUES (".fid.", ".$TANAR->id.", ".$ido.", 0)");
-				$BOVIT .= " $ido";
+				$INSERT[] = fid . "\t" . $TANAR->id . "\t$ido\t" . ($ido%$tartam?-1:0) . "\n";
 			}
 		}
 		else { // még nem volt fogadóórája bejegyezve
 			for ($ido = $UJ_min; $ido < $UJ_max; $ido++) {
-				pg_query ("INSERT INTO Fogado VALUES (".fid.", ".$TANAR->id.", ".$ido.", 0)");
-				$BOVIT .= " $ido";
+				$INSERT[] = fid . "\t" . $TANAR->id . "\t$ido\t" . ($ido%$tartam?-1:0) . "\n";
 			}
 		}
-		pg_query("END TRANSACTION");
-		ulog(0, $TANAR->tnev." bõvítés: ".$BOVIT);
+
+		if ( pg_copy_from ($db, "fogado", &$INSERT) ) {
+			ulog (0, $TANAR->tnev." bõvítés: $UJ_min -> $UJ_max ($tartam)" );
+		}
+		else {
+			ulog (0, "SIKERTELEN BÕVÍTÉS: " . $TANAR->tnev . "($UJ_min -> $UJ_max)" );
+		}
+
 		break;
 }
 
-$TANAR = new Tanar(); # újra beolvassuk az adatbázisból
+$TANAR = new Tanar($_REQUEST['id']); # újra beolvassuk az adatbázisból
 
 Head("Fogadóóra - " . $TANAR->tnev);
 
@@ -67,7 +77,7 @@ echo "\n<table width=100%><tr>\n"
 # A külsõ táblázat elsõ cellájában az idõpont-lista
 $TABLA = "<table border=0><tr><td>\n";
 
-if ($TANAR->ListaID === 0) {
+if (ADMIN) {
 	if ($TANAR->fogad) {
 		$TABLA .= "<form method=post name=tabla>\n<table border=1>\n"
 			. "<tr><th><th>A<th>B<th>C<th>D<th>E\n"
@@ -75,7 +85,7 @@ if ($TANAR->ListaID === 0) {
 			. "       <input type=reset value='RESET'>\n"
 			. "       <input type=submit value=' Mehet '>\n";
 		for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido++) {
-			$TABLA .= ($ido%2?"<tr bgcolor=#eaeaea>":"<tr>");
+			$TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
 			$diak = $TANAR->diak[$ido];
 			$TABLA .= "<td>" . FiveToString($ido);
 			$TABLA .= "  <td class=foglalt><input type=radio name=r$ido value=x" . (!isset($diak)?" checked":"") . ">\n";
@@ -84,7 +94,7 @@ if ($TANAR->ListaID === 0) {
 			$TABLA .= "  <td class=szuloi><input type=radio name=r$ido value=-2" . ($diak=="-2"?" checked":"") . ">\n";
 			if ($diak>0) {
 				$TABLA .= "  <td class=sajat><input type=radio name=r$ido value=$diak checked><td><a class=diak href=fogado.php?"
-					. "id=" . $diak . ">" . $TANAR->dnev[$ido] . "</a>\n";
+					. "tip=diak&id=" . $diak . ">" . $TANAR->dnev[$ido] . "</a>\n";
 			} else {
 				$TABLA .= "  <td colspan=2>&nbsp;\n";
 			}
@@ -127,23 +137,26 @@ if ($TANAR->ListaID === 0) {
 		. "  <input type=hidden name=mod value=2>\n";
 
 	if ($TANAR->fogad) {
-		$TABLA .= "<p class=center>Bõvítés: " . SelectOra("kora", $TANAR->Kezdo['ora']) . SelectPerc("kperc", $TANAR->Kezdo['perc']) . " - \n"
-			. SelectOra("vora", $TANAR->Veg['ora']) . SelectPerc("vperc", $TANAR->Veg['perc']) . "\n"
-			. "  <input type=submit value=' GO '></p><br><br>\n"
+		$TABLA .= "<p class=center>Bõvítés: "
+			. SelectIdo("kora", "kperc", $TANAR->IDO_min) . " - \n"
+			. SelectIdo("vora", "vperc", $TANAR->IDO_max) . "\n &nbsp; &nbsp;"
+			. SelectTartam('tartam') . "\n"
+			. "  <input type=submit value=' Uccu! '></p><br><br>\n"
 			. "</form>\n"
-			. "  <p class=center>Ha mégsem akar fogadni:<br>\n"
-			. "<input type=button value=' Viszlát! ' onClick='nincs()'><br>\n"
-			. "  <p class=center>Ha az 5 percekben is fogadni akar:<br>\n"
-			. "<input type=button value=' Hajrá szülõk! ' onClick='fivedel()'><br>\n"
-			. "  (Utána még kell a ,,Mehet''!)</p>\n"
+			. "<p class=elso><i>Gombok gyors állítása:</i>\n"
+			. "  <li>Ha mégsem fog fogadni (összes -> A):\n"
+			. "      <br> &nbsp; &nbsp; <input type=button value=' Megjelöl ' onClick='nincs()'>\n"
+			. "  <li>Ha az 5 percekben is fogadni akar (összes: C -> B):\n"
+			. "      <br> &nbsp; &nbsp; <input type=button value=' Megjelöl ' onClick='fivedel()'>\n"
+			. "  <br>(Ezek után még kell a ,,Mehet'' gomb!)\n\n"
 			. "</table>\n";
 	}
 	else {
-		$Kezdo = FiveToTime($FA->kezd);
-		$Veg   = FiveToTime($FA->veg);
-		$TABLA .= "  Idõ: " . SelectOra("kora", $Kezdo['ora']) . SelectPerc("kperc", $Kezdo['perc']) . " - \n"
-			. SelectOra("vora", $Veg['ora']) . SelectPerc("vperc", $Veg['perc']) . "\n"
-			. "  <input type=submit value=' GO '><br>\n"
+		$TABLA .= "  Fogad: "
+			. SelectIdo("kora", "kperc", $FA->IDO_min) . " - \n"
+			. SelectIdo("vora", "vperc", $FA->IDO_max) . "\n &nbsp; &nbsp;"
+			. SelectTartam('tartam') . "\n"
+			. "  <input type=submit value=' Uccu! '><br>\n"
 			. "</form>\n"
 			. "</table>\n";
 	}
@@ -153,7 +166,7 @@ if ($TANAR->ListaID === 0) {
 	for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
 		$ora = floor($ido/12);
 		if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan=3><hr>\n"; }
-		$TABLA .= ($ido%2?"<tr bgcolor=#eaeaea>":"<tr>");
+		$TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
 		$diak = $TANAR->diak[$ido];
 		$TABLA .= "<td" . ($diak=="-2"?" class=szuloi":"") . ">" . FiveToString($ido)
 			. "<td> -- <td>" . ($diak>0?$TANAR->dnev[$ido]:"&nbsp;") . "\n";

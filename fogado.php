@@ -1,10 +1,15 @@
 <?
-require('fogado.inc.php');
+require_once('login.php');
+require_once('fogado.inc');
+require_once('diak.class');
 
-include("user.class.php");
-$USER = new User();
+/**
+* Egy diák számára kiírja a fogadóóra táblázatot az összes tanárral
+*/
 
-Head("Fogadóóra - " . $USER->dnev);
+$user = new Diak($_SESSION['id']);
+
+Head("Fogadóóra - " . $user->dnev);
 
 $USER_LOG = array();
 
@@ -17,16 +22,17 @@ $Fejlec =
 	. "    }\n"
 	. "  //--></script>\n\n"
 	. "<table width=100%><tr><td>\n"
-	. "<h3>" . $USER->dnev . " " . $USER->onev .  " (" . $FA->datum . ")<br>\n"
-	. "<font size=-1>(Osztályfõnök: " . $USER->ofonev . ")</h3>\n"
+	. "<h3>" . $user->dnev . " " . $user->onev .  " (" . $FA->datum . ")<br>\n"
+	. "<font size=-1>(Osztályfõnök: " . $user->ofonev . ")</h3>\n"
 	. "<td align=right valign=top>\n"
-	. "  <a href=osszesit.php?id=".$USER->id."> Összesítés </a> | \n"
+	. "  <a href=osszesit.php?tip=diak&id=" . $user->id . "> Összesítés </a> | \n"
 	. "  <a href=leiras.html> Leírás </a> | \n"
 	. "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='> Kilépés </a>\n</table>\n";
 
-function tr_string($K, $tid, $t) {
+// egy tanár-sor a táblázatban
+function table_row($K, $tid, $t) {
 	for ($i=1; $i<count($K); $i++) { // 1-tõl kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
-		$span = (count($K[$i])>1)?" colspan=".count($K[$i]):"";
+		$span = (count($K[$i])>1)?" colspan=" . count($K[$i]):"";
 		switch ($K[$i][0]) {
 			case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
 			case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
@@ -41,7 +47,7 @@ function tr_string($K, $tid, $t) {
 }
 
 function tanar_ki($tanar) {
-	global $FA, $USER, $K;
+	global $FA, $user, $K;
 	// TANAR: [0]['diak']=25, [1]['diak']=-1, ...
 
 	$State = -3; // nem érvényes kezdeti értéket adunk neki
@@ -51,7 +57,7 @@ function tanar_ki($tanar) {
 		if (!isset($tanar['paratlan']) && $i%2) { continue; }
 		switch ($tanar[$i]) {
 			case -2:
-				if ( ($USER->ofo == $tanar['id']) || $USER->admin ) { $d = szuloi; }
+				if ( ($user->ofo == $tanar['id']) || ADMIN ) { $d = szuloi; }
 				else { $d = foglalt; }
 				break;
 			case NULL:
@@ -62,7 +68,7 @@ function tanar_ki($tanar) {
 				break;
 			case 0:
 				$d = szabad; break;
-			case $USER->id:
+			case $user->id:
 				$d = sajat;
 				break;
 			default:
@@ -78,16 +84,16 @@ function tanar_ki($tanar) {
 		$pred = $d;
 	}
 
-	$tmp = "\n<tr><th align=left nowrap".(isset($tanar['paratlan'])?" rowspan=2 valign=top":"").">&nbsp;"
-		. ($USER->admin?"<a href=tanar.php?id=".$tanar['id'].">".$tanar['nev']."</a>":$tanar['nev']) . "\n";
+	$tmp = "\n<tr><th align=left nowrap" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;"
+		. (ADMIN?"<a href=tanar.php?tip=tanar&id=" . $tanar['id'] . ">" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
 
 // párosak:
-	$tmp .= tr_string($K[0], $tanar['id'], $FA->IDO_min);
-	$tmp .= "  <td><input type=button value=x onClick='torol(\"r".$tanar['id']."\")'>\n";
+	$tmp .= table_row($K[0], $tanar['id'], $FA->IDO_min);
+	$tmp .= "  <td><input type=button value=x onClick='torol(\"r" . $tanar['id'] . "\")'>\n";
 
 // páratlanok:
 	if (isset($tanar['paratlan'])) {
-		$tmp .= "<tr>".tr_string($K[1], $tanar['id'], $FA->IDO_min+1);
+		$tmp .= "<tr>" . table_row($K[1], $tanar['id'], $FA->IDO_min+1);
 	}
 
 	return $tmp;
@@ -110,14 +116,14 @@ for ($ido=$FA->IDO_min; $ido<$FA->IDO_max; $ido+=2) {
 $A = "\n<tr bgcolor=lightblue><td rowspan=2>";
 $B = "\n<tr bgcolor=lightblue>";
 foreach (array_keys($IDO) as $ora) {
-	$A .= "<th colspan=".count ($IDO[$ora]).">".$ora;
+	$A .= "<th colspan=" . count ($IDO[$ora]) . ">" . $ora;
 	foreach (array_values($IDO[$ora]) as $perc )
-		$B .= "<td>".$perc."0";
+		$B .= "<td>" . $perc . "0";
 }
-$TablazatIdosor = $A.$B;
+$TablazatIdosor = $A . $B;
 
 // Az összes fogadó tanár nevét kigyûjtjük // FOGADO[id]=('id', 'nev')
-if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=".fid." AND tanar=id GROUP BY tanar,tnev ORDER BY tnev")) {
+if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=" . fid . " AND tanar=id GROUP BY tanar,tnev ORDER BY tnev")) {
 	foreach ( pg_fetch_all($result) as $tanar ) {
 		$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
 	}
@@ -125,7 +131,7 @@ if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=".fid." AN
 
 // mindegyikhez az összes idõ => elfoglaltságot (A FOGADO-hoz rakunk még mezõket)
 // FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
-if( $result = pg_query("SELECT tanar, ido, diak FROM Fogado WHERE fid=".fid." ORDER BY ido")) {
+if( $result = pg_query("SELECT tanar, ido, diak FROM Fogado WHERE fid=" . fid . " ORDER BY ido")) {
 	foreach ( pg_fetch_all($result) as $sor ) {
 		// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
 		if ( $sor['ido']%2 && $sor['diak']>=0 && ($sor['diak'] != "") ) $FOGADO[$sor['tanar']]['paratlan'] = 1;
@@ -138,22 +144,22 @@ if( $result = pg_query("SELECT tanar, ido, diak FROM Fogado WHERE fid=".fid." OR
 // s: a logba írandó üzenet, ha üres, akkor nem kell írni
 function ValidateRadio ( $Teacher, $Time ) {
 // (ezeket jó lenne triggerként berakni a tábla-definícióba...)
-	global $FOGADO, $USER;
+	global $FOGADO, $user;
 	$ret = array (valid => true, value => NULL);
 	if ( $FOGADO[$Teacher][$Time] != 0 ) {
 		return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " idõpontja már foglalt, ide nem iratkozhat fel!");
 	}
 	foreach ( $FOGADO as $tan ) {
-		if ( $tan[$Time] == $USER->id ) {
+		if ( $tan[$Time] == $user->id ) {
 			return array(false, "Önnek már foglalt a " . FiveToString($Time) . " idõpontja (" . $tan['nev'] . ") - elõbb arról iratkozzon le!");
 		}
 	}
 	foreach ( array_keys($FOGADO[$Teacher]) as $k ) {
-		if ( $FOGADO[$Teacher][$k] == $USER->id ) {
+		if ( $FOGADO[$Teacher][$k] == $user->id ) {
 			return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($k) . " idõpontjára már feliratkozott - ha változtatni akar, elõbb azt törölje!");
 		}
 	}
-	if ( $FOGADO[$USER->ofo][$Time] == -2 ) {
+	if ( $FOGADO[$user->ofo][$Time] == -2 ) {
 		return array(true, "Önnek szülõi értekezlete van ebben az idõpontban (" . FiveToString($Time) . ")!");
 	}
 	return array(true, NULL);
@@ -164,18 +170,18 @@ function ValidateRadio ( $Teacher, $Time ) {
 //
 // checkboxok ellenõrzése (leiratkozás)
 //
-if ( $_POST['tip'] == 'mod' ) {
+if ( $_POST['page'] == 'mod' ) {
 	foreach ( $FOGADO as $tanar ) {
-		$v = "c".$tanar['id'];
+		$v = "c" . $tanar['id'];
 		foreach ( array_keys($tanar) as $Time ) {
-			if ( ( $tanar[$Time] == $USER->id ) && !isset($_POST[$v]) ) {
-				$q = "UPDATE Fogado SET diak=0 WHERE tanar=".$tanar['id']." AND ido=$Time";
+			if ( ( $tanar[$Time] == $user->id ) && !isset($_POST[$v]) ) {
+				$q = "UPDATE Fogado SET diak=0 WHERE tanar=" . $tanar['id'] . " AND ido=$Time";
 				if ( pg_query($q) ) {
 					$FOGADO[$tanar['id']][$Time] = "0";
 					$USER_LOG[] = "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - törölve.";
-					Ulog($USER->id, $q);
+					Ulog($user->id, $q);
 				}
-				else { Ulog($USER->id, "Légy került a levesbe: $q!"); }
+				else { Ulog($user->id, "Légy került a levesbe: $q!"); }
 			}
 		}
 	}
@@ -191,17 +197,17 @@ while (list($k, $v) = each($_POST)) {
 		$Time = $v;
 		$validate = ValidateRadio ($Teacher, $Time);
 		if ( $validate[1] ) {
-			Ulog($USER->id, $validate[1]);
+			Ulog($user->id, $validate[1]);
 			$USER_LOG[] = $validate[1];
 		}
 		if ( $validate[0] ) { // rendben, lehet adatbázisba rakni
-			$q = "UPDATE Fogado SET diak=" . $USER->id . " WHERE tanar=$Teacher AND ido=$Time";
+			$q = "UPDATE Fogado SET diak=" . $user->id . " WHERE tanar=$Teacher AND ido=$Time";
 			if ( pg_query($q) ) {
-				$FOGADO[$Teacher][$Time] = $USER->id;
+				$FOGADO[$Teacher][$Time] = $user->id;
 				$USER_LOG[] = "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . FiveToString($Time) . " - bejegyezve.";
-				Ulog($USER->id, $q);
+				Ulog($user->id, $q);
 			}
-			else { Ulog($USER->id, "Légy került a levesbe: $q!"); }
+			else { Ulog($user->id, "Légy került a levesbe: $q!"); }
 		}
 	}
 }
@@ -232,7 +238,7 @@ print "\n<form name=tabla method=post><table border=1>"
 	. "  <input type=submit value=' Mehet '>\n"
 	. $TablaOutput
 	. "<tr><td colspan=" . (($FA->IDO_max-$FA->IDO_min)/2+2) . " align=right class=right>\n"
-	. "  <input type=hidden name=tip value=mod>\n"
+	. "  <input type=hidden name=page value=mod>\n"
 	. "  <input type=submit value=' Mehet '>\n"
 	. "</table>\n\n"
 	. "</form>\n";

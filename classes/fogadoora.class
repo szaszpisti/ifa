@@ -1,8 +1,5 @@
 <?
-if (defined("fogadoora.class")) return;
-define("fogadoora.class", "1");
-
-include("fogado.inc");
+require_once('fogado.inc');
 
 class Fogadoora {
 
