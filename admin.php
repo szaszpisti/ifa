@@ -47,11 +47,11 @@ switch ($_REQUEST['page']) {
 			. "<tr><td><td><input name=valid_veg type=text size=16 value=\"$MaiDatum 14:00\">-ig\n"
 
 			. "<tr><td class=left>Fogadóóra: <td>\n"
-			. "    ".SelectOra("kora", $KezdoOra).SelectPerc("kperc", $KezdoPerc)."\n"
-			. "    ".SelectOra("vora", $VegOra).SelectPerc("vperc", $VegPerc)."\n"
+			. "    ".SelectOra("kora", $Fogado_tartam[0]).SelectPerc("kperc", $Fogado_tartam[1])."\n"
+			. "    ".SelectOra("vora", $Fogado_tartam[2]).SelectPerc("vperc", $Fogado_tartam[3])."\n"
 			. "<tr><td class=left>Szülõi: <td>\n"
-			. "    ".SelectOra("skora", $SzuloiKezdoOra).SelectPerc("skperc", $SzuloiKezdoPerc)."\n"
-			. "    ".SelectOra("svora", $SzuloiVegOra).SelectPerc("svperc", $SzuloiVegPerc)."\n"
+			. "    ".SelectOra("skora", $Szuloi_tartam[0]).SelectPerc("skperc", $Szuloi_tartam[1])."\n"
+			. "    ".SelectOra("svora", $Szuloi_tartam[2]).SelectPerc("svperc", $Szuloi_tartam[3])."\n"
 
 			. "<tr><td class=left>Tartam: <td>" . tartam('tartam') . " perc\n"
 			. "<tr><td><td><input type=hidden name=page value=2>\n"
@@ -113,8 +113,8 @@ switch ($_REQUEST['page']) {
 
 #		print "<table border=0><tr><td><a href=$DOCUMENT_NAME?page=1> &lt;&lt; </a>\n";
 
-		$KezdoOra = floor($FA['kezd']/12); $KezdoPerc = $FA['kezd']-$KezdoOra*12;
-		$VegOra = floor($FA['veg']/12);  $VegPerc = $FA['veg']-$VegOra*12;
+		$Fogado_tartam[0] = floor($FA['kezd']/12); $Fogado_tartam[1] = $FA['kezd']-$Fogado_tartam[0]*12;
+		$Fogado_tartam[2] = floor($FA['veg']/12);  $Fogado_tartam[3] = $FA['veg']-$Fogado_tartam[2]*12;
 
 #		print "<td><h3>Fogadóóra: " . $FA['datum'] . "</h3></table>\n\n";
 		print "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
@@ -132,8 +132,8 @@ switch ($_REQUEST['page']) {
 			$id=$t['id'];
 			print "<tr" . ($paros?" class=paros":"") . "><td>" . $t['tnev'] . "\n";
 			print "  <td><input type=checkbox name=a$id checked>\n";
-			print "  <td>" . SelectOra("b$id", $KezdoOra) . "\n" . SelectPerc("c$id", $KezdoPerc) . "<td>\n";
-			print "  <td>" . SelectOra("d$id", $VegOra) . "\n" . SelectPerc("e$id", $VegPerc) . "<td>\n";
+			print "  <td>" . SelectOra("b$id", $Fogado_tartam[0]) . "\n" . SelectPerc("c$id", $Fogado_tartam[1]) . "<td>\n";
+			print "  <td>" . SelectOra("d$id", $Fogado_tartam[2]) . "\n" . SelectPerc("e$id", $Fogado_tartam[3]) . "<td>\n";
 			print "  <td>" . tartam("f$id") . "<td>\n";
 			if ( isset($t['ofo']) ) {
 				print "  <td><input type=checkbox name=g$id checked>\n";
