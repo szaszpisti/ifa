@@ -1,7 +1,7 @@
 <?
 require_once('login.php');
-require_once('fogado.inc');
-require_once('diak.class');
+require_once('fogado.inc.php');
+require_once('diak.class.php');
 
 /**
 * Egy diák számára kiírja a fogadóóra táblázatot az összes tanárral

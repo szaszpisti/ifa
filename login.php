@@ -1,5 +1,5 @@
 <?
-require_once('fogado.inc');
+require_once('fogado.inc.php');
 
 
 session_start();

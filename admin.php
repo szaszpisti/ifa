@@ -1,6 +1,6 @@
 <?
 require_once('login.php');
-require_once('fogado.inc');
+require_once('fogado.inc.php');
 
 if (!$_SESSION['admin']) redirect('leiras.html');
 

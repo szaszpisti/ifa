@@ -1,7 +1,7 @@
 <?
 require_once('login.php');
-require_once('fogado.inc');
-require_once('tanar.class');
+require_once('fogado.inc.php');
+require_once('tanar.class.php');
 
 $TANAR = new Tanar($_REQUEST['id']);
 

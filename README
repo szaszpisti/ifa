@@ -20,15 +20,15 @@ Bejelentkezés:
 
   alsa-base alsa-utils
 
-az összes .php -> fogado.inc
-fogado.inc -> fogadoora.class
+az összes .php -> fogado.inc.php
+fogado.inc -> fogadoora.class.php
 
 Ezen kívül:
-admin.php -> user.class
-fogado.php -> user.class
-admin.php -> user.class
-osszesit.php -> user.class
-tanar.php -> tanar.class
+admin.php -> user.class.php
+fogado.php -> user.class.php
+admin.php -> user.class.php
+osszesit.php -> user.class.php
+tanar.php -> tanar.class.php
 osztaly.php
 
 
