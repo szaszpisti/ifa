@@ -29,7 +29,7 @@ class Tanar {
 
 		$q = "SELECT ido, diak, dnev, onev FROM Fogado AS F"
    		. " LEFT OUTER JOIN Diak AS D ON (F.diak=D.id AND D.id>0)"
-			. " WHERE F.fid=".fid." AND F.tanar=".$this->id." ORDER BY ido";
+			. " WHERE F.fid=".fid." AND F.tanar=".$this->id." AND F.diak IS NOT NULL ORDER BY ido";
 		if ($result = pg_query($q)) {
    		$rows = pg_num_rows($result);
    		for($i=0; $i<$rows; $i++) {
@@ -40,6 +40,8 @@ class Tanar {
 
    		}
    		$this->IDO_max = $sor['ido'];
+			$this->Kezdo = array ('ora' => floor($this->IDO_min/12), 'perc' => 5*($this->IDO_min%12));
+			$this->Veg = array ('ora' => floor(($this->IDO_max+1)/12), 'perc' => 5*(($this->IDO_max+1)%12));
 		}
 
 		# Megnézzük, hogy van-e benne páratlan (5 perces) idõpont

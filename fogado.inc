@@ -1,5 +1,4 @@
 <?
-
 if (defined("fogado.inc")) return;
 define("fogado.inc", "1");
 
@@ -25,6 +24,39 @@ function hiba($err) {
 
 // Idõ átszámítása 5 perces sorszámúról HH:MM formátumra
 function tim($time) { return gmdate('H:i', $time*300); }
+
+/*
+// default kezdõ-, vég-  óra, perc:
+*/
+$KezdoOra=16;       $KezdoPerc=0;       $VegOra=18;       $VegPerc=0;
+$SzuloiKezdoOra=17; $SzuloiKezdoPerc=0; $SzuloiVegOra=17; $SzuloiVegPerc=30;
+
+$ORA = "<select name=#NAME#>";
+for ($i=14; $i<21; $i++) { $I = sprintf("%02d", $i); $ORA .= "<option value=$I>$I"; }
+$ORA .= "</select>";
+function ora($name, $o){
+	global $ORA;
+	$o = sprintf("%02d", $o);
+	$tmp = preg_replace("/value=$o>/", "value=$o selected>", $ORA);
+	return preg_replace("/#NAME#/", "$name", $tmp);
+}
+
+$PERC = "<select name=#NAME#>";
+foreach (array('00', '10', '20', '30', '40', '50') as $i ) { $PERC .= "<option value=".floor($i/10).">$i"; }
+$PERC .= "</select>";
+function perc($name, $p){
+	global $PERC;
+	$o = sprintf("%02d", $o);
+	$tmp = preg_replace("/>$p/", " selected>$p", $PERC);
+	return preg_replace("/#NAME#/", "$name", $tmp);
+}
+
+function tartam($name) {
+	return preg_replace("/#NAME#/", "$name", "<select name=#NAME#>"
+		. "<option value=1>5<option value=2 selected>10"
+		. "<option value=3>15<option value=4>20</select>");
+}
+
 
 function Head($cimsor) {
 	header('Pragma: no-cache');

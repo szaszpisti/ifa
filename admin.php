@@ -20,36 +20,6 @@ ha van, akkor mindjárt a második oldalra ugrik, egyébként az elsõ az alapértelme
 */
 
 
-// default kezd-, vég-óra, -perc:
-$Kora=16;  $Kperc=0;  $Vora=18;  $Vperc=0;
-$SKora=17; $SKperc=0; $SVora=17; $SVperc=30;
-
-$ORA = "<select name=#NAME#>";
-for ($i=8; $i<21; $i++) { $I = sprintf("%02d", $i); $ORA .= "<option value=$I>$I"; }
-$ORA .= "</select>";
-function ora($name, $o){
-	global $ORA;
-	$o = sprintf("%02d", $o);
-	$tmp = preg_replace("/value=$o>/", "value=$o selected>", $ORA);
-	return preg_replace("/#NAME#/", "$name", $tmp);
-}
-
-$PERC = "<select name=#NAME#>";
-foreach (array('00', '10', '20', '30', '40', '50') as $i ) { $PERC .= "<option value=".floor($i/10).">$i"; }
-$PERC .= "</select>";
-function perc($name, $p){
-	global $PERC;
-	$o = sprintf("%02d", $o);
-	$tmp = preg_replace("/>$p/", " selected>$p", $PERC);
-	return preg_replace("/#NAME#/", "$name", $tmp);
-}
-
-function tartam($name) {
-	return preg_replace("/#NAME#/", "$name", "<select name=#NAME#>"
-		. "<option value=1>5<option value=2 selected>10"
-		. "<option value=3>15<option value=4>20</select>");
-}
-
 $Cim = "\n<table width=100%><tr><td>\n"
    . "<b><font color=#777777># ADMIN #</font></b> - <a href=admin.php>Vissza</a>\n"
    . "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n";
@@ -66,11 +36,11 @@ switch ($_REQUEST['page']) {
 		print "<form><table class=tanar>\n<tr><td class=left>Dátum:<td><input name=datum type=text size=10 value=$Datum><br>\n";
 
 		$B .= "\n<tr><td class=left>Fogadóóra: <td>"
-			. ora("kora", $Kora) . perc("kperc", $Kperc) . "\n"
-			. ora("vora", $Vora) . perc("vperc", $Vperc) . "\n";
+			. ora("kora", $KezdoOra) . perc("kperc", $KezdoPerc) . "\n"
+			. ora("vora", $VegOra) . perc("vperc", $VegPerc) . "\n";
 		$B .= "\n<tr><td class=left>Szülõi: <td>"
-			. ora("skora", $SKora) . perc("skperc", $SKperc) . "\n"
-			. ora("svora", $SVora) . perc("svperc", $SVperc) . "\n";
+			. ora("skora", $SzuloiKezdoOra) . perc("skperc", $SzuloiKezdoPerc) . "\n"
+			. ora("svora", $SzuloiVegOra) . perc("svperc", $SzuloiVegPerc) . "\n";
 
 		print $B . $E;
 
@@ -129,8 +99,8 @@ switch ($_REQUEST['page']) {
 
 #		print "<table border=0><tr><td><a href=$DOCUMENT_NAME?page=1> &lt;&lt; </a>\n";
 
-		$Kora = floor($FA['kezd']/12); $Kperc = $FA['kezd']-$Kora*12;
-		$Vora = floor($FA['veg']/12);  $Vperc = $FA['veg']-$Vora*12;
+		$KezdoOra = floor($FA['kezd']/12); $KezdoPerc = $FA['kezd']-$KezdoOra*12;
+		$VegOra = floor($FA['veg']/12);  $VegPerc = $FA['veg']-$VegOra*12;
 
 #		print "<td><h3>Fogadóóra: " . $FA['datum'] . "</h3></table>\n\n";
 		print "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
@@ -148,8 +118,8 @@ switch ($_REQUEST['page']) {
 			$id=$t['id'];
 			print "<tr" . ($paros?" class=paros":"") . "><td>" . $t['tnev'] . "\n";
 			print "  <td><input type=checkbox name=a$id checked>\n";
-			print "  <td>" . ora("b$id", $Kora) . "\n" . perc("c$id", $Kperc) . "<td>\n";
-			print "  <td>" . ora("d$id", $Vora) . "\n" . perc("e$id", $Vperc) . "<td>\n";
+			print "  <td>" . ora("b$id", $KezdoOra) . "\n" . perc("c$id", $KezdoPerc) . "<td>\n";
+			print "  <td>" . ora("d$id", $VegOra) . "\n" . perc("e$id", $VegPerc) . "<td>\n";
 			print "  <td>" . tartam("f$id") . "<td>\n";
 			if ( isset($t['ofo']) ) {
 				print "  <td><input type=checkbox name=g$id checked>\n";
