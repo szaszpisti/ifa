@@ -21,7 +21,7 @@ function kuki_teszt() {
 
 if (!kuki_teszt()) {
 	echo "<div align=center><font color=red><h3>FIGYELEM!</h3></font><br>\n";
-	echo "A böngészõjében engedélyeznie kell a süti (cookie) fogadását a www.szepi.hu géprõl!</div>\n";
+	echo "A böngészõjében engedélyeznie kell a süti (cookie) fogadását a <?=$host?> géprõl!</div>\n";
 	exit;
 }
 ?>

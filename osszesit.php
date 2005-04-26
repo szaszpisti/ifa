@@ -3,38 +3,53 @@ require_once('login.php');
 require_once('fogado.inc.php');
 require_once('diak.class.php');
 
-$user = new Diak($_SESSION['id']);
+$USER = new Diak($_SESSION['id']);
 
-Head("Fogadóóra - " . $user->dnev);
+Head("Fogadóóra - " . $USER->dnev);
 
 print "\n<h3>Fogadóóra: " . $FA->datum . "<br>\n"
-	. $user->dnev . " " . $user->onev . "<br>\n"
-	. "<font size=-1>(Osztályfõnök: " . $user->ofonev . ")</h3>\n";
+	. $USER->dnev . " " . $USER->onev . "<br>\n"
+	. "<font size=-1>(Osztályfõnök: " . $USER->ofonev . ")</h3>\n";
 
-if ($res = pg_query("SELECT MIN(ido) AS eleje, MAX(ido) AS vege FROM Fogado WHERE fid=".fid." AND tanar=".$user->ofo." AND diak=-2")) {
-	$szuloi = pg_fetch_array($res);
-	if ($szuloi['eleje']) {
-		$SzuloiSor = "<br><b>" . FiveToString($szuloi['eleje']) . "-" . FiveToString($szuloi['vege']+1) . " -- szülõi értekezlet</b>\n";
-		$SzuloiEleje = $szuloi['eleje'];
-	}
+$szuloi =& $db->getRow(
+			  "SELECT MIN(ido) AS eleje, MAX(ido) AS vege"
+			. "  FROM Fogado"
+			. "    WHERE fid=" . fid
+			. "      AND tanar=" . $USER->ofo
+			. "      AND diak=-2",
+			array(), DB_FETCHMODE_ASSOC);
+
+if (DB::isError($data)) {
+	die($data->getMessage());
 }
 
-if ($res = pg_query("SELECT ido, tnev FROM Fogado, Tanar WHERE Tanar.id=tanar"
-			. " AND fid=".fid." AND diak=".$user->id." ORDER BY ido")) {
-	while ($sor = pg_fetch_array($res)) {
-		if ($SzuloiEleje < $sor['ido']) {
-			$Output .= $SzuloiSor;
-			$SzuloiSor = "";
-		}
-		$Output .= "<br>".FiveToString($sor['ido'])." -- ".$sor['tnev']."\n";
+if ($szuloi['eleje']) {
+	$SzuloiSor = "<br><b>" . FiveToString($szuloi['eleje'])
+		. "-" . FiveToString($szuloi['vege']+1)
+		. " -- szülõi értekezlet</b>\n";
+	$SzuloiEleje = $szuloi['eleje'];
+}
+
+$res =& $db->query(
+			  "SELECT ido, tnev"
+			. "  FROM Fogado, Tanar"
+			. "    WHERE fid=" . fid
+			. "      AND Tanar.id=tanar"
+			. "      AND diak=" . $USER->id
+			. "        ORDER BY ido");
+
+while ($res->fetchInto($row)) {
+	if ($SzuloiEleje < $row['ido']) {
+		$Output .= $SzuloiSor;
+		$SzuloiSor = "";
 	}
+	$Output .= "<br>" . FiveToString($row['ido']) . " -- " . $row['tnev'] . "\n";
 }
 $Output .= $SzuloiSor;
 
 print $Output;
 
 Tail();
-pg_close ($db);
 
 ?>
 

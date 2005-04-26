@@ -12,8 +12,8 @@ ha van, akkor mindjárt a második oldalra ugrik, egyébként az elsõ az alapértelme
 */
 
 
-$Out = "\n<table width=100%><tr><td>\n"
-   . "<b><font color=#777777>" . $_SESSION['nev'] . "</font></b>\n"
+$Out = "\n<table width=\"100%\"><tr><td>\n"
+   . "<b><font color=\"#777777\">" . $_SESSION['nev'] . "</font></b>\n"
    . "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n\n"
 	. "<hr>\n\n";
 
@@ -25,8 +25,8 @@ if ($_REQUEST['page'] == 4) {
 switch ($_REQUEST['page']) {
 	case 0:
 		$Out .= "<h3>Az aktuális (legutóbb bejegyzett) fogadóóra: " . $FA->datum . "</h3>\n<ul>\n"
-			. "<li><a href=admin.php?page=1>Új idõpont létrehozása</a>\n"
-			. "<li><a href=fogado-xls.pl>Táblázat letöltése</a>\n"
+			. "<li><a href=\"admin.php?page=1\">Új idõpont létrehozása</a>\n"
+			. "<li><a href=\"fogado-xls.pl\">Táblázat letöltése</a>\n"
    		. "</ul>\n\n";
 		break;
 
@@ -73,75 +73,81 @@ switch ($_REQUEST['page']) {
 		        ha nem létezik, létrehozzuk, mehet tovább.
 		*/
 
-		if ( !isset($_REQUEST['datum']) ) {
-			hiba ("Nincs dátum megadva");
-			return 1;
-		}
+		if ( !isset($_REQUEST['datum']) ) { hiba ("Nincs dátum megadva"); return 1; }
 
-		$result = pg_fetch_all(pg_query("SELECT * FROM Fogado_admin WHERE datum='" . $_REQUEST['datum'] . "'" ));
+		$result =& $db->query("SELECT * FROM Fogado_admin WHERE datum='" . $_REQUEST['datum'] . "'" );
 
-		if ( !$result || (count($result) == 0) ) { // nincs ilyen
+		if ( $result->numRows() === 0 ) { // nincs még ilyen nap, létre lehet hozni
 			$FogadoIdo = array (
 				$_REQUEST['kora'] + $_REQUEST['kperc'],
 				$_REQUEST['vora'] + $_REQUEST['vperc']
 			);
 
-			if ( $_REQUEST['datum'] && $_REQUEST['tartam']
-							&& $_REQUEST['valid_kezd'] && $_REQUEST['valid_veg'] ) {
-				$q = "INSERT INTO Fogado_admin (datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES"
-					. " ('" . $_REQUEST['datum'] . "', $FogadoIdo[0], $FogadoIdo[1], "
+			if (!$_REQUEST['tartam']) { hiba ("Tartam nincs megadva"); return 1; }
+			if (!$_REQUEST['valid_kezd']) { hiba ("Érvényesség kezdete nincs megadva"); return 1; }
+			if (!$_REQUEST['valid_veg']) { hiba ("Érvényesség vége nincs megadva"); return 1; }
+
+			$q = "INSERT INTO Fogado_admin (datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES ('"
+					. $_REQUEST['datum'] . "', $FogadoIdo[0], $FogadoIdo[1], "
 					. $_REQUEST['tartam'] . ", '"
 					. $_REQUEST['valid_kezd'] . "', '"
 					. $_REQUEST['valid_veg'] . "')";
-			}
-			else {
-				hiba ("Valami nincs megadva");
-				return 1;
-			}
 
-			if ( $result = pg_query($q) ) {
-				Ulog(0, "RENDBEN: $q");
+			$res =& $db->query($q);
+			if (DB::isError($res)) {
+				hiba ("Nem sikerült regisztrálni a fogadóórát");
+				die($res->getMessage());
 			}
 			else {
-				hiba ("Nem sikerült regisztrálni a fogadóórát");
-				return 1;
+				Ulog(0, "RENDBEN: $q");
 			}
 
 		}
-		elseif ( count($result) == 1 ) { // van egy ilyen
-			$q = "SELECT count(*) as num FROM Fogado WHERE fid=" . $result[0]['id'];
-			$res = pg_fetch_array(pg_query($q));
-			if ( $res['num'] > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
-
+		elseif ( $result->numRows() === 1 ) {
+			$result->fetchInto($row);
+			$num =& $db->getOne("SELECT count(*) as num FROM Fogado WHERE fid=" . $row['id']);
+			if ($num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
 		}
 		else {
 			hiba ("HAJAJ! Nagy GÁZ van... (több egyforma dátum?)");
 			return 1;
 		}
 
-		if( $result = pg_query("SELECT * FROM Fogado_admin WHERE datum='" . $_REQUEST['datum'] . "'" )) {
-			$FA = pg_fetch_array($result);
-		}
+		// túl vagyunk az idõpontbejegyzésen, újból beolvassuk az aktuálisat
+		// $FA a fogadóóra bejegyzés asszociatív tömbje
+
+		$FA =& $db->getRow("SELECT * FROM Fogado_admin WHERE datum='" . $_REQUEST['datum'] . "'" );
+		if (DB::isError($FA)) { die($FA->getMessage()); }
 
 		$Out .= "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
 
-		if ($result = pg_query("SELECT * FROM Tanar AS T LEFT OUTER JOIN"
-				. "(SELECT ofo FROM Diak GROUP BY ofo) AS D ON (T.id=D.ofo) ORDER BY tnev")) {
-			$Tanar = pg_fetch_all($result);
-		}
+		// Kiírjuk soronként a tanárokat az egyéni beállításokhoz
+      // eredmény: Tanar[id] = array (emil, tnev, ofo)
+		$Tanar =& $db->getAssoc(
+						  "SELECT * FROM Tanar AS T"
+						. "    LEFT OUTER JOIN"
+						. "  (SELECT ofo FROM Diak GROUP BY ofo) AS D"
+						. "    ON (T.id=D.ofo) ORDER BY tnev",
+						true, array(), DB_FETCHMODE_ASSOC);
 
+		// Out-ba gyûjtjük a kimenetet, kezdjük a fejléccel
 		$Out .= "<form method=post>\n<table class=tanar>\n"
 			. "<tr><th><th colspan=4>\n"
 			. "<tr><th>Tanár neve<th><th>Fogadóóra<th>tartam<th><th colspan=2>Szülõi<th>\n";
-		foreach ($Tanar as $t) {
-			$paratlan = 1-$paratlan;
-			$id=$t['id'];
+
+		// A tanár tömbön megyünk végig egyesével
+		foreach (array_keys($Tanar) as $id) {
+			$t = $Tanar[$id];
+
+			$paratlan = 1-$paratlan;   // a színezés miatt váltott sorosan haladunk
+
 			$Out .= "\n<tr" . ($paratlan?" class=paratlan":"") . "><td>" . $t['tnev'] . "\n"
 				. "  <td><input type=checkbox name=a$id checked>\n"
 				. "  <td>" . SelectIdo("b$id", "c$id", $FogadoIdo[0]) . " &nbsp;\n"
 				. "      " . SelectIdo("d$id", "e$id", $FogadoIdo[1]) . " &nbsp;\n"
 				. "  <td align=center>" . SelectTartam("f$id") . "<td>\n";
-			if ( isset($t['ofo']) ) {
+
+			if ( $t['ofo'] > 0 ) {
 				$Out .= "  <td><input type=checkbox name=g$id checked>\n"
 					. "  <td>" . SelectIdo("h$id", "i$id", $_REQUEST['skora'] + $_REQUEST['skperc']) . " &nbsp;\n"
 					. "      " . SelectIdo("j$id", "k$id", $_REQUEST['svora'] + $_REQUEST['svperc']) . " &nbsp;\n";
@@ -150,6 +156,8 @@ switch ($_REQUEST['page']) {
 				$Out .= "  <td colspan=4>\n";
 			}
 		}
+
+		// Lábléc
 		$Out .= "<tr><td colspan=12 class=right>\n"
 			. "<input type=hidden name=fid value=" . $FA['id'] . ">\n"
 			. "<input type=hidden name=page value=3>\n"
@@ -164,25 +172,21 @@ switch ($_REQUEST['page']) {
 	// A bejegyzések alapján a fogadóóra táblájának feltöltése
 	case 3:
 
-		// ha van bejegyezve már ilyen id az idõpontoknál, akkor már jártunk itt -> hiba
-		if (!isset($_REQUEST['fid'])) {
-			hiba ("Nincs fogadó-azonosító");
-			return 1;
-		}
+		// ha nem tudjuk, melyik fogadó-azonosítóhoz kell bejegyzéseket csinálni
+		if (!isset($_REQUEST['fid'])) { hiba ("Nincs fogadó-azonosító"); return 1; }
 
-		$res = pg_fetch_array(pg_query("SELECT count(*) as num FROM Fogado_admin WHERE id=" . $_REQUEST['fid'] ));
-		if ( $res['num'] != 1 ) {
-			hiba ("Nincs ilyen nap regisztrálva");
-			return 1;
-		}
+		// csak akkor tudunk továbblépni, ha 1! bejegyzés van az adott napon
+		$num =& $db->getOne("SELECT count(*) as num FROM Fogado_admin WHERE id=" . $_REQUEST['fid'] );
+		if (DB::isError($num)) { die($num->getMessage()); }
+		if ( $num != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
 
-		$res = pg_fetch_array(pg_query("SELECT count(*) as num FROM Fogado WHERE fid=" . $_REQUEST['fid'] ));
-		if ( $res['num'] > 0 ) {
-			hiba ("E napon már vannak bejegyzések");
-			return 1;
-		}
+		// ha ilyen id van már bejegyezve az idõpontoknál, akkor már jártunk itt -> hiba
+		$num =& $db->getOne("SELECT count(*) as num FROM Fogado WHERE fid=" . $_REQUEST['fid'] );
+		if (DB::isError($num)) { die($num->getMessage()); }
+		if ( $num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
 
-		// A változókat rendezzük használható tömbökbe
+
+		// A kapott ûrlap-változókat rendezzük használható tömbökbe
 		//    $JelenVan[id] (id, kezd, veg, tartam)
 		//    $Szuloi[id] (id, kezd, veg)
 
@@ -204,6 +208,7 @@ switch ($_REQUEST['page']) {
 		}
 
 		// Feltöltjük a Tanar tömböt, ez ilyen formán fog majd az adatbázisba kerülni
+
 		foreach ($JelenVan as $t) {
 			if ( $t['kezd'] && $t['veg'] && $t['tartam'] ) {
 				// elõször az összes idõpontját nem foglalhatóvá (-1) tesszük
@@ -226,10 +231,19 @@ switch ($_REQUEST['page']) {
 		foreach ( array_keys($Tanar) as $id ) {
 			reset ($Tanar[$id]);
 			while (list ($key, $val) = each ($Tanar[$id])) {
-			   $Tanar_copy[] = $_REQUEST['fid'] . "\t$id\t$key\t$val";
+			   $Tanar_copy[] = array($_REQUEST['fid'], $id, $key, $val);
 			}
 		}
-		if ( ! pg_copy_from ($db, "fogado", &$Tanar_copy) ) { $Out .= "nem sikerült"; }
+
+		$sth = $db->prepare('INSERT INTO fogado VALUES (?, ?, ?, ?)');
+		$res =& $db->executeMultiple($sth, $Tanar_copy);
+		if (DB::isError($res)) {
+			ulog (0, "SIKERTELEN ADATBEVITEL");
+			die($res->getMessage());
+		}
+		else {
+			ulog (0, "Új idõpont felvitele sikerült." );
+		}
 
 		header("Location: " . $_SERVER['PHP_SELF'] . "?page=4&datum=" . $_REQUEST['datum']);
 

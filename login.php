@@ -1,29 +1,33 @@
 <?
 require_once('fogado.inc.php');
 
-
 session_start();
-
-if (isset($_REQUEST['kilep']) ) {
-	session_destroy();
-	redirect('leiras.html');
-}
 
 function redirect($uri = '') {
 	if ($uri==='') $uri = $_SERVER['REQUEST_URI'];
 	header ("Location: $uri");
 }
 
+// ellenõrzi, hogy adott típus, id esetén létezik-e az userid
 function get_user($tip, $id) {
+	global $db;
 	if ($tip == 'admin') $tip='diak';
 	if (($tip != 'tanar') && ($tip != 'diak')) return (NULL);
-	if (($res = pg_query("SELECT * FROM $tip WHERE id=" . $id)) && pg_num_rows($res)===1) {
-		$user = pg_fetch_assoc($res);
-		$user['nev'] = $user['tnev'] . $user['dnev']; // pontosan az egyik létezik
-		return ($user);
-	}
-	else return(NULL);
+
+	$user =& $db->getRow("SELECT * FROM $tip WHERE id=$id");
+	if (DB::isError($user)) { die($user->getMessage()); }
+
+	$user['nev'] = $user['tnev'] . $user['dnev']; // pontosan az egyik létezik
+	return ($user);
 }
+
+if (isset($_REQUEST['kilep']) ) {
+	session_destroy();
+	redirect('leiras.html');
+}
+
+// Ha tip, id jött a REQUEST-ben, akkor azt vesszük figyelembe,
+// egyébként a SESSION-változót.
 
 $tip = isset($_REQUEST['tip'])?$_REQUEST['tip']:$_SESSION['tip'];
 $id  = isset($_REQUEST['id'])?$_REQUEST['id']:$_SESSION['id'];
@@ -60,15 +64,30 @@ elseif (isset($_POST['jelszo']) ) {
 	$jo = false;
 	switch ($tip) {
 		case 'tanar':
-			$jo = (($user) && (pam_auth($user['emil'], $_POST['jelszo'], &$error)));
+			switch ($tanar_auth) {
+				case 'PAM':
+					$jo = (($user) && (pam_auth($user['emil'], $_POST['jelszo'], &$error)));
+					break;
+				case 'DB':
+					$jo = (($user) && (md5($_POST['jelszo']) == $user['jelszo']));
+					break;
+				case 'LDAP':
+					$dn = preg_replace ('/#USER#/', $user['emil'], $ldap['base']);
+//					$dn = 'uid=' . $user['emil'] . ',' . $ldap['base'];
+					if($connect = ldap_connect($ldap['host'])) {
+						ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, $ldap['version']);
+						$jo = @ldap_bind($connect, $dn, $_POST['jelszo']);
+					}
+					break;
+			}
 			break;
 
 		case 'diak':
-			$jo = (($user) && (md5($_POST['jelszo']) === $user['jelszo']));
+			$jo = (($user) && (md5($_POST['jelszo']) == $user['jelszo']));
 			break;
 
 		case 'admin':
-			$jo = (($user) && (md5($_POST['jelszo']) === $user['jelszo']));
+			$jo = (($user) && (md5($_POST['jelszo']) == $user['jelszo']));
 			if ($jo) $_SESSION['admin'] = true;
 			break;
 	}

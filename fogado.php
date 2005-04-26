@@ -14,20 +14,20 @@ Head("Fogadóóra - " . $user->dnev);
 $USER_LOG = array();
 
 $Fejlec = 
-	  "  <script language=JavaScript><!--\n"
+	  "  <script language=JavaScript type=\"text/javascript\"><!--\n"
 	. "    function torol(sor) {\n"
 	. "    eval('var s = document.tabla.'+sor);\n"
 	. "    for (var i=0; i<s.length; i++)\n"
 	. "      s[i].checked=0;\n"
 	. "    }\n"
 	. "  //--></script>\n\n"
-	. "<table width=100%><tr><td>\n"
+	. "<table width=\"100%\"><tr><td>\n"
 	. "<h3>" . $user->dnev . " " . $user->onev .  " (" . $FA->datum . ")<br>\n"
-	. "<font size=-1>(Osztályfõnök: " . $user->ofonev . ")</h3>\n"
+	. "<font size=-1>(Osztályfõnök: " . $user->ofonev . ")</font></h3>\n"
 	. "<td align=right valign=top>\n"
-	. "  <a href=osszesit.php?tip=diak&id=" . $user->id . "> Összesítés </a> | \n"
-	. "  <a href=leiras.html> Leírás </a> | \n"
-	. "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='> Kilépés </a>\n</table>\n";
+	. "  <a href=\"osszesit.php?tip=diak&amp;id=" . $user->id . "\"> Összesítés </a> | \n"
+	. "  <a href=\"leiras.html\"> Leírás </a> | \n"
+	. "  <a href=\"" . $_SERVER['PHP_SELF'] . "?kilep=\"> Kilépés </a>\n</table>\n";
 
 // egy tanár-sor a táblázatban
 function table_row($K, $tid, $t) {
@@ -85,7 +85,7 @@ function tanar_ki($tanar) {
 	}
 
 	$tmp = "\n<tr><th align=left nowrap" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;"
-		. (ADMIN?"<a href=tanar.php?tip=tanar&id=" . $tanar['id'] . ">" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
+		. (ADMIN?"<a href=\"tanar.php?tip=tanar&amp;id=" . $tanar['id'] . "\">" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
 
 // párosak:
 	$tmp .= table_row($K[0], $tanar['id'], $FA->IDO_min);
@@ -123,20 +123,16 @@ foreach (array_keys($IDO) as $ora) {
 $TablazatIdosor = $A . $B;
 
 // Az összes fogadó tanár nevét kigyûjtjük // FOGADO[id]=('id', 'nev')
-if( $result = pg_query("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=" . fid . " AND tanar=id GROUP BY tanar,tnev ORDER BY tnev")) {
-	foreach ( pg_fetch_all($result) as $tanar ) {
-		$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
-	}
+foreach ($db->getAll("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=" . fid . " AND tanar=id GROUP BY tanar,tnev ORDER BY tnev" ) as $tanar) {
+	$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
 }
 
 // mindegyikhez az összes idõ => elfoglaltságot (A FOGADO-hoz rakunk még mezõket)
 // FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
-if( $result = pg_query("SELECT tanar, ido, diak FROM Fogado WHERE fid=" . fid . " ORDER BY ido")) {
-	foreach ( pg_fetch_all($result) as $sor ) {
-		// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
-		if ( $sor['ido']%2 && $sor['diak']>=0 && ($sor['diak'] != "") ) $FOGADO[$sor['tanar']]['paratlan'] = 1;
-		$FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
-	}
+foreach ($db->getAll("SELECT tanar, ido, diak FROM Fogado WHERE fid=" . fid . " ORDER BY ido") as $sor) {
+	// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
+	if ( $sor['ido']%2 && $sor['diak']>=0 && ($sor['diak'] != "") ) $FOGADO[$sor['tanar']]['paratlan'] = 1;
+	$FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
 }
 
 // visszatérés: array (bool b, string s)
@@ -176,7 +172,7 @@ if ( $_POST['page'] == 'mod' ) {
 		foreach ( array_keys($tanar) as $Time ) {
 			if ( ( $tanar[$Time] == $user->id ) && !isset($_POST[$v]) ) {
 				$q = "UPDATE Fogado SET diak=0 WHERE tanar=" . $tanar['id'] . " AND ido=$Time";
-				if ( pg_query($q) ) {
+				if ( $db->query($q) ) {
 					$FOGADO[$tanar['id']][$Time] = "0";
 					$USER_LOG[] = "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - törölve.";
 					Ulog($user->id, $q);
@@ -202,7 +198,7 @@ while (list($k, $v) = each($_POST)) {
 		}
 		if ( $validate[0] ) { // rendben, lehet adatbázisba rakni
 			$q = "UPDATE Fogado SET diak=" . $user->id . " WHERE tanar=$Teacher AND ido=$Time";
-			if ( pg_query($q) ) {
+			if ( $db->query($q) ) {
 				$FOGADO[$Teacher][$Time] = $user->id;
 				$USER_LOG[] = "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . FiveToString($Time) . " - bejegyezve.";
 				Ulog($user->id, $q);
@@ -228,12 +224,12 @@ print $Fejlec;
 
 if ($USER_LOG) {
 	print "<hr>\n";
-	print "<table border=0 width=100%><tr><td bgcolor=#e8e8e8>\n";
+	print "<table border=0 width=\"100%\"><tr><td bgcolor=\"#e8e8e8\">\n";
 	foreach ($USER_LOG as $log) print "<font size=-1><b>$log</b></font><br>\n";
 	print "</table>\n";
 }
 
-print "\n<form name=tabla method=post><table border=1>"
+print "\n<form action=\"\" name=tabla method=post><table border=1>"
 	. "<tr><td colspan=" . (($FA->IDO_max-$FA->IDO_min)/2+2) . " align=right class=right>\n"
 	. "  <input type=submit value=' Mehet '>\n"
 	. $TablaOutput
@@ -244,7 +240,6 @@ print "\n<form name=tabla method=post><table border=1>"
 	. "</form>\n";
 
 Tail();
-pg_close ($db);
 
 ?>
 
