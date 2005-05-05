@@ -12,7 +12,12 @@ $host = 'www.szepi.hu';
 //   ha van helyi pam, akkor az azonosítójuk kell a táblába,
 //   ha nincs, akkor a jelszó.
 // 'PAM', 'LDAP' vagy 'DB'
+
 $tanar_auth = 'LDAP';
+
+// Ha LDAP akkor kell neki az user DN. A #USER# helyére fogja
+// a program beírni az azonosítót.
+
 $ldap = array(
     'host' => 'ldap://localhost',
     'base' => 'uid=#USER#,ou=People,dc=szepi,dc=hu',
