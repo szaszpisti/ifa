@@ -14,22 +14,22 @@ $OSZTALY_file = file('OSZTALY');
 
 foreach ($OSZTALY_file as $oszt) {
 	// $O = array('id1', 'nev1', 'id2', 'nev2'), vagyis kétszer hosszabb
-	$O = explode(';', $oszt);
+   $O = explode(';', $oszt);
 
 	// megkeressük a max sorhosszt a táblázat méretéhez
-	if (sizeof($O) > $oMax) $oMax = sizeof($O);
-	$OSZTALY[] = $O;
+   if (sizeof($O) > $oMax) $oMax = sizeof($O);
+   $OSZTALY[] = $O;
 }
 
 foreach ($OSZTALY as $oszt) {
-	print "<tr>";
-	for ($i=0; $i<sizeof($oszt); $i+=2) {
-		echo "<td><a href=\"?o=" . $oszt[$i] . "\">" . $oszt[$i+1] . "</a>";
-	}
-	for ( ; $i<$oMax; $i+=2) {
-		echo "<td>&nbsp;";
-	}
-	print "\n";
+   print "<tr>";
+   for ($i=0; $i<sizeof($oszt); $i+=2) {
+      echo "<td><a href=\"?o=" . $oszt[$i] . "\">" . $oszt[$i+1] . "</a>";
+   }
+   for ( ; $i<$oMax; $i+=2) {
+      echo "<td>&nbsp;";
+   }
+   print "\n";
 }
 echo "<tr><td colspan=3><a href=\"?o=t\">tanárok</a><td>&nbsp;<td>&nbsp;\n";
 echo "</table>\n\n";
