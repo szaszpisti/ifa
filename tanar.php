@@ -1,4 +1,19 @@
 <?
+/*
+ *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   This file is part of the IFA suite,
+ *   Copyright 2004-2005 Szász Imre.
+ *
+ *   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
+ *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
+ *   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *
+ *   This program is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU General Public License
+ *   as published by the Free Software Foundation; either version
+ *   2 of the License, or (at your option) any later version.
+ */
+
 require_once('login.php');
 require_once('fogado.inc.php');
 require_once('tanar.class.php');
@@ -43,7 +58,6 @@ switch ($_REQUEST['mod']) {
 
 		if ($TANAR->fogad) {
 			for ($ido = $UJ_min; $ido < $TANAR->IDO_min; $ido++ ) {
-#				$INSERT[] = fid . "\t" . $TANAR->id . "\t$ido\t" . ($ido%$tartam?-1:0) . "\n";
 				$INSERT[] = array(fid, $TANAR->id, $ido, ($ido%$tartam?-1:0));
 			}
 			for ($ido = $TANAR->IDO_max+1; $ido < $UJ_max; $ido++) {

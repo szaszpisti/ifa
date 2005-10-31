@@ -1,117 +1,137 @@
-echo 'COPY fogado_diak (id, jelszo) FROM stdin;'
-psql -A -t -q -F'\t' -h bakker -c 'select * from diak' fogado > fogado.regi
-echo '\\.'
+Iskolai Fogadóóra Adminisztráció
 
-Minden tanár megnézheti a hozzá feliratkozók listáját, ehhez neki is be kell
-jelentkezni. Mivel a tanári azonosító-jelszó pár már adott, praktikus
-ezt használni. Ehhez a `php4-auth-pam` modult használom, így illeszkedik a
-jelenlegi authentikációs sémába.
 
-Idõpontok: az egyszerûbb kezelés végett az idõpontok egy egész
-számként vannak tárolva 5 perces felosztásban (azaz ha `n` az idõpont, az
-`floor(n/12)` óra `n-floor(n/12)` percet jelent). Ez alól kivétel csak az
-ini fájl, ahol az átláthatóság miatt ,,normál'' óra-perc értékek
-vannak -- ezek elsõ használat elõtt konvertálva lesznek.
+# phpdoc -dn 'IFA' -s -t ../doc -ti 'Iskolai Fogadóóra Adminisztráció' -d .
 
-Bejelentkezés:
-- diák választás
-// - ha még nem volt -> automatikus regisztráció (anyja neve, TAJ, ...)
-// - ha már volt -> jelszó kérdezés (opció: elfelejtett jelszó elküldése?)
+A különbözõ adatbázisok használatához telepíteni kell a megfelelõ php modulokat.
+Pl. a PostgreSQL használatához a php4-pgsql, a SQLite-hez a php4-sqlite.
 
-  alsa-base alsa-utils
+Az excel-táblázat generáló perl scripthez szükség van néhány perl modulra:
+libspreadsheet-writeexcel-perl
 
-az összes .php -> fogado.inc.php
-fogado.inc -> fogadoora.class.php
+valamint az adatbáziskapcsolatnak megfelelõ perl DBD komponensre, pl.:
+libdbd-sqlite2-perl
+libdbd-pg-perl
+stb.
 
-Ezen kívül:
-admin.php -> user.class.php
-fogado.php -> user.class.php
-admin.php -> user.class.php
-osszesit.php -> user.class.php
-tanar.php -> tanar.class.php
+# Megj:
+# SQLite miatt nem jó a sima SELECT * ... JOIN ... mert az eredménybe berakja
+# a táblanevet is! Helyette SELECT mezo1, ... kell
+
+
+- a jelentkezés, adminisztráció web böngészõvel kezelhetõ,
+- session-alapú, a szülõknek saját jelszavuk van,
+- a jelentkezések ellenõrzöttek, hiba esetén a jelentkezõ figyelmeztetést kap,
+- az adminisztrátor részletesen állíthatja egyes tanárok jelenlétét, fogadóidejét,
+- adatbázis-absztrakciós rétegen (PEAR DB) keresztül többféle RDBMS-t képes használni,
+- a tanári listázásokhoz képes PAM, LDAP és adatbázis authentikációt is kezelni.
+
+A csomagban található teszt adatbázis generáló script, és egy SQLite
+példaadatbázis is.
+
+A program cookiban tárolt session-azonosítókat használ, anélkül nem
+mûködik. => engedélyezni kell: a szerveren a session-öket, a kliensen a
+kukikat.
+
+Az állományok:
+
+README
+
+  Ez az állomány.
+
+COPYING
+
+  Közreadási feltételek: GPL-2
+
+leiras.html
+
+  A kezdõlapon megjelenõ rövid használati útmutató.
+
+fogado.ini.php
+
+  Itt találhatók az általános beállítások, úgymint adatbázis kapcsolat,
+  tanári authentikációs modell, idõpont alapértelmezések
+
+fogado.inc.php
+
+  Általános függvények: adatbázis kapcsolódás, fej- és lábléc, logolás,
+  idõpont-átszámító, az ûrlapokhoz konstans vezérlõelemek stb.
+
+index.html
+
+  Szimpla átirányítás az index.php-ra, csak hogy ne lehessen véletlenül
+  listázni a könyvtár tartalmát.
+
+index.php
+
+  Ezt az állományt töltik be elõször, itt található a cookie-teszt.
+
+OSZTALY
+
+  Az iskolában található osztályok listája, ez egyben a megjelenítés
+  formátuma is.
+
 osztaly.php
 
+  Az OSZTALY állomány alapján kirakja a bal oldali menübe az osztályok
+  listáját, ha paraméterként osztályazonosítót kap, akkor azt az osztályt
+  ki is listázza.
 
-Bártházi András elõadása a PHP konferencián
+login.php
 
-register_globals=off
-safe_mode=on
-open_basedir beállítása
-display_errors=off
-log_errors=on
-allow_url_fopen kikapcsolása
-upload_tmp_dir beállítása
-is_uploaded_file használata
-move_uploaded_file használata
+  Bejelentkezés, authentikáció. Ellenõrzi, hogy a kért azonosító létezik-e,
+  beállítja a felhasználó identitását a session vagy a bejelentkezés
+  alapján. Ellenõrzi a bejelentkezési idõszakot is.
 
+  A bejelentkezés idõpontja a szülõk felé korlátozott, csak az elõre
+  beállított bejelentkezési idõben jelentkezhet be és módosíthatja a
+  foglalásokat -- egyébként csak egy üzenetet kap, hogy nincs bejelentkezési
+  idõszak.
 
-DB: fogado
-tid: -> tanar.id
-date: YYYY.MM.DD (kell?)
-ido: HH:MM:SS (öt perces?) intervallumok kezdete (vagy csak egy egész szám legyen?)
-diak: -> diak.id
+tanar.php
 
-did:
-NULL: nincs fogadás
-0: tartam kezdete, ilyenkor ide lehet nevet írni
--1: tartam folytatása, ha nem öt percet kér (alap: 10)
--2: szülõi értekezlet, ilyenkor nincs fogadás
-did: diak.id
+  Egy tanárhoz tartozó egyéni idõpont-beállítási lehetõség, csak az admin
+  részére.
 
-i: 1  2   3  4  5 6  7  8  9   10 11 12 13 14 15 16 17 18 19  20   21
-NULL NULL 0 -1 -1 0 -1 -1 1283 -1 0 341 -2 -2 -2 0 -1 534 -1 NULL NULL
-    x    |   _   |   _   |   x   |_| x |    S   | _  |  x   |    x
-cols: 2  |   3   |   3   |   2   | |   |    3   | 2  |  2   |    2
+  Tanári bejelentkezés esetén ez írja ki a tanár egyéni listáját is.
 
-kiírás eleje:
-SELECT MIN(ido) FROM Fogado WHERE did=0;
-vége:
-SELECT MAX(ido) FROM Fogado WHERE did=0;
+fogado.php
 
-Egy diák kiírása:
-for t in
-SELECT tanar FROM Fogado UNIQUE
-	d[*] = SELECT diak FROM Fogado ORDER BY ido WHERE ido BETWEEN eleje AND vege;
-	i=eleje;
-	while i<vege
-		j=i;
+  A normál bejelentkezés lapja, itt jelölhetik be a szülõk és az admin az
+  egyes tanárokhoz való bejelentkezéseket. Elküldés után elvégzi a
+  szükséges alapvetõ ellenõrzéseket: egy tanárhoz nem lehet kétszer
+  feliratkozni, egyszerre nem lehet két tanárhoz jelentkezni, stb.
 
-		switch(d[i]) {
-			case -2:
-				print "<td class=szuloi"
-				while (d[j]==-2 && j<=vege) j++
-				if j>i+1 print "colspan = j-i"
-				print ">"
-				break
+admin.php
 
-			case 0:
-				print "<td class=szabad"
-				j++
-				while (d[j]==-1 && j<=vege) j++
-				if j>i+1 print "colspan = j-i"
-				print "><input type=radio name=almar value=", i, ">"
-				break
+  Új fogadónap bejegyzés létrehozása, és alapértelmezett vagy beállított
+  értékekkel feltöltése.
 
-			case NULL:
-				print "<td class=nincs"
-				while (d[j]==NULL && j<=vege) j++
-				if j>i+1 print "colspan = j-i"
-				print ">"
-				break
+fogado-xls.pl
 
-			default:
-				if (d[i] == bejelentkezett azonosító)
-					print "<td class=szabad"
-					j++
-					while (d[j]==-1 && j<=vege) j++
-					if j>i+1 print "colspan = j-i"
-					print "><input type=checkbox name=", t, " checked>"
-				else // másik diák, olyan mintha nem lenne itt
-					print "<td class=nincs"
-					while (d[j]==NULL && j<=vege) j++
-					if j>i+1 print "colspan = j-i"
-					print ">"
-				break
-		} // switch
-		i=j
-	} // while
+  Az aktuális fogadóóra adataiból készít egy excel táblázatot. Az admin
+  oldalról érhetõ el.
+
+osszesit.php
+
+  Szülõi összesített lista, a szülõi bejelentkezés oldaláról érhetõ el.
+
+fogado.db
+
+  Fogadóóra példaadatbázis SQLite2 formátumban.
+
+default.css
+osztaly.css
+dugo.png
+favicon.ico
+
+  Dekorációk, stílusfájlok az általános lapra ill. az osztálylistára.
+
+classes
+
+  A használt osztályok: fogadoora, tanar, diak
+
+gen
+
+  Teszt adatbázist és jelszót generáló programok. Ld.: gen/README
+

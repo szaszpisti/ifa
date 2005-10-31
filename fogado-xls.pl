@@ -1,4 +1,18 @@
 #!/usr/bin/perl
+#
+#   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+#   This file is part of the IFA suite,
+#   Copyright 2004-2005 Szász Imre.
+#
+#   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
+#   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
+#   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+#
+#   This program is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU General Public License
+#   as published by the Free Software Foundation; either version
+#   2 of the License, or (at your option) any later version.
+#
 
 use strict;
 use DBI;
@@ -6,12 +20,21 @@ use Spreadsheet::WriteExcel;
 use POSIX qw(strftime);
 use constant true => 1;
 
-# use Data::Dumper;
-# print Dumper \@tabla;
+# use diagnostics;
+use constant DEBUG => 0;
+if (DEBUG) { use Data::Dumper; } # érdekes, ezt mindig betölti...
 
-my $DEBUG = 0;
+# print Dumper DEBUG;
 
-my $db_fogado = DBI->connect("DBI:Pg:dbname=fogado", "www");
+# Nem egységes az erõforrás-leírás, a fogado.ini.php-ba kell egy PERL_DSN = "..." sor
+my $PERL_DSN;
+open (INI, "< fogado.ini.php");
+while (<INI>) {
+	$PERL_DSN = $1 if (/^PERL_DSN = "(.*)"$/);
+}
+close (INI);
+
+my $db_fogado = DBI->connect($PERL_DSN, "www");
 
 # Az legutóbb bejegyzett fogadóóra kigyûjtése
 my $FA = $db_fogado->prepare("SELECT * FROM Fogado_admin"
@@ -25,7 +48,7 @@ my $fid = $fogadoEntry->{id} or die "Nincs fid!\n";
 # my $filename = "fogado-$fogadoDate.xls";
 my $filename = strftime ("fogado-%Y.%m.%d-%H%M%S.xls", localtime);
 
-if(!$DEBUG) {
+if (!DEBUG) {
 	print "Content-type: application/vnd.ms-excel\n";
 	print "Content-Disposition: attachment; filename=$filename\n\n";
 }
@@ -44,7 +67,7 @@ while (my $sor = $tanarLista->fetchrow_hashref) {
 	$tanar[$sor->{tanar}] = $sor->{tnev};
 }
 
-my $minmaxGlobal = $db_fogado->prepare("SELECT min(ido), max(ido) "
+my $minmaxGlobal = $db_fogado->prepare("SELECT MIN(ido) AS min, MAX(ido) AS max "
 			. "FROM Fogado WHERE fid=" . $fid);
 $minmaxGlobal->execute();
 my $mm = $minmaxGlobal->fetchrow_hashref;
@@ -52,7 +75,7 @@ my $IDO_min = 2*int($mm->{min}/2);
 my $IDO_max = 2*int($mm->{max}/2);
 
 # minden tanárhoz ittlétének kezdete és vége
-my $minmaxPerUser = $db_fogado->prepare("SELECT tanar, MIN(ido), MAX(ido) "
+my $minmaxPerUser = $db_fogado->prepare("SELECT tanar, MIN(ido) AS min, MAX(ido) AS max "
 			. "FROM Fogado WHERE fid=" . $fid . " GROUP BY tanar");
 $minmaxPerUser->execute();
 my (@minPerUser, @maxPerUser);
@@ -62,32 +85,35 @@ while (my $t = $minmaxPerUser->fetchrow_hashref) {
 }
 
 # nagy táblázat, minden bejegyzés benne van
-my $mind = $db_fogado->prepare("SELECT tanar, ido, dnev, onev FROM Fogado AS F"
-	. " LEFT OUTER JOIN"
-	. "   ( SELECT * FROM Diak UNION"
-	. "     SELECT -2, NULL, 'Szülõi', NULL, NULL, NULL, NULL ) AS D"
-	. "   ON (F.diak=D.id)"
-	. " WHERE F.fid=" . $fid . " AND (F.diak>0 OR F.diak=-2) ORDER BY ido");
+my $q = "SELECT tanar, ido, dnev, onev FROM Fogado AS F"
+		. " LEFT OUTER JOIN"
+		. "   ( SELECT * FROM Diak UNION"
+		. "     SELECT -2 AS id, NULL AS jelszo, 'Szülõi' AS dnev, NULL AS oszt,"
+		. "            NULL AS onev, NULL AS ofo, NULL AS ofonev ) AS D"
+		. "   ON (F.diak=D.id)"
+		. " WHERE F.fid=" . $fid . " AND (F.diak>0 OR F.diak=-2) ORDER BY ido";
+
+my $mind = $db_fogado->prepare($q);
 $mind->execute();
 
 my (@tabla, @paratlan);
 while (my $t = $mind->fetchrow_hashref) {
-	# az if defined nélkül "Use of uninitialized value" hiba van strict-nél...
-	(my $onev = $t->{onev}) =~ s{ }{}g; # if defined $onev;
-	$tabla[$t->{tanar}][$t->{ido}] = $t->{dnev} . " " . $onev; # if defined $onev;
+	(my $onev = $t->{onev}) =~ s{ }{}g;
+	$tabla[$t->{tanar}][$t->{ido}] = $t->{dnev} . " " . $onev;
 	if ( ($t->{ido}%2) && ($t->{dnev} ne "") && ($t->{dnev} ne "Szülõi") ) {
 		$paratlan[$t->{tanar}] = true;
 	}
 }
 
 # DEBUG esetén (parancssorból indítva) fájlt hozunk létre
-my $workBook = Spreadsheet::WriteExcel->new($DEBUG?"$filename":"-");
+my $workBook = Spreadsheet::WriteExcel->new(DEBUG?"$filename":"-");
 my @book;
 
 my $formatOsszDiak = $workBook->add_format(text_wrap => 1);
 my $formatTanarNev = $workBook->add_format(bold => 1, size => 18);
 
-$book[0] = $workBook->add_worksheet('Összesített');
+my $osszesitoNev = 'Összesített';
+$book[0] = $workBook->add_worksheet($osszesitoNev);
 
 $book[0]->set_column('A:A', 25);
 
@@ -107,7 +133,8 @@ for (my $i = 1; $i <= $darab; $i++) {
 	$osszesitoSor++;
 	my $id = $nevsor[$i];
 
-	($vnev = $tanar[$id]) =~ s{^([^ ]* .).*$}{$1.};
+	# $vnev: a tanári lap neve: 'Monoton Manó' -> 'Monoton M'
+	($vnev = $tanar[$id]) =~ s{^([^ ]* .).*$}{$1};
 
 	# Az összesített lista sorai
 	# Tanárnév hivatkozásként a saját munkalapra
@@ -120,7 +147,7 @@ for (my $i = 1; $i <= $darab; $i++) {
 	   $book[0]->write($osszesitoSor, $osszesitoOszlop, $tabla[$id][$ido], $formatOsszDiak);
 	}
 
-	# ha van, akkor a páratlan sorok
+	# ha vannak páratlan sorok, azokat külön sorba írjuk
 	if ($paratlan[$id]) {
 		$osszesitoSor++;
 		$osszesitoOszlop = 0;
@@ -130,9 +157,9 @@ for (my $i = 1; $i <= $darab; $i++) {
 		}
 	}
 
-	# Itt jönnek a tanári listák
+	# Itt jönnek a tanári listák külön lapokra
 	$book[$i] = $workBook->add_worksheet($vnev);
-	$book[$i]->write (1, 0, $tanar[$id], $formatTanarNev);
+	$book[$i]->write(1, 0, "internal:'$osszesitoNev'!A1", $tanar[$id], $formatTanarNev);
 	my $egyeniSor = 3; # hanyadik sorba kell kiírni?
 	for (my $ido = $minPerUser[$id]; $ido <= $maxPerUser[$id]; $ido += $paratlan[$id]?1:2) {
 		$egyeniSor++;
@@ -147,4 +174,5 @@ sub fiveToString {
 }
 
 $book[0]->set_row($_, 12) for (3..60);
+# $book[0]->activate();
 

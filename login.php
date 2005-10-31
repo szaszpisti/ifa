@@ -1,4 +1,19 @@
 <?
+/*
+ *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   This file is part of the IFA suite,
+ *   Copyright 2004-2005 Szász Imre.
+ *
+ *   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
+ *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
+ *   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *
+ *   This program is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU General Public License
+ *   as published by the Free Software Foundation; either version
+ *   2 of the License, or (at your option) any later version.
+ */
+
 require_once('fogado.inc.php');
 
 session_start();
@@ -31,14 +46,15 @@ if (isset($_REQUEST['kilep']) ) {
 
 $tip = isset($_REQUEST['tip'])?$_REQUEST['tip']:$_SESSION['tip'];
 $id  = isset($_REQUEST['id'])?$_REQUEST['id']:$_SESSION['id'];
+if (!isset($id)) { $tip = 'admin'; $id = 0; }
 
 $user = get_user($tip, $id);
 if (!$user) $hiba = "Nincs ilyen felhasználó!";
 
 if ((!$_SESSION['admin']) && ($tip == 'diak') && (!$FA->valid)) {
 	print "<h3>Nincs bejelentkezési idõszak!</h3>\n"
-		. "<b>" . substr($FA->valid_kezd, 0, -3) . "</b> &nbsp; és &nbsp; <b>"
-		. substr($FA->valid_veg, 0, -3) . "</b> &nbsp; között lehet bejelentkezni.\n";
+		. "<b>" . substr($FA->valid_kezd, 0, 16) . "</b> &nbsp; és &nbsp; <b>"
+		. substr($FA->valid_veg, 0, 16) . "</b> &nbsp; között lehet bejelentkezni.\n";
 	exit;
 }
 
@@ -106,6 +122,7 @@ if (!$_SESSION['valid']) {
 
 	head("Fogadóóra - " . $user['nev'], ' onLoad="document.login.jelszo.focus()"');
 
+	print "<table width=\"100%\"><tr><td>\n";
 	if (isset($hiba)) { hiba($hiba); }
 	print "\n<h3>" . $user['nev'] . ($tip=='diak'?' ('.$user['onev'].')':'') . "</h3>\n"
 		. "<form name=login action='" . $_SERVER['REQUEST_URI'] . "' method=post>\n"
@@ -113,7 +130,8 @@ if (!$_SESSION['valid']) {
 		. "  <input type=hidden name=id value=" . $id . ">\n"
 		. "  <input type=hidden name=tip value=" . $tip . ">\n"
 		. "  <input type=submit value='Belépés'>\n"
-		. "</form>\n\n";
+		. "</form>\n\n"
+		. "<td align=right valign=top><a href=\"leiras.html\"> Leírás </a>\n</table>\n";
 	tail();
 	exit;
 }

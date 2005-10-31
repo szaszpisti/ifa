@@ -1,4 +1,19 @@
 <?
+/*
+ *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   This file is part of the IFA suite,
+ *   Copyright 2004-2005 Szász Imre.
+ *
+ *   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
+ *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
+ *   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *
+ *   This program is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU General Public License
+ *   as published by the Free Software Foundation; either version
+ *   2 of the License, or (at your option) any later version.
+ */
+
 require_once('login.php');
 require_once('fogado.inc.php');
 
@@ -13,8 +28,8 @@ ha van, akkor mindjárt a második oldalra ugrik, egyébként az elsõ az alapértelme
 
 
 $Out = "\n<table width=\"100%\"><tr><td>\n"
-   . "<b><font color=\"#777777\">" . $_SESSION['nev'] . "</font></b>\n"
-   . "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n\n"
+	. "<b><font color=\"#777777\">" . $_SESSION['nev'] . "</font></b>\n"
+	. "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n\n"
 	. "<hr>\n\n";
 
 if ($_REQUEST['page'] == 4) {
@@ -24,10 +39,9 @@ if ($_REQUEST['page'] == 4) {
 
 switch ($_REQUEST['page']) {
 	case 0:
-		$Out .= "<h3>Az aktuális (legutóbb bejegyzett) fogadóóra: " . $FA->datum . "</h3>\n<ul>\n"
-			. "<li><a href=\"admin.php?page=1\">Új idõpont létrehozása</a>\n"
-			. "<li><a href=\"fogado-xls.pl\">Táblázat letöltése</a>\n"
-   		. "</ul>\n\n";
+		if ($FA) $Out .= "<h3>Az aktuális (legutóbb bejegyzett) fogadóóra: " . $FA->datum . "</h3>\n<ul>\n";
+		         $Out .= "<li><a href=\"admin.php?page=1\">Új idõpont létrehozása</a>\n";
+		if ($FA) $Out .= "<li><a href=\"fogado-xls.pl\">Táblázat letöltése</a>\n</ul>\n\n";
 		break;
 
 	case 1:  // 1. ADMIN OLDAL
@@ -68,9 +82,11 @@ switch ($_REQUEST['page']) {
 
 	case 2:  // 2. ADMIN OLDAL
 
-		/* Ha nincs dátum: nem tudunk mit csinálni...
-		ha van: ha már létezik az admin táblában, és nincs még fogadó bejegyzés, akkor mehet tovább
-		        ha nem létezik, létrehozzuk, mehet tovább.
+		/*
+		Ellenõrzések:
+		   ha nincs dátum: nem tudunk mit csinálni...
+		   ha van: ha már létezik az admin táblában, és nincs még fogadó bejegyzés, akkor mehet tovább
+		           ha nem létezik, létrehozzuk, mehet tovább.
 		*/
 
 		if ( !isset($_REQUEST['datum']) ) { hiba ("Nincs dátum megadva"); return 1; }
@@ -87,7 +103,10 @@ switch ($_REQUEST['page']) {
 			if (!$_REQUEST['valid_kezd']) { hiba ("Érvényesség kezdete nincs megadva"); return 1; }
 			if (!$_REQUEST['valid_veg']) { hiba ("Érvényesség vége nincs megadva"); return 1; }
 
-			$q = "INSERT INTO Fogado_admin (datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES ('"
+			$fid = $db->nextId('id');
+			if (DB::isError($fid)) { die($fid->getMessage()); }
+
+			$q = "INSERT INTO Fogado_admin (id, datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES ($fid, '"
 					. $_REQUEST['datum'] . "', $FogadoIdo[0], $FogadoIdo[1], "
 					. $_REQUEST['tartam'] . ", '"
 					. $_REQUEST['valid_kezd'] . "', '"
@@ -105,7 +124,7 @@ switch ($_REQUEST['page']) {
 		}
 		elseif ( $result->numRows() === 1 ) {
 			$result->fetchInto($row);
-			$num =& $db->getOne("SELECT count(*) as num FROM Fogado WHERE fid=" . $row['id']);
+			$num =& $db->getOne("SELECT count(*) AS num FROM Fogado WHERE fid=" . $row['id']);
 			if ($num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
 		}
 		else {
@@ -122,9 +141,9 @@ switch ($_REQUEST['page']) {
 		$Out .= "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
 
 		// Kiírjuk soronként a tanárokat az egyéni beállításokhoz
-      // eredmény: Tanar[id] = array (emil, tnev, ofo)
+		// eredmény: Tanar[id] = array (emil, tnev, ofo)
 		$Tanar =& $db->getAssoc(
-						  "SELECT * FROM Tanar AS T"
+						  "SELECT id, jelszo, emil, tnev, ofo FROM Tanar AS T"
 						. "    LEFT OUTER JOIN"
 						. "  (SELECT ofo FROM Diak GROUP BY ofo) AS D"
 						. "    ON (T.id=D.ofo) ORDER BY tnev",
@@ -176,12 +195,12 @@ switch ($_REQUEST['page']) {
 		if (!isset($_REQUEST['fid'])) { hiba ("Nincs fogadó-azonosító"); return 1; }
 
 		// csak akkor tudunk továbblépni, ha 1! bejegyzés van az adott napon
-		$num =& $db->getOne("SELECT count(*) as num FROM Fogado_admin WHERE id=" . $_REQUEST['fid'] );
+		$num =& $db->getOne("SELECT count(*) AS num FROM Fogado_admin WHERE id=" . $_REQUEST['fid'] );
 		if (DB::isError($num)) { die($num->getMessage()); }
 		if ( $num != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
 
 		// ha ilyen id van már bejegyezve az idõpontoknál, akkor már jártunk itt -> hiba
-		$num =& $db->getOne("SELECT count(*) as num FROM Fogado WHERE fid=" . $_REQUEST['fid'] );
+		$num =& $db->getOne("SELECT count(*) AS num FROM Fogado WHERE fid=" . $_REQUEST['fid'] );
 		if (DB::isError($num)) { die($num->getMessage()); }
 		if ( $num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
 

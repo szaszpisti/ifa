@@ -58,3 +58,10 @@ tr.paratlan { background-color: #EEEEEE; }
 
 address { font-size: 8 pt; }
 
+div.kiemelt {
+	padding: .2em;
+	border: solid thin;
+	margin: .5em 0;
+	background: #ddd;
+}
+

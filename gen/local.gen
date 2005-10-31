@@ -1,0 +1,33 @@
+#!/bin/bash
+# PostgreSQL-bõl legyártja az aktuális bejegyzéseket
+
+LOCAL=local.sql
+
+[ -f "$LOCAL" ] && exit 1
+
+{
+echo "INSERT INTO Diak (id, jelszo, dnev) VALUES (0, 'b5c6ccf9dade76f27e48a96599855083', 'Admin');"
+echo
+
+psql -A -t -q -c "SELECT \
+	'INSERT INTO Tanar (id, emil, tnev) VALUES (', \
+	esz, ', \'', TRIM(emil), '\', \'', enev, '\');' \
+	FROM Ember WHERE oszt LIKE '%x%' ORDER BY enev;" iskola \
+	| tr -d '|'
+echo
+
+IFS='
+'
+psql -A -t -q -F';' -c 'SELECT * FROM Fogado_diak_view' iskola \
+| while read sor; do
+	IFS=';'
+	set $sor
+	md5=$( echo -n $2 | md5sum | cut -d' ' -f1 )
+	echo "INSERT INTO Diak VALUES ($1, '$md5', '$3', '$4', '$5', '$6', '$7');"
+done
+echo
+
+} > $LOCAL
+
+echo "./gen-db.php $LOCAL"
+echo "Utána: chmod 660 fogado.db"

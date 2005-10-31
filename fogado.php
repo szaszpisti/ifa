@@ -1,4 +1,19 @@
 <?
+/*
+ *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   This file is part of the IFA suite,
+ *   Copyright 2004-2005 Szász Imre.
+ *
+ *   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
+ *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
+ *   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *
+ *   This program is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU General Public License
+ *   as published by the Free Software Foundation; either version
+ *   2 of the License, or (at your option) any later version.
+ */
+
 require_once('login.php');
 require_once('fogado.inc.php');
 require_once('diak.class.php');
@@ -115,6 +130,8 @@ for ($ido=$FA->IDO_min; $ido<$FA->IDO_max; $ido+=2) {
 
 $A = "\n<tr bgcolor=lightblue><td rowspan=2>";
 $B = "\n<tr bgcolor=lightblue>";
+
+if (!sizeof($IDO)) die('Nincsenek még idõpontok!');
 foreach (array_keys($IDO) as $ora) {
 	$A .= "<th colspan=" . count ($IDO[$ora]) . ">" . $ora;
 	foreach (array_values($IDO[$ora]) as $perc )
@@ -123,15 +140,28 @@ foreach (array_keys($IDO) as $ora) {
 $TablazatIdosor = $A . $B;
 
 // Az összes fogadó tanár nevét kigyûjtjük // FOGADO[id]=('id', 'nev')
-foreach ($db->getAll("SELECT tanar,tnev FROM Fogado,Tanar WHERE fid=" . fid . " AND tanar=id GROUP BY tanar,tnev ORDER BY tnev" ) as $tanar) {
+foreach ($db->getAll(
+				  "SELECT tanar, tnev FROM Fogado, Tanar "
+				. "  WHERE fid=" . fid . " AND tanar=id "
+				. "    GROUP BY tanar, tnev "
+				. "    ORDER BY tnev"
+			) as $tanar) {
+
 	$FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
 }
 
 // mindegyikhez az összes idõ => elfoglaltságot (A FOGADO-hoz rakunk még mezõket)
 // FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
-foreach ($db->getAll("SELECT tanar, ido, diak FROM Fogado WHERE fid=" . fid . " ORDER BY ido") as $sor) {
+foreach ($db->getAll(
+				  "SELECT tanar, ido, diak FROM Fogado "
+				. "  WHERE fid=" . fid
+				. "    ORDER BY ido"
+			) as $sor) {
+
 	// Ha egy páratlan sorszámú idõpontban lehet érték..., azt jelezzük
-	if ( $sor['ido']%2 && $sor['diak']>=0 && ($sor['diak'] != "") ) $FOGADO[$sor['tanar']]['paratlan'] = 1;
+	if ( $sor['ido']%2 && $sor['diak']>=0 && ($sor['diak'] != "") ) {
+		$FOGADO[$sor['tanar']]['paratlan'] = 1;
+	}
 	$FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
 }
 
@@ -161,7 +191,7 @@ function ValidateRadio ( $Teacher, $Time ) {
 	return array(true, NULL);
 }
 
-// Az Ulog-ot meg köllene csinálni, hogy az adminnál 0 legyen az id
+// Az Ulog-ot mög köllene csinálni, hogy az adminnál 0 legyen az id
 // és figyelmeztetéseket ne logolja
 //
 // checkboxok ellenõrzése (leiratkozás)

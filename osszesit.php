@@ -1,4 +1,23 @@
 <?
+/*
+ *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   This file is part of the IFA suite,
+ *   Copyright 2004-2005 Szász Imre.
+ *
+ *   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
+ *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
+ *   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *
+ *   This program is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU General Public License
+ *   as published by the Free Software Foundation; either version
+ *   2 of the License, or (at your option) any later version.
+ */
+
+/**
+ * Szülõi összesített lista
+ */
+
 require_once('login.php');
 require_once('fogado.inc.php');
 require_once('diak.class.php');
@@ -15,8 +34,8 @@ $szuloi =& $db->getRow(
 			  "SELECT MIN(ido) AS eleje, MAX(ido) AS vege"
 			. "  FROM Fogado"
 			. "    WHERE fid=" . fid
-			. "      AND tanar=" . $USER->ofo
-			. "      AND diak=-2",
+			. "        AND tanar=" . $USER->ofo
+			. "        AND diak=-2",
 			array(), DB_FETCHMODE_ASSOC);
 
 if (DB::isError($data)) {
@@ -34,9 +53,9 @@ $res =& $db->query(
 			  "SELECT ido, tnev"
 			. "  FROM Fogado, Tanar"
 			. "    WHERE fid=" . fid
-			. "      AND Tanar.id=tanar"
-			. "      AND diak=" . $USER->id
-			. "        ORDER BY ido");
+			. "        AND Tanar.id=tanar"
+			. "        AND diak=" . $USER->id
+			. "      ORDER BY ido");
 
 while ($res->fetchInto($row)) {
 	if ($SzuloiEleje < $row['ido']) {

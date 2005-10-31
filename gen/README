@@ -1,0 +1,54 @@
+Lehetne a gpw-t használni jelszógeneráláshoz - könnyen megjegyezhetõ jelszókat csinál
+gpw 28 - legyártja az összeset - ugyanez -> rand
+
+Easy Administrate Consulting Hours
+Fogadóóra Iskolában - Könnyû Adminisztráció
+
+
+gen-insertfile.php file.sql
+
+  A csaladnev.txt és a keresztnev.txt állományokból generál egy példa
+  adatbázist, pontosabban az annak feltöltéséhez szükséges SQL INSERT
+  parancsokat. Az OSZTALY fájlban leírt osztályazonosítónként egy átlagos
+  osztályszámmal és generált osztályfõnökkel.
+
+  A paraméterként megadott nevû fájlba beteszi még az admin azonosítót is,
+  és egy kezdeti fogadó-idõpontot a teszteléshez.
+
+gen-db.php file.sql
+
+  a paraméterként adott fájl SQL utasításait végrehajtja, így generálja a
+  fogadóóra adatbázist. Az adatbázis DSN megadható a fájl elején.
+
+csaladnev.txt
+
+  Innen-onnan gyûjtött kb. 2500 családnév.
+
+keresztnev.txt
+
+  Keresztnevek listája. Forrás: http://www.nemokap.hu/kozer/datum.htm
+
+gen-password.php user.lst
+
+  Az elsõ paraméterként megadott ($userFile) állományból generál insert sorokat
+  az adatbázishoz, Létrehoz egy $userFile.pw fájlt a kiosztandó jelszókkal és egy
+  $userFile.insert fájlt, amit fel lehet használni a gen-db.php programhoz.
+
+  A $userFile felépítése:
+  Tanar Neve;tid
+  ===
+  oid;Osztaly Neve;tid
+  ===
+  Diak Neve;did;oid
+
+  Példa:
+  # az üres vagy # kezdetû sorokat nem veszi figyelembe
+  Monoton Manó;117
+  ===
+  d05a;2. A;117
+  ===
+  Pumpa Pál;32;d05a
+
+  A jelszógeneráló függvény forrása:
+  http://unix.freshmeat.net/projects/gen_password/
+
