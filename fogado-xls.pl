@@ -37,8 +37,8 @@ close (INI);
 my $db_fogado = DBI->connect($PERL_DSN, "www");
 
 # Az legutóbb bejegyzett fogadóóra kigyûjtése
-my $FA = $db_fogado->prepare("SELECT * FROM Fogado_admin"
-				. " WHERE id=(SELECT MAX(id) FROM Fogado_admin)");
+my $FA = $db_fogado->prepare("SELECT * FROM Admin"
+				. " WHERE id=(SELECT MAX(id) FROM Admin)");
 $FA->execute();
 
 my $fogadoEntry = $FA->fetchrow_hashref;

@@ -14,7 +14,7 @@ $ins = file($argv[1]);
 
 $pgsql_dsn = array(
     'phptype'  => 'pgsql',
-    'database' => 'fog',
+    'database' => 'fogado',
     'username' => 'fadmin',
     'password' => '$1$JV6c.fJ6$PZLyMROI/Pce3ywWyAhgQ.',
     'hostspec' => 'localhost',
@@ -47,7 +47,7 @@ function insert($value, $key) {
 }
 
 $res =& $db->query('
-CREATE TABLE fogado_admin (
+CREATE TABLE Admin (
     id serial NOT NULL,
     datum date,
     kezd integer,
@@ -59,7 +59,7 @@ CREATE TABLE fogado_admin (
 if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('
-CREATE TABLE ulog (
+CREATE TABLE Ulog (
     id serial NOT NULL,
     ido timestamp without time zone,
     uid integer,
@@ -69,7 +69,7 @@ CREATE TABLE ulog (
 if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('
-CREATE TABLE diak (
+CREATE TABLE Diak (
     id integer NOT NULL,
     jelszo character(32),
     dnev text,
@@ -81,7 +81,7 @@ CREATE TABLE diak (
 if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('
-CREATE TABLE tanar (
+CREATE TABLE Tanar (
     id integer NOT NULL,
     jelszo character(32),
     emil text,
@@ -90,7 +90,7 @@ CREATE TABLE tanar (
 if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('
-CREATE TABLE fogado (
+CREATE TABLE Fogado (
     fid integer,
     tanar integer,
     ido integer,

@@ -1,0 +1,22 @@
+2005.11.11
+  Login process now check length of password too.
+  (It must to do because of there is enabled anonymous bind to LDAP.)
+login.php
+79c79
+< elseif ( (isset($_POST['jelszo'])) && (strlen($_POST['jelszo']) > 0) ) {
+---
+> elseif (isset($_POST['jelszo']) ) {
+96d95
+<                                               @ldap_unbind ($connect);
+
+
+2005.11.07
+  The table Fogado_admin name changed to Admin
+  The sequence names changed to consistent names
+    (Admin_id_seq, Fogado_id_seq)
+  classes/tanar.class.php, line 77
+    $this->ODD |= $i;  ==>  $this->ODD |= $ido;
+
+2005.05.15
+  fogado.inc.php: Az SQLite nem kezeli a serial-t, implicite meg kell
+  adni az Ulog függvényben: $logid = $db->nextId('id').

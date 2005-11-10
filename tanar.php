@@ -180,8 +180,11 @@ if (ADMIN) {
 	}
 
 } else {
+$elso = floor((($TANAR->IDO_min)+1)/2)*2;
+#print_r($TANAR);
 	$elozo = 0;
-	for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
+#	for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
+	for ($ido = $elso; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
 		$ora = floor($ido/12);
 		if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan=3><hr>\n"; }
 		$TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");

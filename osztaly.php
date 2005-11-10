@@ -55,14 +55,20 @@ if (isset($_REQUEST['o'])) {
 	$o = $_REQUEST['o'];
 	print "<h2></h2>\n"; # csak egy kis helyet csinálunk
 	if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar ORDER BY tnev";
-	else $q = "SELECT * FROM Diak WHERE oszt='$o' ORDER BY dnev";
+	else $q = "SELECT * FROM Diak WHERE oszt='$o' ORDER BY dnev desc";
 
 	$res =& $db->query($q);
 	if (DB::isError($res)) { die($res->getMessage()); }
 
 	while ($res->fetchInto($row)) {
+		$index[$row['id']] = $row['dnev'];
+	}
+	setlocale(LC_ALL, "hu_HU"); 
+	asort(&$index, SORT_LOCALE_STRING);
+	reset($index);
+	while (list($id, $dnev) = each($index)) {
 		print "<a href=\"" . ($o=='t'?'tanar.php?tip=tanar&amp;':'fogado.php?tip=diak&amp;')
-			. "id=" . $row['id'] . "\" target=duma>" . $row['dnev'] . "</a><br>\n";
+			. "id=" . $id . "\" target=duma>" . $dnev . "</a><br>\n";
 	}
 	print "\n";
 }

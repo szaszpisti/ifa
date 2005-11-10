@@ -31,13 +31,13 @@ $pgsql_dsn = array(
 	'username' => 'fadmin',
 	'password' => '$1$JV6c.fJ6$PZLyMROI/Pct3ywWyNhgQ.',
 	'hostspec' => 'localhost',
-	'database' => 'fog',
+	'database' => 'fogado',
 );
 
 $sqlite_dsn = array(
 	'phptype'  => 'sqlite',
 	'database' => 'fogado.db',
-	'mode'     => '0644',
+	'mode'     => '0660',
 );
 
 # $dsn = $pgsql_dsn;

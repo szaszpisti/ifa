@@ -76,7 +76,7 @@ if ($_SESSION['valid']) {
 	}
 }
 
-elseif (isset($_POST['jelszo']) ) {
+elseif ( (isset($_POST['jelszo'])) && (strlen($_POST['jelszo']) > 0) ) {
 	$jo = false;
 	switch ($tip) {
 		case 'tanar':
@@ -93,6 +93,7 @@ elseif (isset($_POST['jelszo']) ) {
 					if($connect = ldap_connect($ldap['host'])) {
 						ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, $ldap['version']);
 						$jo = @ldap_bind($connect, $dn, $_POST['jelszo']);
+						@ldap_unbind ($connect);
 					}
 					break;
 			}

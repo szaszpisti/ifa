@@ -91,7 +91,7 @@ switch ($_REQUEST['page']) {
 
 		if ( !isset($_REQUEST['datum']) ) { hiba ("Nincs dátum megadva"); return 1; }
 
-		$result =& $db->query("SELECT * FROM Fogado_admin WHERE datum='" . $_REQUEST['datum'] . "'" );
+		$result =& $db->query("SELECT * FROM Admin WHERE datum='" . $_REQUEST['datum'] . "'" );
 
 		if ( $result->numRows() === 0 ) { // nincs még ilyen nap, létre lehet hozni
 			$FogadoIdo = array (
@@ -103,10 +103,10 @@ switch ($_REQUEST['page']) {
 			if (!$_REQUEST['valid_kezd']) { hiba ("Érvényesség kezdete nincs megadva"); return 1; }
 			if (!$_REQUEST['valid_veg']) { hiba ("Érvényesség vége nincs megadva"); return 1; }
 
-			$fid = $db->nextId('id');
+			$fid = $db->nextId('admin_id');
 			if (DB::isError($fid)) { die($fid->getMessage()); }
 
-			$q = "INSERT INTO Fogado_admin (id, datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES ($fid, '"
+			$q = "INSERT INTO Admin (id, datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES ($fid, '"
 					. $_REQUEST['datum'] . "', $FogadoIdo[0], $FogadoIdo[1], "
 					. $_REQUEST['tartam'] . ", '"
 					. $_REQUEST['valid_kezd'] . "', '"
@@ -135,7 +135,7 @@ switch ($_REQUEST['page']) {
 		// túl vagyunk az idõpontbejegyzésen, újból beolvassuk az aktuálisat
 		// $FA a fogadóóra bejegyzés asszociatív tömbje
 
-		$FA =& $db->getRow("SELECT * FROM Fogado_admin WHERE datum='" . $_REQUEST['datum'] . "'" );
+		$FA =& $db->getRow("SELECT * FROM Admin WHERE datum='" . $_REQUEST['datum'] . "'" );
 		if (DB::isError($FA)) { die($FA->getMessage()); }
 
 		$Out .= "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
@@ -195,7 +195,7 @@ switch ($_REQUEST['page']) {
 		if (!isset($_REQUEST['fid'])) { hiba ("Nincs fogadó-azonosító"); return 1; }
 
 		// csak akkor tudunk továbblépni, ha 1! bejegyzés van az adott napon
-		$num =& $db->getOne("SELECT count(*) AS num FROM Fogado_admin WHERE id=" . $_REQUEST['fid'] );
+		$num =& $db->getOne("SELECT count(*) AS num FROM Admin WHERE id=" . $_REQUEST['fid'] );
 		if (DB::isError($num)) { die($num->getMessage()); }
 		if ( $num != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
 

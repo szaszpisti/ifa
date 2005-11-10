@@ -56,7 +56,7 @@ foreach ($fOsztaly as $oszt) {
 // Mindenekelõtt az Admin és egy általános fogadóóra bejegyzés beszúrása
 $OUT .= "INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES (0, '"
 	. $adminPwd . "', 'Admin', '', '', 0, '');\n\n";
-$OUT .= "INSERT INTO fogado_admin (id, datum, kezd, veg, tartam, valid_kezd, valid_veg) "
+$OUT .= "INSERT INTO Admin (id, datum, kezd, veg, tartam, valid_kezd, valid_veg) "
 	. "VALUES (1, '2000-01-01', 192, 228, 2, '2000-01-01 08:00:00', '3000-01-01 12:00:00');\n\n";
 
 foreach ($OSZTALY as $oszt) {
