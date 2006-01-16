@@ -54,12 +54,13 @@ echo "</table>\n\n";
 if (isset($_REQUEST['o'])) {
 	$o = $_REQUEST['o'];
 	print "<h2></h2>\n"; # csak egy kis helyet csinálunk
-	if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar ORDER BY tnev";
-	else $q = "SELECT * FROM Diak WHERE oszt='$o' ORDER BY dnev desc";
+	if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar";
+	else $q = "SELECT * FROM Diak WHERE oszt='$o'";
 
 	$res =& $db->query($q);
 	if (DB::isError($res)) { die($res->getMessage()); }
 
+	$index = array();
 	while ($res->fetchInto($row)) {
 		$index[$row['id']] = $row['dnev'];
 	}

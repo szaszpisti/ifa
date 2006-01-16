@@ -25,6 +25,7 @@
 #       'mode'     => '0644',
 #   );
 #
+# FIGYELEM! Ne felejtsd ki a PERL_DSN-t!
 
 $pgsql_dsn = array(
 	'phptype'  => 'pgsql',

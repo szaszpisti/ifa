@@ -1,13 +1,19 @@
+2005.11.21
+  Az osztálylistát tag nélkül nem lehetett rendezni
+
+2005.11.12
+  Az osztálylistát a magyar ABC szerinti rendezésben írja ki
+
 2005.11.11
   Login process now check length of password too.
   (It must to do because of there is enabled anonymous bind to LDAP.)
-login.php
-79c79
-< elseif ( (isset($_POST['jelszo'])) && (strlen($_POST['jelszo']) > 0) ) {
----
-> elseif (isset($_POST['jelszo']) ) {
-96d95
-<                                               @ldap_unbind ($connect);
+    login.php
+    79c79
+    < elseif ( (isset($_POST['jelszo'])) && (strlen($_POST['jelszo']) > 0) ) {
+    ---
+    > elseif (isset($_POST['jelszo']) ) {
+    96d95
+    <                                               @ldap_unbind ($connect);
 
 
 2005.11.07

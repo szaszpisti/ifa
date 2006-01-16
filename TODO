@@ -1,5 +1,0 @@
-
-Meg kell csinálni az admint úgy, hogy felvitelnél a kezdõ -1 ne legyen beírva
-(pl. ha 10 perces idõket kér és negyedtõl van itt)
-
-Addig ideiglenesen a tanar.php végén van buherálva.
