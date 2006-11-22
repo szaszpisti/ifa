@@ -26,10 +26,10 @@ stb.
 - adatbázis-absztrakciós rétegen (PEAR DB) keresztül többféle RDBMS-t képes használni,
 - a tanári listázásokhoz képes PAM, LDAP és adatbázis authentikációt is kezelni.
 
-A csomagban található teszt adatbázis generáló script, és egy SQLite
+A csomagban található egy teszt adatbázis generáló script, és egy SQLite
 példaadatbázis is.
 
-A program cookiban tárolt session-azonosítókat használ, anélkül nem
+A program cookie-ban tárolt session-azonosítókat használ, anélkül nem
 mûködik. => engedélyezni kell: a szerveren a session-öket, a kliensen a
 kukikat.
 
@@ -47,12 +47,12 @@ leiras.html
 
   A kezdõlapon megjelenõ rövid használati útmutató.
 
-fogado.ini.php
+ifa.ini.php
 
   Itt találhatók az általános beállítások, úgymint adatbázis kapcsolat,
   tanári authentikációs modell, idõpont alapértelmezések
 
-fogado.inc.php
+ifa.inc.php
 
   Általános függvények: adatbázis kapcsolódás, fej- és lábléc, logolás,
   idõpont-átszámító, az ûrlapokhoz konstans vezérlõelemek stb.
@@ -83,10 +83,10 @@ login.php
   beállítja a felhasználó identitását a session vagy a bejelentkezés
   alapján. Ellenõrzi a bejelentkezési idõszakot is.
 
-  A bejelentkezés idõpontja a szülõk felé korlátozott, csak az elõre
-  beállított bejelentkezési idõben jelentkezhet be és módosíthatja a
+  A bejelentkezés idõszakja a szülõk felé korlátozott, csak az elõre
+  beállított bejelentkezési idõszakban jelentkezhet be és módosíthatja a
   foglalásokat -- egyébként csak egy üzenetet kap, hogy nincs bejelentkezési
-  idõszak.
+  idõszak. Az admin bármikor bejelentkezhet, módosíthat.
 
 tanar.php
 
@@ -107,7 +107,7 @@ admin.php
   Új fogadónap bejegyzés létrehozása, és alapértelmezett vagy beállított
   értékekkel feltöltése.
 
-fogado-xls.pl
+fogado-xls.cgi
 
   Az aktuális fogadóóra adataiból készít egy excel táblázatot. Az admin
   oldalról érhetõ el.
@@ -116,7 +116,7 @@ osszesit.php
 
   Szülõi összesített lista, a szülõi bejelentkezés oldaláról érhetõ el.
 
-fogado.db
+ifa.db
 
   Fogadóóra példaadatbázis SQLite2 formátumban.
 

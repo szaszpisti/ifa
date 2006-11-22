@@ -3,10 +3,10 @@
 require_once('DB.php');
 
 if ($argc != 2) {
-	print "Az INSERT-filet argumentumként kell megadni!\n";
-	print "Létrehozza az aktuális könyvtárban a 'fogado.db' nevû sqlite adatbázist.\n";
-	print "(Vagy ha más DSN van megadva, akkor azt.)\n";
-	return;
+    print "Az INSERT-filet argumentumként kell megadni!\n";
+    print "Létrehozza az aktuális könyvtárban a 'ifa.db' nevû sqlite adatbázist.\n";
+    print "(Vagy ha más DSN van megadva, akkor azt.)\n";
+    return;
 }
 $ins = file($argv[1]);
 
@@ -21,29 +21,29 @@ $pgsql_dsn = array(
 );
 
 $sqlite_dsn = array(
-	'phptype'  => 'sqlite',
-	'database' => 'fogado.db',
-	'mode'     => '0644',
+    'phptype'  => 'sqlite',
+    'database' => 'ifa.db',
+    'mode'     => '0644',
 );
 
 // $dsn = $pgsql_dsn;
 $dsn = $sqlite_dsn;
 
 $options = array(
-	'debug'       => 2,
-	'portability' => DB_PORTABILITY_ALL,
+    'debug'       => 2,
+    'portability' => DB_PORTABILITY_ALL,
 );
 
 $db =& DB::connect($dsn, $options);
 if (DB::isError($db)) {
-	die($db->getMessage());
+    die($db->getMessage());
 }
 
 function insert($value, $key) {
-	if (preg_match('/^$/', $value)) return;
-	global $db;
-	$res =& $db->query($value);
-	if (DB::isError($res)) { die($res->getMessage()); }
+    if (preg_match('/^$/', $value)) return;
+    global $db;
+    $res =& $db->query($value);
+    if (DB::isError($res)) { die($res->getMessage()); }
 }
 
 $res =& $db->query('

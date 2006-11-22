@@ -15,29 +15,29 @@
  */
 
 function kuki_teszt() {
-	session_start();
-	$self = $_SERVER['PHP_SELF'];
-	if (!$_GET['FID'] && !$_SESSION['cookie']) {
-		header ("Location: " . $_SERVER['PHP_SELF'] . "?FID=" . session_id());
-		exit;
-	}
-	if (!$_SESSION['cookie']) {
-		if (session_id() == $_GET['FID']) {
-			$_SESSION['cookie'] = true;
-			header ("Location: " . $_SERVER['PHP_SELF']);
-			exit;
-		} else {
-			$_SESSION['cookie'] = false;
-		}
-	}
-	session_write_close();
-	return $_SESSION['cookie'];
+    session_start();
+    $self = $_SERVER['PHP_SELF'];
+    if (!$_GET['FID'] && !$_SESSION['cookie']) {
+        header ("Location: " . $_SERVER['PHP_SELF'] . "?FID=" . session_id());
+        exit;
+    }
+    if (!$_SESSION['cookie']) {
+        if (session_id() == $_GET['FID']) {
+            $_SESSION['cookie'] = true;
+            header ("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } else {
+            $_SESSION['cookie'] = false;
+        }
+    }
+    session_write_close();
+    return $_SESSION['cookie'];
 }
 
 if (!kuki_teszt()) {
-	echo "<div align=center><font color=red><h3>FIGYELEM!</h3></font><br>\n";
-	echo "A böngészõjében engedélyeznie kell a süti (cookie) fogadását a " . $_SERVER['PHP_SELF'] . " géprõl!</div>\n";
-	exit;
+    echo "<div align=center><font color=red><h3>FIGYELEM!</h3></font><br>\n";
+    echo "A böngészõjében engedélyeznie kell a süti (cookie) fogadását a " . $_SERVER['HTTP_SERVER'] . " géprõl!</div>\n";
+    exit;
 }
 ?>
 <html>

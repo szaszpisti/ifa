@@ -1,7 +1,7 @@
 body {
-	background-color: white;
-	padding: .5em;
-/*	border-left: 10px double #00688b; */
+    background-color: white;
+    padding: .5em;
+/*    border-left: 10px double #00688b; */
 }
 
 p { text-indent: 1.0em; margin: 0.15em; }
@@ -12,22 +12,22 @@ a { text-decoration: none; color: maroon; }
 a:hover { background: #cccccc; }
 
 p.menu {
-	font-size: 12pt;
-	color: #999999;
-	background-color: #00688b;
-	text-indent: 0em; margin: 0px;
-	font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
-	padding: 3px;
+    font-size: 12pt;
+    color: #999999;
+    background-color: #00688b;
+    text-indent: 0em; margin: 0px;
+    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+    padding: 3px;
 }
 a.menu {
-	color: #cccccc;
-	padding: 2pt 4pt;
-	background: #00688b;
+    color: #cccccc;
+    padding: 2pt 4pt;
+    background: #00688b;
 }
 a.menu:hover {
-	color: white;
-	padding: 2pt 4pt;
-	background: #00688b;
+    color: white;
+    padding: 2pt 4pt;
+    background: #00688b;
 }
 
 .justify { text-align: justify; text-indent: 0em; }
@@ -38,8 +38,8 @@ a.menu:hover {
 
 /*
 table {
-	border-spacing: 1px;
-	border: outset .5pt;
+    border-spacing: 1px;
+    border: outset .5pt;
 }
 th { text-align: left; border: inset .5pt; }
 td { text-align: left; border: inset .5pt; }
@@ -51,17 +51,17 @@ td.szuloi { background-color: yellow; }
 /* Itt jönnek az admin.php stílusai */
 
 table.tanar {
-	border-spacing: 0px;
-	text-indent: 5pt;
+    border-spacing: 0px;
+    text-indent: 5pt;
 }
 tr.paratlan { background-color: #EEEEEE; }
 
 address { font-size: 8 pt; }
 
 div.kiemelt {
-	padding: .2em;
-	border: solid thin;
-	margin: .5em 0;
-	background: #ddd;
+    padding: .2em;
+    border: solid thin;
+    margin: .5em 0;
+    background: #ddd;
 }
 

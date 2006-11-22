@@ -51,7 +51,7 @@ function gen_password($p="", $l=8, $f=4) {
     $ff = $f;
     while(substr_count($p,substr($p,strlen($p)-1,1).
       ($k=substr($d[substr($p,strlen($p)-1,1)],rand(0,$ff%11),1))))
-	if(++$ff>10) break;
+    if(++$ff>10) break;
     $p.=$k;
   }
   return $p;
@@ -63,7 +63,7 @@ $jelszo = gen_password();
 
 // Az Admint is berakjuk de jelszót külön kell neki adni!
 $INSERT = "INSERT INTO Diak (id, jelszo, dnev) "
-	. "VALUES (0, '" . md5($jelszo) . "', 'Admin');\n\n";
+    . "VALUES (0, '" . md5($jelszo) . "', 'Admin');\n\n";
 $OUT = "Admin;$jelszo\n===\n";
 
 $i = 0;
@@ -71,78 +71,78 @@ $n = sizeof($fUser);
 
 // Tanárok felsorolása
 while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
-	$sor = trim($fUser[$i]);
-	if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
-		$i++;
-		continue;
-	}
-	$t = explode(';', $sor);
-	$tanar[$t[1]] = $t[0];
+    $sor = trim($fUser[$i]);
+    if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
+        $i++;
+        continue;
+    }
+    $t = explode(';', $sor);
+    $tanar[$t[1]] = $t[0];
 
-	$jelszo = gen_password();
+    $jelszo = gen_password();
 
-	$OUT .= $t[0] . ";$jelszo\n";
-	$INSERT .= 'INSERT INTO Tanar (id, jelszo, tnev) VALUES ('
-		. $t[1] . ", '" . md5($jelszo) . "', '" . $t[0] . "');\n";
-	$i++;
+    $OUT .= $t[0] . ";$jelszo\n";
+    $INSERT .= 'INSERT INTO Tanar (id, jelszo, tnev) VALUES ('
+        . $t[1] . ", '" . md5($jelszo) . "', '" . $t[0] . "');\n";
+    $i++;
 }
 $OUT .= $fUser[$i++];
 $INSERT .= "\n";
 
 // Osztályok felsorolása
 while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
-	$sor = trim($fUser[$i]);
-	if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
-		$i++;
-		continue;
-	}
-	$t = explode(';', $sor);
-	// a 3. az osztályfõnök azonosítója
-	$ofoid = $t[2];
+    $sor = trim($fUser[$i]);
+    if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
+        $i++;
+        continue;
+    }
+    $t = explode(';', $sor);
+    // a 3. az osztályfõnök azonosítója
+    $ofoid = $t[2];
 
-	// Nagy hiba, ha nincs a tanár táblában
-	if (!isset($tanar[$ofoid])) {
-		die($t[0] . " osztály fõnöke ($ofoid) nem szerepel a tanárok közt!\n");
-	}
+    // Nagy hiba, ha nincs a tanár táblában
+    if (!isset($tanar[$ofoid])) {
+        die($t[0] . " osztály fõnöke ($ofoid) nem szerepel a tanárok közt!\n");
+    }
 
-	// $osztaly[oid] = array(
-	//   string  =>  ', 'Pumpa Pál', 'd05a', '8. A', '117', 'Monoton Manó');
-	//   onev    =>  d05a
-	// )
-	$osztaly[$t[0]] = array(
-		'string' => "', '" . $t[0] . "', '" . $t[1] . "', '" . $ofoid . "', '" . $tanar[$ofoid] . "');\n",
-		'onev'   => $t[1]
-	);
+    // $osztaly[oid] = array(
+    //   string  =>  ', 'Pumpa Pál', 'd05a', '8. A', '117', 'Monoton Manó');
+    //   onev    =>  d05a
+    // )
+    $osztaly[$t[0]] = array(
+        'string' => "', '" . $t[0] . "', '" . $t[1] . "', '" . $ofoid . "', '" . $tanar[$ofoid] . "');\n",
+        'onev'   => $t[1]
+    );
 
-	$i++;
+    $i++;
 }
 $i++;
 
 
 // Diákok felsorolása
 while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
-	$sor = trim($fUser[$i]);
-	if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
-		$i++;
-		continue;
-	}
-	$t = explode(';', $sor);
+    $sor = trim($fUser[$i]);
+    if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
+        $i++;
+        continue;
+    }
+    $t = explode(';', $sor);
 
-	// a 3. az osztály azonosítója
-	$oid = $t[2];
+    // a 3. az osztály azonosítója
+    $oid = $t[2];
 
-	// Nagy hiba, ha nincs az osztály táblában
-	if (!isset($osztaly[$oid])) {
-		die($t[0] . " osztálya ($oid) nem szerepel az osztályok közt!\n");
-	}
+    // Nagy hiba, ha nincs az osztály táblában
+    if (!isset($osztaly[$oid])) {
+        die($t[0] . " osztálya ($oid) nem szerepel az osztályok közt!\n");
+    }
 
-	$jelszo = gen_password();
+    $jelszo = gen_password();
 
-	$INSERT .= 'INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES ('
-		. $t[1] . ", '" . md5($jelszo) . "', '" . $t[0] . $osztaly[$oid]['string'];
+    $INSERT .= 'INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES ('
+        . $t[1] . ", '" . md5($jelszo) . "', '" . $t[0] . $osztaly[$oid]['string'];
 
-	$OUT .= $t[0] . ";" . $osztaly[$oid]['onev'] . ";" . $jelszo . "\n";
-	$i++;
+    $OUT .= $t[0] . ";" . $osztaly[$oid]['onev'] . ";" . $jelszo . "\n";
+    $i++;
 }
 $OUT .= $fUser[$i++];
 

@@ -1,10 +1,71 @@
+2006.11.21
+----------
+  [classes/fogadoora.class.php]
+  A bejelentkezési idõszak olvashatóbb formátumban legyen kiírva
+
+--- fogadoora.class.php~        2006-02-04 12:07:12.000000000 +0100
++++ fogadoora.class.php 2006-11-03 14:59:33.000000000 +0100
+@@ -43,6 +43,11 @@
+         while(list($k, $v) = each($row)) {
+             $this->$k = $v;
+         }
++        setlocale(LC_TIME, 'hu_HU');
++        $this->datum_str = strftime("%Y. %B %e., %A", strtotime($this->datum));
++        $this->valid_kezd_str = strftime("%Y. %B %e., %A %H:%M", strtotime($this->valid_kezd));
++        $this->valid_veg_str  = strftime("%Y. %B %e., %A %H:%M", strtotime($this->valid_veg ));
++
+
+         $MaiDatum = date("Y-m-d H:i:s");
+         $this->valid = ( ($this->valid_kezd <= $MaiDatum)
+
+  [fogado-xls.cgi]
+  A táblázatban a lap-nevek ékezetmentesítve lettek
+--- fogado-xls.cgi~     2006-09-26 00:26:22.000000000 +0200
++++ fogado-xls.cgi      2006-11-21 10:06:41.000000000 +0100
+@@ -112,7 +112,8 @@
+ my $formatOsszDiak = $workBook->add_format(text_wrap => 1);
+ my $formatTanarNev = $workBook->add_format(bold => 1, size => 18);
+
+-my $osszesitoNev = 'Összesített';
++my $osszesitoNev = 'Osszesitett';
++
+ $book[0] = $workBook->add_worksheet($osszesitoNev);
+
+ $book[0]->set_column('A:A', 25);
+@@ -128,17 +129,18 @@
+
+     # $tLink: a tanári lap neve: 'Monoton Manó' -> 'Monoton M'
+     ($tLink = $tanar[$id]) =~ s{^([^ ]* .).*$}{$1};
++    $tLink =~ y/áéíóöõúüû/aeiooouuu/;
+
+     # Az összesített lista sorai
+     # Tanárnév hivatkozásként a saját munkalapra
+
+2006.09.26
+----------
+  Change indent from <TAB> to <SPACE>.
+
+2006.01.31
+----------
+  fogado.php: A Fogado táblában a módosításokhoz nem nézte a fid-et, így a
+  régi adatokat is módosította.
+  204c204
+  <  $q = "UPDATE Fogado SET diak=0 WHERE fid=" .  fid . " AND tanar=" . $tanar['id'] . " AND ido=$Time";
+  >  $q = "UPDATE Fogado SET diak=0 WHERE tanar=" .  $tanar['id'] . " AND ido=$Time";
+  230c230
+  <  $q = "UPDATE Fogado SET diak=" . $user->id . " WHERE fid=" . fid . " AND tanar=$Teacher AND ido=$Time";
+  >  $q = "UPDATE Fogado SET diak=" . $user->id . " WHERE tanar=$Teacher AND ido=$Time";
+
 2005.11.21
+----------
   Az osztálylistát tag nélkül nem lehetett rendezni
 
 2005.11.12
+----------
   Az osztálylistát a magyar ABC szerinti rendezésben írja ki
 
 2005.11.11
+----------
   Login process now check length of password too.
   (It must to do because of there is enabled anonymous bind to LDAP.)
     login.php
@@ -17,6 +78,7 @@
 
 
 2005.11.07
+----------
   The table Fogado_admin name changed to Admin
   The sequence names changed to consistent names
     (Admin_id_seq, Fogado_id_seq)
@@ -24,5 +86,7 @@
     $this->ODD |= $i;  ==>  $this->ODD |= $ido;
 
 2005.05.15
-  fogado.inc.php: Az SQLite nem kezeli a serial-t, implicite meg kell
+----------
+  ifa.inc.php: Az SQLite nem kezeli a serial-t, implicite meg kellett
   adni az Ulog függvényben: $logid = $db->nextId('id').
+
