@@ -5,7 +5,7 @@
   <meta name="Author" content="Szász Imre">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
   <link rel="stylesheet" href="default.css" type="text/css">
-  <script language=JavaScript><!--
+  <script language="JavaScript" type="text/javascript"><!--
     function torol() {
     s = document.tabla.r;
     for (var i=0; i<s.length; i++)
@@ -16,108 +16,112 @@
 <body>
 
 <!--
-<div class=kiemelt>
-<p>
-[ Letöltés: <a href=ifa.tar.gz>ifa.tar.gz</a>
-| <a href=README>README</a> ]
-<p>Teszteléshez jelszók: admin: a, tanár: t, diák: d
+<div class="kiemelt">
+<p>[ Letöltés: <a href="ifa.tar.gz">ifa.tar.gz</a>
+| <a href="README">README</a> ]</p>
+<p>Teszteléshez jelszók: admin: a, tanár: t, diák: d</p>
 </div>
 -->
 
 <h1>IFA - Iskolai Fogadóóra Adminisztráció</h1>
 
 <ul>
-<li> Válassza ki a bal oldali menüben az osztályt, azon belül a tanulót!
-<li> A jelszó mezőbe be kell írni a levélben kapott jelszót,
+<li> Válassza ki a bal oldali menüben az osztályt, azon belül a tanulót!</li>
+<li> A jelszó mezőbe be kell írni a levélben kapott jelszót,</li>
 <li> Sikeres bejelentkezés után megjelenik a fogadóóra táblázata. Ennek
-felépítése: az oszlopokban a 10 perces kezdő időpontokat jelölnek. Ha egy
-tanárnak vannak 5 perces kezdő időpontjai (óra 5, 15, stb. perc), akkor ez
+felépítése: az oszlopok 10 perces kezdő időpontokat jelölnek. Ha egy
+tanárnak vannak 5 perces kezdő időpontjai (óra 5, 15, stb. perc), akkor az
 egy második sorban látható.  Pl. <i>Pumpa Pál</i> táblázata:
+</ul>
 
+<div style="margin: 1ex 3em;">
 <hr>
-<table width=100%><tr><td>
-<h3>Pumpa Pál 14. P  (1931-05-35)<br>
-<font size=-1>(Osztályfőnök: Monoton Manó)</h3>
-<td align=right valign=top>
-<a>Összesítés</a> | 
-<a>Leírás</a> |
-<a>Kilépés</a>
+<table width="100%">
+<tr>
+    <td>
+        <h3>Pumpa Pál 14. P  (1931-05-35)<br />
+        <font size="-1">(Osztályfőnök: Monoton Manó)</font></h3>
+    </td>
+    <td align="right" valign="top">
+        <a>Összesítés</a> | <a>Leírás</a> | <a>Kilépés</a>
+    </td>
+</tr>
 </table>
+</li>
 
+<form name="tabla" action=""><table border="1">
+<tr bgcolor="lightblue"><td rowspan="2"><th colspan="4">22</th></tr>
+<tr bgcolor="lightblue"><td>20</td><td>30</td><td>40</td><td>50</td></tr>
+<tr><th valign="top" rowspan="2">Monoton Manó</th>
+      <td class="szuloi">&nbsp;
+      <td><input type="radio" name="r" value="2">
+      <td class="foglalt">&nbsp;
+      <td class="foglalt">&nbsp;
+      <td rowspan="2" valign="top"><input type="button" value="X" onClick='torol()'></td>
+</tr>
+<tr>
+      <td class="szuloi">&nbsp;</td>
+      <td class="sajat"><input type="checkbox" name="c" checked></td>
+      <td><input type="radio" name="r" value="5"></td>
+      <td><input type="radio" name="r" value="7"></td>
+</tr>
+<tr><td colspan="6" align="right" class="right"><input type="button" value=" Mehet "></td></tr>
+</table></form>
+<hr />
+</div>
 
 <ul>
-<table border=1><form name=tabla>
-<tr><td rowspan=2><th colspan=4>22
-<tr><td>20<td>30<td>40<td>50
-<tr><th valign=top rowspan=2>Monoton Manó
-      <td class=szuloi>&nbsp;
-      <td><input type=radio name=r value=2>
-      <td class=foglalt>&nbsp;
-      <td class=foglalt>&nbsp;
-      <td rowspan=2 valign=top><input type=button value=X onClick='torol()'>
-<tr>
-      <td class=szuloi>&nbsp;
-      <td class=sajat><input type=checkbox name=c checked>
-      <td><input type=radio name=r value=5>
-      <td><input type=radio name=r value=7>
-<tr><td colspan=6 align=right><input type=button value=" Mehet ">
-</form></table>
-</ul>
-<hr>
-
 <li>A táblázat jelölései:
-
    <ul>
    <li><b>piros</b>: jóváhagyott időpont-foglalás <i>(itt: 22:35)</i>, ha kiveszi a pipát
-   és így küldi el az űrlapot, az időpont felszabadul,
+   és így küldi el az űrlapot, az időpont felszabadul,</li>
 
-   <li><b>szürke</b>: az időpont foglalt <i>(itt: 22:40-45 és 22:50-55)</i>,
+   <li><b>szürke</b>: az időpont nem foglalható, pl. mert valaki már lefoglalta <i>(itt: 22:40-45 és 22:50-55)</i>,</li>
 
-   <li><b>sárga</b>: önnek szülői értekezlete van <i>(itt: 22:20-30)</i>,
+   <li><b>sárga</b>: önnek szülői értekezlete van <i>(itt: 22:20-30)</i>,</li>
 
    <li><b>fehér</b> választógombok: szabad időpont <i>(itt: 22:30, 45 és 55)</i>.
    Ha a sorában és oszlopában nincs jelölt négyzet (azaz ebben az időpontban
    még nem jelentkezett más tanárhoz és ehhez a tanárhoz sem jelentkezett más
-   időpontban), akkor tud jelentkezni erre az időpontra -- különben hibát jelez a program.
+   időpontban), akkor tud jelentkezni erre az időpontra -- különben hibát jelez a program.</li>
    </ul>
+</li>
 
 <li>A sor végén levő X gombbal tudja az adott sor választógombjairól elvenni a
 jelölést, ha meggondolta magát.  <i>(Megjegyzés: ha csak egy szabad időpont van
 és azt jelölte be, akkor a gomb nem töröl. Ilyenkor a teendő: frissíti az
 oldalt a böngészőben, vagy jóváhagyja így, következő alkalommal pedig kiveszi a
-jelölést)</i>
+jelölést)</i></li>
 
 <li> Ha az igényeléseit bejegyezte, a <i>Mehet</i> gombra kattintva
 küldheti el az űrlapot feldolgozásra. A jóváhagyott beállításokról és esetleges
-hibákról a következő oldalon kap értesítést.
+hibákról a következő oldalon kap értesítést.</li>
 
 <li>A jobb fölső sarok hivatkozásai:
-
    <ul>
    <li><b>Összesítés:</b> nyomtatható formában egy egyszerűsített listában
-   megmutatja az érvényes feliratkozásait,
+   megmutatja az érvényes feliratkozásait,</li>
 
-   <li><b>Leírás:</b> ez az oldal,
+   <li><b>Leírás:</b> ez az oldal,</li>
 
     <li><b>Kilépés:</b> kijelentkezés, lezárja a kapcsolatot. Kijelentkezés után
    nem lehet sem módosítani, sem megnézni a fogadóóra beállításokat. Ha nem
    jelentkezik ki, akkor is bizonyos idő eltelte után automatikusan lezáródik a
-   kapcsolat.
-
+   kapcsolat.</li>
    </ul>
+</li>
 
 <li>Ha nem sikerül a belépés, ellenőrizze, hogy a böngészőben engedélyezve legyen
-a sütik (cookies) fogadása a www.szepi.hu gépről!
+a sütik (cookies) fogadása az ifa.szepi.hu címről!</li>
 </ul>
 
-<hr>
+<hr />
 
 <p>Ha a program működésével kapcsolatban gondja vagy megjegyzése van, írjon a
-<img src=dugo.png align=top alt=dugo@szepi_PONT_hu> címre.
+<img src="dugo.png" align="top" alt="dugo@szepi_PONT_hu"> címre.</p>
 
-<p>A telefonos bejelentkezés továbbra is működik.
+<p>A telefonos bejelentkezés továbbra is működik.</p>
 
-<p><hr><a href=mailto:hiena@szepi.hu></a>
-<img src=dugo.png align=top alt=dugo@szepi_PONT_hu>
+<hr /><p><img src="dugo.png" align="top" alt="dugo@szepi_PONT_hu"></p>
 </body>
 </html>
