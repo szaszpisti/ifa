@@ -2,10 +2,10 @@
 <?
 
 if ($argc != 2)
-    die("Az elsõ paraméterben megadott névvel\n"
-        . "létrehozott fájlba írja az SQL INSERT-eket.\n");
+    die("Az elsÅ‘ paramÃ©terben megadott nÃ©vvel\n"
+        . "lÃ©trehozott fÃ¡jlba Ã­rja az SQL INSERT-eket.\n");
 if (file_exists($argv[1]))
-    die("Már létezik a fájl, nem merek bele írni: " . $argv[1] . "\n");
+    die("MÃ¡r lÃ©tezik a fÃ¡jl, nem merek bele Ã­rni: " . $argv[1] . "\n");
 
 $outfile = $argv[1];
 
@@ -32,16 +32,16 @@ function nev () {
     return (array($v, $nev));
 }
 
-// A végére rakjuk az elsõt, mert a 0 fönntartott az adminnak
+// A vÃ©gÃ©re rakjuk az elsÅ‘t, mert a 0 fÃ¶nntartott az adminnak
 $fVnev[sizeof($fVnev)]=$fVnev[0];
 
 @array_walk($fVnev, 'file_trim_tomb');
 @array_walk($fKnev, 'file_trim');
 
-// azokra a sorokra, melyek számmal kezdõdnek, levágja a számokat az elejérõl
+// azokra a sorokra, melyek szÃ¡mmal kezdÅ‘dnek, levÃ¡gja a szÃ¡mokat az elejÃ©rÅ‘l
 $aKnevek = preg_replace ('/^[0-9]+: /', '', preg_grep ('/^[0-9]+: /', $fKnev));
 
-// elõször egy hosszú stringbe fûzzük a sorokat, aztán ezt daraboljuk tömbbe
+// elÅ‘szÃ¶r egy hosszÃº stringbe fÅ±zzÃ¼k a sorokat, aztÃ¡n ezt daraboljuk tÃ¶mbbe
 $aKnev = explode (' ', implode (' ', $aKnevek));
 @array_walk($aKnev, 'file_trim_tomb');
 
@@ -53,7 +53,7 @@ foreach ($fOsztaly as $oszt) {
     $OSZTALY[] = $O;
 }
 
-// Mindenekelõtt az Admin és egy általános fogadóóra bejegyzés beszúrása
+// MindenekelÅ‘tt az Admin Ã©s egy Ã¡ltalÃ¡nos fogadÃ³Ã³ra bejegyzÃ©s beszÃºrÃ¡sa
 $OUT .= "INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES (0, '"
     . $adminPwd . "', 'Admin', '', '', 0, '');\n\n";
 $OUT .= "INSERT INTO Admin (id, datum, kezd, veg, tartam, valid_kezd, valid_veg) "
@@ -63,10 +63,10 @@ foreach ($OSZTALY as $oszt) {
     for ($o=0; $o<sizeof($oszt); $o+=2) {
         $oid = $oszt[$o];
 
-        // generálunk egy ofõ nevet a soron következõ osztályhoz
+        // generÃ¡lunk egy ofÅ‘ nevet a soron kÃ¶vetkezÅ‘ osztÃ¡lyhoz
         $OFO = array_merge(nev(), array ($oid, $oszt[$o+1]));
 
-        // az osztályfõnököket berakjuk a tanárlistába
+        // az osztÃ¡lyfÅ‘nÃ¶kÃ¶ket berakjuk a tanÃ¡rlistÃ¡ba
         $TANAR[] = $OFO;
 
         $Ostring = "'".$OFO[2]."', '".$OFO[3]."', ".$OFO[0].", '".$OFO[1]."'";
@@ -81,7 +81,7 @@ foreach ($OSZTALY as $oszt) {
 }
 $OUT .= "\n";
 
-// még néhány nevet hozzáadunk a tanárokhoz
+// mÃ©g nÃ©hÃ¡ny nevet hozzÃ¡adunk a tanÃ¡rokhoz
 $n = rand(15, 25);
 for ($i=0; $i<=$n; $i++) {
     $TANAR[] = nev();

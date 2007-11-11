@@ -1,12 +1,12 @@
 <?
 /*
- *   Ez a f·jl az IFA (Iskolai FogadÛÛra Adminisztr·ciÛ) csomag rÈsze,
+ *   Ez a f√°jl az IFA (Iskolai Fogad√≥√≥ra Adminisztr√°ci√≥) csomag r√©sze,
  *   This file is part of the IFA suite,
- *   Copyright 2004-2005 Sz·sz Imre.
+ *   Copyright 2004-2005 Sz√°sz Imre.
  *
- *   Ez egy szabad szoftver; terjeszthetı illetve mÛdosÌthatÛ a GNU
- *   ¡ltal·nos Kˆzread·si FeltÈtelek dokumentum·ban leÌrtak -- 2. vagy
- *   kÈsıbbi verziÛ -- szerint, melyet a Szabad Szoftver AlapÌtv·ny ad ki.
+ *   Ez egy szabad szoftver; terjeszthet≈ë illetve m√≥dos√≠that√≥ a GNU
+ *   √Åltal√°nos K√∂zread√°si Felt√©telek dokumentum√°ban le√≠rtak -- 2. vagy
+ *   k√©s≈ëbbi verzi√≥ -- szerint, melyet a Szabad Szoftver Alap√≠tv√°ny ad ki.
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -19,12 +19,12 @@ require_once('ifa.inc.php');
 require_once('diak.class.php');
 
 /**
-* Egy di·k sz·m·ra kiÌrja a fogadÛÛra t·bl·zatot az ˆsszes tan·rral
+* Egy di√°k sz√°m√°ra ki√≠rja a fogad√≥√≥ra t√°bl√°zatot az √∂sszes tan√°rral
 */
 
 $user = new Diak($_SESSION['id']);
 
-Head("FogadÛÛra - " . $user->dnev);
+Head("Fogad√≥√≥ra - " . $user->dnev);
 
 $USER_LOG = array();
 
@@ -38,15 +38,15 @@ $Fejlec =
     . "  //--></script>\n\n"
     . "<table width=\"100%\"><tr><td>\n"
     . "<h3>" . $user->dnev . " " . $user->onev .  " (" . $FA->datum . ")<br>\n"
-    . "<font size=-1>(Oszt·lyfınˆk: " . $user->ofonev . ")</font></h3>\n"
+    . "<font size=-1>(Oszt√°lyf≈ën√∂k: " . $user->ofonev . ")</font></h3>\n"
     . "<td align=right valign=top>\n"
-    . "  <a href=\"osszesit.php?tip=diak&amp;id=" . $user->id . "\"> ÷sszesÌtÈs </a> | \n"
-    . "  <a href=\"leiras.html\"> LeÌr·s </a> | \n"
-    . "  <a href=\"" . $_SERVER['PHP_SELF'] . "?kilep=\"> KilÈpÈs </a>\n</table>\n";
+    . "  <a href=\"osszesit.php?tip=diak&amp;id=" . $user->id . "\"> √ñsszes√≠t√©s </a> | \n"
+    . "  <a href=\"leiras.html\"> Le√≠r√°s </a> | \n"
+    . "  <a href=\"" . $_SERVER['PHP_SELF'] . "?kilep=\"> Kil√©p√©s </a>\n</table>\n";
 
-// egy tan·r-sor a t·bl·zatban
+// egy tan√°r-sor a t√°bl√°zatban
 function table_row($K, $tid, $t) {
-    for ($i=1; $i<count($K); $i++) { // 1-tıl kell kezdeni, mert a K inicializ·l·sakor ker¸lt bele egy fˆlˆs elem
+    for ($i=1; $i<count($K); $i++) { // 1-t≈ël kell kezdeni, mert a K inicializ√°l√°sakor ker√ºlt bele egy f√∂l√∂s elem
         $span = (count($K[$i])>1)?" colspan=" . count($K[$i]):"";
         switch ($K[$i][0]) {
             case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
@@ -65,9 +65,9 @@ function tanar_ki($tanar) {
     global $FA, $user, $K;
     // TANAR: [0]['diak']=25, [1]['diak']=-1, ...
 
-    $State = -3; // nem ÈrvÈnyes kezdeti ÈrtÈket adunk neki
-    $K[0] = array(array()); // p·ros idıket tessz¸k ebbe
-    $K[1] = array(array()); // p·ratlanokat
+    $State = -3; // nem √©rv√©nyes kezdeti √©rt√©ket adunk neki
+    $K[0] = array(array()); // p√°ros id≈ëket tessz√ºk ebbe
+    $K[1] = array(array()); // p√°ratlanokat
     for ($i=$FA->IDO_min; $i<$FA->IDO_max; $i++) {
         if (!isset($tanar['paratlan']) && $i%2) { continue; }
         switch ($tanar[$i]) {
@@ -77,7 +77,7 @@ function tanar_ki($tanar) {
                 break;
             case NULL:
                 $d = foglalt; break;
-            case -1:  // az elızı folytat·sa
+            case -1:  // az el≈ëz≈ë folytat√°sa
                 if ( $pred == szabad ) { $d = szabad2; }
                 if ( $pred == sajat ) { $d = sajat2; }
                 break;
@@ -102,11 +102,11 @@ function tanar_ki($tanar) {
     $tmp = "\n<tr><th align=left nowrap" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;"
         . (ADMIN?"<a href=\"tanar.php?tip=tanar&amp;id=" . $tanar['id'] . "\">" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
 
-// p·rosak:
+// p√°rosak:
     $tmp .= table_row($K[0], $tanar['id'], $FA->IDO_min);
     $tmp .= "  <td><input type=button value=x onClick='torol(\"r" . $tanar['id'] . "\")'>\n";
 
-// p·ratlanok:
+// p√°ratlanok:
     if (isset($tanar['paratlan'])) {
         $tmp .= "<tr>" . table_row($K[1], $tanar['id'], $FA->IDO_min+1);
     }
@@ -116,8 +116,8 @@ function tanar_ki($tanar) {
 }
 
 /*
-A fejlÈc sorok kiÌrat·s·hoz
-IDO: ebben lesznek a kiÌrandÛ idıpontok
+A fejl√©c sorok ki√≠rat√°s√°hoz
+IDO: ebben lesznek a ki√≠rand√≥ id≈ëpontok
 IDO[16] = (30, 40, 50)
 IDO[17] = (00, 10, 20, ...)
 */
@@ -131,7 +131,7 @@ for ($ido=$FA->IDO_min; $ido<$FA->IDO_max; $ido+=2) {
 $A = "\n<tr bgcolor=lightblue><td rowspan=2>";
 $B = "\n<tr bgcolor=lightblue>";
 
-if (!sizeof($IDO)) die('Nincsenek mÈg idıpontok!');
+if (!sizeof($IDO)) die('Nincsenek m√©g id≈ëpontok!');
 foreach (array_keys($IDO) as $ora) {
     $A .= "<th colspan=" . count ($IDO[$ora]) . ">" . $ora;
     foreach (array_values($IDO[$ora]) as $perc )
@@ -139,7 +139,7 @@ foreach (array_keys($IDO) as $ora) {
 }
 $TablazatIdosor = $A . $B;
 
-// Az ˆsszes fogadÛ tan·r nevÈt kigy˚jtj¸k // FOGADO[id]=('id', 'nev')
+// Az √∂sszes fogad√≥ tan√°r nev√©t kigy≈±jtj√ºk // FOGADO[id]=('id', 'nev')
 foreach ($db->getAll(
                   "SELECT tanar, tnev FROM Fogado, Tanar "
                 . "  WHERE fid=" . fid . " AND tanar=id "
@@ -150,7 +150,7 @@ foreach ($db->getAll(
     $FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
 }
 
-// mindegyikhez az ˆsszes idı => elfoglalts·got (A FOGADO-hoz rakunk mÈg mezıket)
+// mindegyikhez az √∂sszes id≈ë => elfoglalts√°got (A FOGADO-hoz rakunk m√©g mez≈ëket)
 // FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
 foreach ($db->getAll(
                   "SELECT tanar, ido, diak FROM Fogado "
@@ -158,43 +158,43 @@ foreach ($db->getAll(
                 . "    ORDER BY ido"
             ) as $sor) {
 
-    // Ha egy p·ratlan sorsz·m˙ idıpontban lehet ÈrtÈk..., azt jelezz¸k
+    // Ha egy p√°ratlan sorsz√°m√∫ id≈ëpontban lehet √©rt√©k..., azt jelezz√ºk
     if ( $sor['ido']%2 && $sor['diak']>=0 && ($sor['diak'] != "") ) {
         $FOGADO[$sor['tanar']]['paratlan'] = 1;
     }
     $FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
 }
 
-// visszatÈrÈs: array (bool b, string s)
-// b: true ha vÈgre kell hajtani a v·ltoztat·st
-// s: a logba ÌrandÛ ¸zenet, ha ¸res, akkor nem kell Ìrni
+// visszat√©r√©s: array (bool b, string s)
+// b: true ha v√©gre kell hajtani a v√°ltoztat√°st
+// s: a logba √≠rand√≥ √ºzenet, ha √ºres, akkor nem kell √≠rni
 function ValidateRadio ( $Teacher, $Time ) {
-// (ezeket jÛ lenne triggerkÈnt berakni a t·bla-definÌciÛba...)
+// (ezeket j√≥ lenne triggerk√©nt berakni a t√°bla-defin√≠ci√≥ba...)
     global $FOGADO, $user;
     $ret = array (valid => true, value => NULL);
     if ( $FOGADO[$Teacher][$Time] != 0 ) {
-        return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " idıpontja m·r foglalt, ide nem iratkozhat fel!");
+        return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " id≈ëpontja m√°r foglalt, ide nem iratkozhat fel!");
     }
     foreach ( $FOGADO as $tan ) {
         if ( $tan[$Time] == $user->id ) {
-            return array(false, "÷nnek m·r foglalt a " . FiveToString($Time) . " idıpontja (" . $tan['nev'] . ") - elıbb arrÛl iratkozzon le!");
+            return array(false, "√ñnnek m√°r foglalt a " . FiveToString($Time) . " id≈ëpontja (" . $tan['nev'] . ") - el≈ëbb arr√≥l iratkozzon le!");
         }
     }
     foreach ( array_keys($FOGADO[$Teacher]) as $k ) {
         if ( $FOGADO[$Teacher][$k] == $user->id ) {
-            return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($k) . " idıpontj·ra m·r feliratkozott - ha v·ltoztatni akar, elıbb azt tˆrˆlje!");
+            return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($k) . " id≈ëpontj√°ra m√°r feliratkozott - ha v√°ltoztatni akar, el≈ëbb azt t√∂r√∂lje!");
         }
     }
     if ( $FOGADO[$user->ofo][$Time] == -2 ) {
-        return array(true, "÷nnek sz¸lıi Èrtekezlete van ebben az idıpontban (" . FiveToString($Time) . ")!");
+        return array(true, "√ñnnek sz√ºl≈ëi √©rtekezlete van ebben az id≈ëpontban (" . FiveToString($Time) . ")!");
     }
     return array(true, NULL);
 }
 
-// Az Ulog-ot mˆg kˆllene csin·lni, hogy az adminn·l 0 legyen az id
-// Ès figyelmeztetÈseket ne logolja
+// Az Ulog-ot m√∂g k√∂llene csin√°lni, hogy az adminn√°l 0 legyen az id
+// √©s figyelmeztet√©seket ne logolja
 //
-// checkboxok ellenırzÈse (leiratkoz·s)
+// checkboxok ellen≈ërz√©se (leiratkoz√°s)
 //
 if ( $_POST['page'] == 'mod' ) {
     foreach ( $FOGADO as $tanar ) {
@@ -204,17 +204,17 @@ if ( $_POST['page'] == 'mod' ) {
                 $q = "UPDATE Fogado SET diak=0 WHERE fid=" . fid . " AND tanar=" . $tanar['id'] . " AND ido=$Time";
                 if ( $db->query($q) ) {
                     $FOGADO[$tanar['id']][$Time] = "0";
-                    $USER_LOG[] = "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - tˆrˆlve.";
+                    $USER_LOG[] = "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - t√∂r√∂lve.";
                     Ulog($user->id, $q);
                 }
-                else { Ulog($user->id, "LÈgy ker¸lt a levesbe: $q!"); }
+                else { Ulog($user->id, "L√©gy ker√ºlt a levesbe: $q!"); }
             }
         }
     }
 }
 
 //
-// r·diÛgombok ellenırzÈse (feliratkoz·s)
+// r√°di√≥gombok ellen≈ërz√©se (feliratkoz√°s)
 //
 reset($_POST);
 while (list($k, $v) = each($_POST)) {
@@ -226,19 +226,19 @@ while (list($k, $v) = each($_POST)) {
             Ulog($user->id, $validate[1]);
             $USER_LOG[] = $validate[1];
         }
-        if ( $validate[0] ) { // rendben, lehet adatb·zisba rakni
+        if ( $validate[0] ) { // rendben, lehet adatb√°zisba rakni
             $q = "UPDATE Fogado SET diak=" . $user->id . " WHERE fid=" . fid . " AND tanar=$Teacher AND ido=$Time";
             if ( $db->query($q) ) {
                 $FOGADO[$Teacher][$Time] = $user->id;
                 $USER_LOG[] = "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . FiveToString($Time) . " - bejegyezve.";
                 Ulog($user->id, $q);
             }
-            else { Ulog($user->id, "LÈgy ker¸lt a levesbe: $q!"); }
+            else { Ulog($user->id, "L√©gy ker√ºlt a levesbe: $q!"); }
         }
     }
 }
 
-# 10 vagy valah·ny soronkÈnt kirakjuk a fejlÈcet, hogy lehessen kˆvetni
+# 10 vagy valah√°ny soronk√©nt kirakjuk a fejl√©cet, hogy lehessen k√∂vetni
 $szamlalo = 0;
 # $TablaOutput .= $TablazatIdosor;
 foreach ( $FOGADO as $tanar ) {
@@ -248,7 +248,7 @@ foreach ( $FOGADO as $tanar ) {
 }
 
 
-// Itt jˆn az ˆsszes kiÌr·s
+// Itt j√∂n az √∂sszes ki√≠r√°s
 
 print $Fejlec;
 

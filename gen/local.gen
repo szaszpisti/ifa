@@ -1,5 +1,5 @@
 #!/bin/bash
-# PostgreSQL-bõl legyártja az aktuális bejegyzéseket
+# PostgreSQL-bÅ‘l legyÃ¡rtja az aktuÃ¡lis bejegyzÃ©seket
 
 LOCAL=local.sql
 
@@ -11,14 +11,14 @@ echo
 
 psql -A -t -q -c "SELECT \
     'INSERT INTO Tanar (id, emil, tnev) VALUES (', \
-    esz, ', \'', TRIM(emil), '\', \'', enev, '\');' \
+    esz, ', \'', TRIM(emil), '\', \'', convert(enev, 'UTF-8') AS enev, '\');' \
     FROM Ember WHERE oszt LIKE '%x%' ORDER BY enev;" iskola \
     | tr -d '|'
 echo
 
 IFS='
 '
-psql -A -t -q -F';' -c 'SELECT * FROM Fogado_diak_view' iskola \
+psql -A -t -q -F';' -c "SELECT id, jelszo, convert(dnev, 'UTF-8'), oszt, onev, ofo, convert(ofonev, 'UTF-8') FROM Fogado_diak_view" iskola \
 | while read sor; do
     IFS=';'
     set $sor
@@ -29,4 +29,3 @@ echo
 } > $LOCAL
 
 echo "./gen-db.php $LOCAL"
-echo "Utána: chmod 660 ifa.db"

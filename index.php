@@ -1,12 +1,12 @@
 <?
 /*
- *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   Ez a fÃ¡jl az IFA (Iskolai FogadÃ³Ã³ra AdminisztrÃ¡ciÃ³) csomag rÃ©sze,
  *   This file is part of the IFA suite,
- *   Copyright 2004-2005 Szász Imre.
+ *   Copyright 2004-2005 SzÃ¡sz Imre.
  *
- *   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
- *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
- *   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *   Ez egy szabad szoftver; terjeszthetÅ‘ illetve mÃ³dosÃ­thatÃ³ a GNU
+ *   ÃltalÃ¡nos KÃ¶zreadÃ¡si FeltÃ©telek dokumentumÃ¡ban leÃ­rtak -- 2. vagy
+ *   kÃ©sÅ‘bbi verziÃ³ -- szerint, melyet a Szabad Szoftver AlapÃ­tvÃ¡ny ad ki.
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -36,16 +36,16 @@ function kuki_teszt() {
 
 if (!kuki_teszt()) {
     echo "<div align=center><font color=red><h3>FIGYELEM!</h3></font><br>\n";
-    echo "A böngészõjében engedélyeznie kell a süti (cookie) fogadását a " . $_SERVER['HTTP_SERVER'] . " géprõl!</div>\n";
+    echo "A bÃ¶ngÃ©szÅ‘jÃ©ben engedÃ©lyeznie kell a sÃ¼ti (cookie) fogadÃ¡sÃ¡t a " . $_SERVER['HTTP_SERVER'] . " gÃ©prÅ‘l!</div>\n";
     exit;
 }
 ?>
 <html>
 <base target="_top">
 <head>
-  <title>Fogadóóra</title>
-  <meta name="Author" content="Szász Imre">
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
+  <title>FogadÃ³Ã³ra</title>
+  <meta name="Author" content="SzÃ¡sz Imre">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 
 <frameset cols="200,*" marginwidth=0 border=0>

@@ -1,12 +1,12 @@
 <?
 /*
- *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   Ez a fÃ¡jl az IFA (Iskolai FogadÃ³Ã³ra AdminisztrÃ¡ciÃ³) csomag rÃ©sze,
  *   This file is part of the IFA suite,
- *   Copyright 2004-2005 Szász Imre.
+ *   Copyright 2004-2005 SzÃ¡sz Imre.
  *
- *   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
- *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
- *   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *   Ez egy szabad szoftver; terjeszthetÅ‘ illetve mÃ³dosÃ­thatÃ³ a GNU
+ *   ÃltalÃ¡nos KÃ¶zreadÃ¡si FeltÃ©telek dokumentumÃ¡ban leÃ­rtak -- 2. vagy
+ *   kÃ©sÅ‘bbi verziÃ³ -- szerint, melyet a Szabad Szoftver AlapÃ­tvÃ¡ny ad ki.
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@ function redirect($uri = '') {
     header ("Location: $uri");
 }
 
-// ellenõrzi, hogy adott típus, id esetén létezik-e az userid
+// ellenÅ‘rzi, hogy adott tÃ­pus, id esetÃ©n lÃ©tezik-e az userid
 function get_user($tip, $id) {
     global $db;
     if ($tip == 'admin') $tip='diak';
@@ -32,7 +32,7 @@ function get_user($tip, $id) {
     $user =& $db->getRow("SELECT * FROM $tip WHERE id=$id");
     if (DB::isError($user)) { die($user->getMessage()); }
 
-    $user['nev'] = $user['tnev'] . $user['dnev']; // pontosan az egyik létezik
+    $user['nev'] = $user['tnev'] . $user['dnev']; // pontosan az egyik lÃ©tezik
     return ($user);
 }
 
@@ -41,35 +41,35 @@ if (isset($_REQUEST['kilep']) ) {
     redirect('leiras.html');
 }
 
-// Ha tip, id jött a REQUEST-ben, akkor azt vesszük figyelembe,
-// egyébként a SESSION-változót.
+// Ha tip, id jÃ¶tt a REQUEST-ben, akkor azt vesszÃ¼k figyelembe,
+// egyÃ©bkÃ©nt a SESSION-vÃ¡ltozÃ³t.
 
 $tip = isset($_REQUEST['tip'])?$_REQUEST['tip']:$_SESSION['tip'];
 $id  = isset($_REQUEST['id'])?$_REQUEST['id']:$_SESSION['id'];
 if (!isset($id)) { $tip = 'admin'; $id = 0; }
 
 $user = get_user($tip, $id);
-if (!$user) $hiba = "Nincs ilyen felhasználó!";
+if (!$user) $hiba = "Nincs ilyen felhasznÃ¡lÃ³!";
 
 if ((!$_SESSION['admin']) && ($tip == 'diak') && (!$FA->valid)) {
-    print "<h3>Nincs bejelentkezési idõszak!</h3>\n"
-        . "<h3>Fogadóóra idõpontja: " . $FA->datum_str . "</h3>"
-        . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
-        . $FA->valid_veg_str . "</b> &nbsp; között lehet bejelentkezni.\n";
+    print "<h3>Nincs bejelentkezÃ©si idÅ‘szak!</h3>\n"
+        . "<h3>FogadÃ³Ã³ra idÅ‘pontja: " . $FA->datum_str . "</h3>"
+        . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; Ã©s &nbsp; <b>"
+        . $FA->valid_veg_str . "</b> &nbsp; kÃ¶zÃ¶tt lehet bejelentkezni.\n";
     exit;
 }
 
 if ($_SESSION['valid']) {
 
-    // ha kaptunk id-et, akkor vsz. új identitás kell
+    // ha kaptunk id-et, akkor vsz. Ãºj identitÃ¡s kell
     if (isset($_REQUEST['tip']) && isset($_REQUEST['id'])) {
 
-        // admin automatikusan megkapja, regisztráljuk a sessionbe.
+        // admin automatikusan megkapja, regisztrÃ¡ljuk a sessionbe.
         if ($_SESSION['admin'] && get_user($tip, $id)) {
             $_SESSION['tip'] = $tip;
             $_SESSION['id']  = $id;
         }
-        // Ha változott, akkor újrakezdjük a bejelentkezést
+        // Ha vÃ¡ltozott, akkor ÃºjrakezdjÃ¼k a bejelentkezÃ©st
         elseif (($_SESSION['tip'] !== $tip) || ($_SESSION['id'] !== $id)) {
             $_SESSION['valid'] = false;
             redirect();
@@ -116,24 +116,24 @@ elseif ( (isset($_POST['jelszo'])) && (strlen($_POST['jelszo']) > 0) ) {
         $_SESSION['valid'] = true;
     }
     if ($_SESSION['valid']) ulog ($user['id'], $user['nev'] . " bejelentkezett.");
-    elseif (!isset($hiba)) $hiba = "Érvénytelen bejelentkezés ($tip, $id)!";
+    elseif (!isset($hiba)) $hiba = "Ã‰rvÃ©nytelen bejelentkezÃ©s ($tip, $id)!";
 }
 
 if (!$_SESSION['valid']) {
     session_destroy();
 
-    head("Fogadóóra - " . $user['nev'], ' onLoad="document.login.jelszo.focus()"');
+    head("FogadÃ³Ã³ra - " . $user['nev'], ' onLoad="document.login.jelszo.focus()"');
 
     print "<table width=\"100%\"><tr><td>\n";
     if (isset($hiba)) { hiba($hiba); }
     print "\n<h3>" . $user['nev'] . ($tip=='diak'?' ('.$user['onev'].')':'') . "</h3>\n"
         . "<form name=login action='" . $_SERVER['REQUEST_URI'] . "' method=post>\n"
-        . "  Jelszó: <input type=password size=8 name=jelszo>\n"
+        . "  JelszÃ³: <input type=password size=8 name=jelszo>\n"
         . "  <input type=hidden name=id value=" . $id . ">\n"
         . "  <input type=hidden name=tip value=" . $tip . ">\n"
-        . "  <input type=submit value='Belépés'>\n"
+        . "  <input type=submit value='BelÃ©pÃ©s'>\n"
         . "</form>\n\n"
-        . "<td align=right valign=top><a href=\"leiras.html\"> Leírás </a>\n</table>\n";
+        . "<td align=right valign=top><a href=\"leiras.html\"> LeÃ­rÃ¡s </a>\n</table>\n";
     tail();
     exit;
 }

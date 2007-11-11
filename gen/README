@@ -1,54 +1,56 @@
-Lehetne a gpw-t használni jelszógeneráláshoz - könnyen megjegyezhetõ jelszókat csinál
-gpw 28 - legyártja az összeset - ugyanez -> rand
+Lehetne a gpw-t hasznÃ¡lni jelszÃ³generÃ¡lÃ¡shoz - kÃ¶nnyen megjegyezhetÅ‘ jelszÃ³kat csinÃ¡l
+gpw 28 - legyÃ¡rtja az Ã¶sszeset - ugyanez -> rand
 
 Easy Administrate Consulting Hours
-Fogadóóra Iskolában - Könnyû Adminisztráció
+FogadÃ³Ã³ra IskolÃ¡ban - KÃ¶nnyÅ± AdminisztrÃ¡ciÃ³
 
 
 gen-insertfile.php file.sql
 
-  A csaladnev.txt és a keresztnev.txt állományokból generál egy példa
-  adatbázist, pontosabban az annak feltöltéséhez szükséges SQL INSERT
-  parancsokat. Az OSZTALY fájlban leírt osztályazonosítónként egy átlagos
-  osztályszámmal és generált osztályfõnökkel.
+  A csaladnev.txt Ã©s a keresztnev.txt Ã¡llomÃ¡nyokbÃ³l generÃ¡l egy pÃ©lda
+  adatbÃ¡zist, pontosabban az annak feltÃ¶ltÃ©sÃ©hez szÃ¼ksÃ©ges SQL INSERT
+  parancsokat. Az OSZTALY fÃ¡jlban leÃ­rt osztÃ¡lyazonosÃ­tÃ³nkÃ©nt egy Ã¡tlagos
+  osztÃ¡lyszÃ¡mmal Ã©s generÃ¡lt osztÃ¡lyfÅ‘nÃ¶kkel.
 
-  A paraméterként megadott nevû fájlba beteszi még az admin azonosítót is,
-  és egy kezdeti fogadó-idõpontot a teszteléshez.
+  A paramÃ©terkÃ©nt megadott nevÅ± fÃ¡jlba beteszi mÃ©g az admin azonosÃ­tÃ³t is,
+  Ã©s egy kezdeti fogadÃ³-idÅ‘pontot a tesztelÃ©shez.
 
 gen-db.php file.sql
 
-  a paraméterként adott fájl SQL utasításait végrehajtja, így generálja a
-  fogadóóra adatbázist. Az adatbázis DSN megadható a fájl elején.
+  a paramÃ©terkÃ©nt adott fÃ¡jl SQL utasÃ­tÃ¡sait vÃ©grehajtja, Ã­gy generÃ¡lja a
+  fogadÃ³Ã³ra adatbÃ¡zist. Az adatbÃ¡zis DSN megadhatÃ³ a fÃ¡jl elejÃ©n.
 
 csaladnev.txt
 
-  Innen-onnan gyûjtött kb. 2500 családnév.
+  Innen-onnan gyÅ±jtÃ¶tt kb. 2500 csalÃ¡dnÃ©v.
 
 keresztnev.txt
 
-  Keresztnevek listája. Forrás: http://www.nemokap.hu/kozer/datum.htm
+  Keresztnevek listÃ¡ja. ForrÃ¡s: http://www.nemokap.hu/kozer/datum.htm
 
 gen-password.php user.lst
 
-  Az elsõ paraméterként megadott ($userFile) állományból generál insert sorokat
-  az adatbázishoz, Létrehoz egy $userFile.pw fájlt a kiosztandó jelszókkal és egy
-  $userFile.insert fájlt, amit fel lehet használni a gen-db.php programhoz.
+  Az elsÅ‘ paramÃ©terkÃ©nt megadott ($userFile) Ã¡llomÃ¡nybÃ³l generÃ¡l insert sorokat
+  az adatbÃ¡zishoz, LÃ©trehoz egy $userFile.pw fÃ¡jlt a kiosztandÃ³ jelszÃ³kkal Ã©s egy
+  $userFile.insert fÃ¡jlt, amit fel lehet hasznÃ¡lni a gen-db.php programhoz.
 
-  A $userFile felépítése:
+  A $userFile felÃ©pÃ­tÃ©se:
   Tanar Neve;tid
   ===
   oid;Osztaly Neve;tid
   ===
   Diak Neve;did;oid
 
-  Példa:
-  # az üres vagy # kezdetû sorokat nem veszi figyelembe
-  Monoton Manó;117
+  PÃ©lda:
+  # az Ã¼res vagy # kezdetÅ± sorokat nem veszi figyelembe
+  Monoton ManÃ³;117
   ===
   d05a;2. A;117
   ===
-  Pumpa Pál;32;d05a
+  Pumpa PÃ¡l;32;d05a
 
-  A jelszógeneráló függvény forrása:
+  A jelszÃ³generÃ¡lÃ³ fÃ¼ggvÃ©ny forrÃ¡sa:
   http://unix.freshmeat.net/projects/gen_password/
+
+SELECT id FROM Fogado_diak_view WHERE jelszo IS NULL;
 

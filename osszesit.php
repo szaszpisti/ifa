@@ -1,12 +1,12 @@
 <?
 /*
- *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   Ez a fÃ¡jl az IFA (Iskolai FogadÃ³Ã³ra AdminisztrÃ¡ciÃ³) csomag rÃ©sze,
  *   This file is part of the IFA suite,
- *   Copyright 2004-2005 Szász Imre.
+ *   Copyright 2004-2005 SzÃ¡sz Imre.
  *
- *   Ez egy szabad szoftver; terjeszthetõ illetve módosítható a GNU
- *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
- *   késõbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *   Ez egy szabad szoftver; terjeszthetÅ‘ illetve mÃ³dosÃ­thatÃ³ a GNU
+ *   ÃltalÃ¡nos KÃ¶zreadÃ¡si FeltÃ©telek dokumentumÃ¡ban leÃ­rtak -- 2. vagy
+ *   kÃ©sÅ‘bbi verziÃ³ -- szerint, melyet a Szabad Szoftver AlapÃ­tvÃ¡ny ad ki.
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
  */
 
 /**
- * Szülõi összesített lista
+ * SzÃ¼lÅ‘i Ã¶sszesÃ­tett lista
  */
 
 require_once('login.php');
@@ -24,11 +24,11 @@ require_once('diak.class.php');
 
 $USER = new Diak($_SESSION['id']);
 
-Head("Fogadóóra - " . $USER->dnev);
+Head("FogadÃ³Ã³ra - " . $USER->dnev);
 
-print "\n<h3>Fogadóóra: " . $FA->datum . "<br>\n"
+print "\n<h3>FogadÃ³Ã³ra: " . $FA->datum . "<br>\n"
     . $USER->dnev . " " . $USER->onev . "<br>\n"
-    . "<font size=-1>(Osztályfõnök: " . $USER->ofonev . ")</h3>\n";
+    . "<font size=-1>(OsztÃ¡lyfÅ‘nÃ¶k: " . $USER->ofonev . ")</h3>\n";
 
 $szuloi =& $db->getRow(
               "SELECT MIN(ido) AS eleje, MAX(ido) AS vege"
@@ -45,7 +45,7 @@ if (DB::isError($data)) {
 if ($szuloi['eleje']) {
     $SzuloiSor = "<br><b>" . FiveToString($szuloi['eleje'])
         . "-" . FiveToString($szuloi['vege']+1)
-        . " -- szülõi értekezlet</b>\n";
+        . " -- szÃ¼lÅ‘i Ã©rtekezlet</b>\n";
     $SzuloiEleje = $szuloi['eleje'];
 }
 

@@ -1,12 +1,12 @@
 <?
 /*
- *   Ez a f·jl az IFA (Iskolai FogadÛÛra Adminisztr·ciÛ) csomag rÈsze,
+ *   Ez a f√°jl az IFA (Iskolai Fogad√≥√≥ra Adminisztr√°ci√≥) csomag r√©sze,
  *   This file is part of the IFA suite,
- *   Copyright 2004-2005 Sz·sz Imre.
+ *   Copyright 2004-2005 Sz√°sz Imre.
  *
- *   Ez egy szabad szoftver; terjeszthetı illetve mÛdosÌthatÛ a GNU
- *   ¡ltal·nos Kˆzread·si FeltÈtelek dokumentum·ban leÌrtak -- 2. vagy
- *   kÈsıbbi verziÛ -- szerint, melyet a Szabad Szoftver AlapÌtv·ny ad ki.
+ *   Ez egy szabad szoftver; terjeszthet≈ë illetve m√≥dos√≠that√≥ a GNU
+ *   √Åltal√°nos K√∂zread√°si Felt√©telek dokumentum√°ban le√≠rtak -- 2. vagy
+ *   k√©s≈ëbbi verzi√≥ -- szerint, melyet a Szabad Szoftver Alap√≠tv√°ny ad ki.
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@ require_once('tanar.class.php');
 $TANAR = new Tanar($_REQUEST['id']);
 
 switch ($_REQUEST['mod']) {
-    # az egyes idıpontok mÛdosÌt·sa
+    # az egyes id≈ëpontok m√≥dos√≠t√°sa
     case 1:
         reset($_POST);
         while (list($key, $diak) = each($_POST)) {
@@ -44,7 +44,7 @@ switch ($_REQUEST['mod']) {
         }
         break;
 
-    # az intervallum bıvÌtÈse
+    # az intervallum b≈ëv√≠t√©se
     case 2:
         $UJ_min = $_REQUEST['kora'] +  $_REQUEST['kperc'];
         $UJ_max = $_REQUEST['vora'] +  $_REQUEST['vperc'];
@@ -53,8 +53,8 @@ switch ($_REQUEST['mod']) {
 
         while ($UJ_min%$tartam) $UJ_min++;
 
-        /* Ha m·r van bejegyzett idıpontja, akkor a bıvÌtÈs az ez elıtti
-           Ès az ez ut·ni idıkre vonatkozik */
+        /* Ha m√°r van bejegyzett id≈ëpontja, akkor a b≈ëv√≠t√©s az ez el≈ëtti
+           √©s az ez ut√°ni id≈ëkre vonatkozik */
 
         if ($TANAR->fogad) {
             for ($ido = $UJ_min; $ido < $TANAR->IDO_min; $ido++ ) {
@@ -64,7 +64,7 @@ switch ($_REQUEST['mod']) {
                 $INSERT[] = array(fid, $TANAR->id, $ido, ($ido%$tartam?-1:0));
             }
         }
-        else { // mÈg nem volt fogadÛÛr·ja bejegyezve
+        else { // m√©g nem volt fogad√≥√≥r√°ja bejegyezve
             for ($ido = $UJ_min; $ido < $UJ_max; $ido++) {
                 $INSERT[] = array(fid, $TANAR->id, $ido, ($ido%$tartam?-1:0));
             }
@@ -74,25 +74,25 @@ switch ($_REQUEST['mod']) {
         $res =& $db->executeMultiple($sth, $INSERT);
 
         if (DB::isError($res)) {
-            ulog (0, "SIKERTELEN B’VÕT…S: " . $TANAR->tnev . "($UJ_min -> $UJ_max)" );
+            ulog (0, "SIKERTELEN B≈êV√çT√âS: " . $TANAR->tnev . "($UJ_min -> $UJ_max)" );
             die($res->getMessage());
         }
         else {
-            ulog (0, $TANAR->tnev . " bıvÌtÈs: $UJ_min -> $UJ_max ($tartam)" );
+            ulog (0, $TANAR->tnev . " b≈ëv√≠t√©s: $UJ_min -> $UJ_max ($tartam)" );
         }
 
         break;
 }
 
-$TANAR = new Tanar($_REQUEST['id']); # ˙jra beolvassuk az adatb·zisbÛl
+$TANAR = new Tanar($_REQUEST['id']); # √∫jra beolvassuk az adatb√°zisb√≥l
 
-Head("FogadÛÛra - " . $TANAR->tnev);
+Head("Fogad√≥√≥ra - " . $TANAR->tnev);
 
 echo "\n<table width=\"100%\"><tr>\n"
     . "<td><h3>" . $TANAR->tnev .  " (" . $FA->datum . ")</h3>\n"
-    . "<td align=right><a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> KilÈpÈs </a>\n</table>\n";
+    . "<td align=right><a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kil√©p√©s </a>\n</table>\n";
 
-# A k¸lsı t·bl·zat elsı cell·j·ban az idıpont-lista
+# A k√ºls≈ë t√°bl√°zat els≈ë cell√°j√°ban az id≈ëpont-lista
 $TABLA = "<table border=0><tr><td>\n";
 
 if (ADMIN) {
@@ -122,23 +122,23 @@ if (ADMIN) {
             . "       <input type=submit value=' Mehet '>\n"
             . "</table>\n"
             . "</form>\n"
-    # A k¸lsı t·bl·zat m·sodik cell·ja
+    # A k√ºls≈ë t√°bl√°zat m√°sodik cell√°ja
             . "<td>&nbsp;\n"
             . "<td valign=top>\n";
     }
 
-    $TABLA .= "<br><b>Jelmagyar·zat:</b><ul>\n"
+    $TABLA .= "<br><b>Jelmagyar√°zat:</b><ul>\n"
         . "   <li>A: nincs itt<br>\n"
-        . "   <li>B: fogadÛ idıpont kezdete<br>\n"
-        . "   <li>C: - idıpont folytat·sa<br>\n"
-        . "   <li>D: sz¸lıi Èrtekezlet<br>\n"
-        . "   <li>E: m·r bejelentkezett di·k\n"
+        . "   <li>B: fogad√≥ id≈ëpont kezdete<br>\n"
+        . "   <li>C: - id≈ëpont folytat√°sa<br>\n"
+        . "   <li>D: sz√ºl≈ëi √©rtekezlet<br>\n"
+        . "   <li>E: m√°r bejelentkezett di√°k\n"
         . "</ul>\n"
         . "<script language=JavaScript type=\"text/javascript\"><!--\n"
         . "function fivedel() {\n"
         . "  for (var i=0; i<document.tabla.length; i++) {\n"
-        . "    o = document.tabla.elements[i]; // az ˚rlap elemeit veszi sorra\n"
-        . "    if (o.value == '-1') {          // ha Èppen '-1'-es gombn·l tartunk\n"
+        . "    o = document.tabla.elements[i]; // az ≈±rlap elemeit veszi sorra\n"
+        . "    if (o.value == '-1') {          // ha √©ppen '-1'-es gombn√°l tartunk\n"
         . "      ido = parseInt(o.name.substr(1,10));\n"
         . "      if (o.checked) eval ('document.tabla.' + o.name + '[1].checked = 1');\n"
         . "    }\n"
@@ -146,7 +146,7 @@ if (ADMIN) {
         . "}\n"
         . "function nincs() {\n"
         . "  for (var i=0; i<document.tabla.length; i++) {\n"
-        . "    o = document.tabla.elements[i]; // az ˚rlap elemeit veszi sorra\n"
+        . "    o = document.tabla.elements[i]; // az ≈±rlap elemeit veszi sorra\n"
         . "    if (o.value == 'x') o.checked = true;\n"
         . "  }\n"
         . "}\n"
@@ -155,18 +155,18 @@ if (ADMIN) {
         . "  <input type=hidden name=mod value=2>\n";
 
     if ($TANAR->fogad) {
-        $TABLA .= "<p>BıvÌtÈs: "
+        $TABLA .= "<p>B≈ëv√≠t√©s: "
             . SelectIdo("kora", "kperc", $TANAR->IDO_min) . " - \n"
             . SelectIdo("vora", "vperc", $TANAR->IDO_max) . "\n &nbsp; &nbsp;"
             . SelectTartam('tartam') . "\n"
             . "  <input type=submit value=' Uccu! '></p><br><br>\n"
             . "</form>\n"
-            . "<p class=elso><i>Gombok gyors ·llÌt·sa:</i>\n<ul>\n"
-            . "  <li>Ha mÈgsem fog fogadni (ˆsszes -> A):\n"
-            . "      <br> &nbsp; &nbsp; <input type=button value=' Megjelˆl ' onClick='nincs()'>\n"
-            . "  <li>Ha az 5 percekben is fogadni akar (ˆsszes: C -> B):\n"
-            . "      <br> &nbsp; &nbsp; <input type=button value=' Megjelˆl ' onClick='fivedel()'>\n"
-            . "  <br>(Ezek ut·n mÈg kell a ,,Mehet'' gomb!)\n</ul>\n\n"
+            . "<p class=elso><i>Gombok gyors √°ll√≠t√°sa:</i>\n<ul>\n"
+            . "  <li>Ha m√©gsem fog fogadni (√∂sszes -> A):\n"
+            . "      <br> &nbsp; &nbsp; <input type=button value=' Megjel√∂l ' onClick='nincs()'>\n"
+            . "  <li>Ha az 5 percekben is fogadni akar (√∂sszes: C -> B):\n"
+            . "      <br> &nbsp; &nbsp; <input type=button value=' Megjel√∂l ' onClick='fivedel()'>\n"
+            . "  <br>(Ezek ut√°n m√©g kell a ,,Mehet'' gomb!)\n</ul>\n\n"
             . "</table>\n";
     }
     else {
@@ -180,7 +180,7 @@ if (ADMIN) {
     }
 
 } else {
-    // Hogy a kezdı mindenkÈppen p·ros legyen:
+    // Hogy a kezd≈ë mindenk√©ppen p√°ros legyen:
     $elso = floor((($TANAR->IDO_min)+1)/2)*2;
     $elozo = 0;
     for ($ido = $elso; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {

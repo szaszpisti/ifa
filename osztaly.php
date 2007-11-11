@@ -1,12 +1,12 @@
 <?
 /*
- *   Ez a f·jl az IFA (Iskolai FogadÛÛra Adminisztr·ciÛ) csomag rÈsze,
+ *   Ez a f√°jl az IFA (Iskolai Fogad√≥√≥ra Adminisztr√°ci√≥) csomag r√©sze,
  *   This file is part of the IFA suite,
- *   Copyright 2004-2005 Sz·sz Imre.
+ *   Copyright 2004-2005 Sz√°sz Imre.
  *
- *   Ez egy szabad szoftver; terjeszthetı illetve mÛdosÌthatÛ a GNU
- *   ¡ltal·nos Kˆzread·si FeltÈtelek dokumentum·ban leÌrtak -- 2. vagy
- *   kÈsıbbi verziÛ -- szerint, melyet a Szabad Szoftver AlapÌtv·ny ad ki.
+ *   Ez egy szabad szoftver; terjeszthet≈ë illetve m√≥dos√≠that√≥ a GNU
+ *   √Åltal√°nos K√∂zread√°si Felt√©telek dokumentum√°ban le√≠rtak -- 2. vagy
+ *   k√©s≈ëbbi verzi√≥ -- szerint, melyet a Szabad Szoftver Alap√≠tv√°ny ad ki.
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -17,21 +17,21 @@
 require_once('ifa.inc.php');
 Head('Osztalyok', '', 'osztaly');
 
-// az oszt·lyok azonosÌtÛja Ès megjelenÌtÈsi mÛdja az OSZTALY f·jlban van,
-// soronkÈnt id1;nev1;id2;nev2 stb. alakban - ezt dolgozzuk fel itt
+// az oszt√°lyok azonos√≠t√≥ja √©s megjelen√≠t√©si m√≥dja az OSZTALY f√°jlban van,
+// soronk√©nt id1;nev1;id2;nev2 stb. alakban - ezt dolgozzuk fel itt
 
 $OSZTALY_file = file('OSZTALY');
 @array_walk($OSZTALY_file, 'file_trim');
 
 foreach ($OSZTALY_file as $oszt) {
-    // $O = array('id1', 'nev1', 'id2', 'nev2'), vagyis kÈtszer hosszabb
+    // $O = array('id1', 'nev1', 'id2', 'nev2'), vagyis k√©tszer hosszabb
     $O = explode(';', $oszt);
 
-    // megkeress¸k a max sorhosszt a t·bl·zat mÈretÈhez
+    // megkeress√ºk a max sorhosszt a t√°bl√°zat m√©ret√©hez
     if (sizeof($O) > $oMax) $oMax = sizeof($O);
     $OSZTALY[] = $O;
 }
-$oMax /= 2; // dupl·j·t sz·moltuk
+$oMax /= 2; // dupl√°j√°t sz√°moltuk
 
 echo "<table>\n"; # <!-- border=1 cellpadding=1 cellspacing=1> -->
 echo "<tr><td colspan=$oMax><a href=\"admin.php?tip=admin&amp;id=0\" target=duma>ADMIN</a>\n";
@@ -46,14 +46,14 @@ foreach ($OSZTALY as $oszt) {
     }
     print "\n";
 }
-echo "<tr><td colspan=$oMax><a href=\"?o=t\">tan·rok</a>\n";
-echo "</table>\n\n";
+echo "<tr><td colspan=$oMax><a href=\"?o=t\">tan√°rok</a>\n";
+echo "</table><br />\n\n";
 
-// Ha van oszt·ly paramÈter, akkor az adott oszt·ly list·j·t Ìrjuk ki
+// Ha van oszt√°ly param√©ter, akkor az adott oszt√°ly list√°j√°t √≠rjuk ki
 
 if (isset($_REQUEST['o'])) {
     $o = $_REQUEST['o'];
-    print "<h2></h2>\n"; # csak egy kis helyet csin·lunk
+    print "<h2></h2>\n"; # csak egy kis helyet csin√°lunk
     if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar";
     else $q = "SELECT * FROM Diak WHERE oszt='$o'";
 
@@ -64,7 +64,7 @@ if (isset($_REQUEST['o'])) {
     while ($res->fetchInto($row)) {
         $index[$row['id']] = $row['dnev'];
     }
-    setlocale(LC_ALL, "hu_HU"); 
+    setlocale(LC_ALL, "hu_HU.UTF-8"); 
     asort(&$index, SORT_LOCALE_STRING);
     reset($index);
     while (list($id, $dnev) = each($index)) {

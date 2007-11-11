@@ -5,27 +5,27 @@ $userFile = $argv[1];
 
 if (!file_exists($userFile)) {
 print '
-Az elsõ paraméterként megadott ($userFile) állományból generál insert sorokat
-az adatbázishoz, Létrehoz egy $userFile.pw fájlt a kiosztandó jelszókkal és egy
-$userFile.insert fájlt, amit fel lehet használni a gen-db.php programhoz.
+Az elsÅ‘ paramÃ©terkÃ©nt megadott ($userFile) Ã¡llomÃ¡nybÃ³l generÃ¡l insert sorokat
+az adatbÃ¡zishoz, LÃ©trehoz egy $userFile.pw fÃ¡jlt a kiosztandÃ³ jelszÃ³kkal Ã©s egy
+$userFile.insert fÃ¡jlt, amit fel lehet hasznÃ¡lni a gen-db.php programhoz.
 
-A $userFile felépítése:
+A $userFile felÃ©pÃ­tÃ©se:
 Tanar Neve;tid
 ===
 oid;Osztaly Neve;tid
 ===
 Diak Neve;did;oid
 
-Példa:
-# az üres vagy # kezdetû sorokat nem veszi figyelembe
-Monoton Manó;117
+PÃ©lda:
+# az Ã¼res vagy # kezdetÅ± sorokat nem veszi figyelembe
+Monoton ManÃ³;117
 ===
 d05a;2. A;117
 ===
-Pumpa Pál;32;d05a
+Pumpa PÃ¡l;32;d05a
 
 ';
-die("Nem létezik a fájl: " . $userFile . "\n");
+die("Nem lÃ©tezik a fÃ¡jl: " . $userFile . "\n");
 }
 
 
@@ -61,7 +61,7 @@ $fUser = file($userFile);
 
 $jelszo = gen_password();
 
-// Az Admint is berakjuk de jelszót külön kell neki adni!
+// Az Admint is berakjuk de jelszÃ³t kÃ¼lÃ¶n kell neki adni!
 $INSERT = "INSERT INTO Diak (id, jelszo, dnev) "
     . "VALUES (0, '" . md5($jelszo) . "', 'Admin');\n\n";
 $OUT = "Admin;$jelszo\n===\n";
@@ -69,7 +69,7 @@ $OUT = "Admin;$jelszo\n===\n";
 $i = 0;
 $n = sizeof($fUser);
 
-// Tanárok felsorolása
+// TanÃ¡rok felsorolÃ¡sa
 while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
     $sor = trim($fUser[$i]);
     if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
@@ -89,7 +89,7 @@ while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
 $OUT .= $fUser[$i++];
 $INSERT .= "\n";
 
-// Osztályok felsorolása
+// OsztÃ¡lyok felsorolÃ¡sa
 while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
     $sor = trim($fUser[$i]);
     if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
@@ -97,16 +97,16 @@ while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
         continue;
     }
     $t = explode(';', $sor);
-    // a 3. az osztályfõnök azonosítója
+    // a 3. az osztÃ¡lyfÅ‘nÃ¶k azonosÃ­tÃ³ja
     $ofoid = $t[2];
 
-    // Nagy hiba, ha nincs a tanár táblában
+    // Nagy hiba, ha nincs a tanÃ¡r tÃ¡blÃ¡ban
     if (!isset($tanar[$ofoid])) {
-        die($t[0] . " osztály fõnöke ($ofoid) nem szerepel a tanárok közt!\n");
+        die($t[0] . " osztÃ¡ly fÅ‘nÃ¶ke ($ofoid) nem szerepel a tanÃ¡rok kÃ¶zt!\n");
     }
 
     // $osztaly[oid] = array(
-    //   string  =>  ', 'Pumpa Pál', 'd05a', '8. A', '117', 'Monoton Manó');
+    //   string  =>  ', 'Pumpa PÃ¡l', 'd05a', '8. A', '117', 'Monoton ManÃ³');
     //   onev    =>  d05a
     // )
     $osztaly[$t[0]] = array(
@@ -119,7 +119,7 @@ while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
 $i++;
 
 
-// Diákok felsorolása
+// DiÃ¡kok felsorolÃ¡sa
 while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
     $sor = trim($fUser[$i]);
     if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
@@ -128,12 +128,12 @@ while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
     }
     $t = explode(';', $sor);
 
-    // a 3. az osztály azonosítója
+    // a 3. az osztÃ¡ly azonosÃ­tÃ³ja
     $oid = $t[2];
 
-    // Nagy hiba, ha nincs az osztály táblában
+    // Nagy hiba, ha nincs az osztÃ¡ly tÃ¡blÃ¡ban
     if (!isset($osztaly[$oid])) {
-        die($t[0] . " osztálya ($oid) nem szerepel az osztályok közt!\n");
+        die($t[0] . " osztÃ¡lya ($oid) nem szerepel az osztÃ¡lyok kÃ¶zt!\n");
     }
 
     $jelszo = gen_password();

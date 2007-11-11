@@ -1,7 +1,7 @@
 2006.11.21
 ----------
   [classes/fogadoora.class.php]
-  A bejelentkezési idõszak olvashatóbb formátumban legyen kiírva
+  A bejelentkezÃ©si idÅ‘szak olvashatÃ³bb formÃ¡tumban legyen kiÃ­rva
 
 --- fogadoora.class.php~        2006-02-04 12:07:12.000000000 +0100
 +++ fogadoora.class.php 2006-11-03 14:59:33.000000000 +0100
@@ -19,14 +19,14 @@
          $this->valid = ( ($this->valid_kezd <= $MaiDatum)
 
   [fogado-xls.cgi]
-  A táblázatban a lap-nevek ékezetmentesítve lettek
+  A tÃ¡blÃ¡zatban a lap-nevek Ã©kezetmentesÃ­tve lettek
 --- fogado-xls.cgi~     2006-09-26 00:26:22.000000000 +0200
 +++ fogado-xls.cgi      2006-11-21 10:06:41.000000000 +0100
 @@ -112,7 +112,8 @@
  my $formatOsszDiak = $workBook->add_format(text_wrap => 1);
  my $formatTanarNev = $workBook->add_format(bold => 1, size => 18);
 
--my $osszesitoNev = 'Összesített';
+-my $osszesitoNev = 'Ã–sszesÃ­tett';
 +my $osszesitoNev = 'Osszesitett';
 +
  $book[0] = $workBook->add_worksheet($osszesitoNev);
@@ -34,12 +34,12 @@
  $book[0]->set_column('A:A', 25);
 @@ -128,17 +129,18 @@
 
-     # $tLink: a tanári lap neve: 'Monoton Manó' -> 'Monoton M'
+     # $tLink: a tanÃ¡ri lap neve: 'Monoton ManÃ³' -> 'Monoton M'
      ($tLink = $tanar[$id]) =~ s{^([^ ]* .).*$}{$1};
-+    $tLink =~ y/áéíóöõúüû/aeiooouuu/;
++    $tLink =~ y/Ã¡Ã©Ã­Ã³Ã¶Å‘ÃºÃ¼Å±/aeiooouuu/;
 
-     # Az összesített lista sorai
-     # Tanárnév hivatkozásként a saját munkalapra
+     # Az Ã¶sszesÃ­tett lista sorai
+     # TanÃ¡rnÃ©v hivatkozÃ¡skÃ©nt a sajÃ¡t munkalapra
 
 2006.09.26
 ----------
@@ -47,8 +47,8 @@
 
 2006.01.31
 ----------
-  fogado.php: A Fogado táblában a módosításokhoz nem nézte a fid-et, így a
-  régi adatokat is módosította.
+  fogado.php: A Fogado tÃ¡blÃ¡ban a mÃ³dosÃ­tÃ¡sokhoz nem nÃ©zte a fid-et, Ã­gy a
+  rÃ©gi adatokat is mÃ³dosÃ­totta.
   204c204
   <  $q = "UPDATE Fogado SET diak=0 WHERE fid=" .  fid . " AND tanar=" . $tanar['id'] . " AND ido=$Time";
   >  $q = "UPDATE Fogado SET diak=0 WHERE tanar=" .  $tanar['id'] . " AND ido=$Time";
@@ -58,11 +58,11 @@
 
 2005.11.21
 ----------
-  Az osztálylistát tag nélkül nem lehetett rendezni
+  Az osztÃ¡lylistÃ¡t tag nÃ©lkÃ¼l nem lehetett rendezni
 
 2005.11.12
 ----------
-  Az osztálylistát a magyar ABC szerinti rendezésben írja ki
+  Az osztÃ¡lylistÃ¡t a magyar ABC szerinti rendezÃ©sben Ã­rja ki
 
 2005.11.11
 ----------
@@ -88,5 +88,5 @@
 2005.05.15
 ----------
   ifa.inc.php: Az SQLite nem kezeli a serial-t, implicite meg kellett
-  adni az Ulog függvényben: $logid = $db->nextId('id').
+  adni az Ulog fÃ¼ggvÃ©nyben: $logid = $db->nextId('id').
 

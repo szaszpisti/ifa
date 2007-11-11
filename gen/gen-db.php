@@ -1,16 +1,17 @@
 #!/usr/bin/php
 <?php
 require_once('DB.php');
+$IFA_db = 'ifa.db';
 
 if ($argc != 2) {
-    print "Az INSERT-filet argumentumként kell megadni!\n";
-    print "Létrehozza az aktuális könyvtárban a 'ifa.db' nevû sqlite adatbázist.\n";
-    print "(Vagy ha más DSN van megadva, akkor azt.)\n";
+    print "Az INSERT-filet argumentumkÃ©nt kell megadni!\n";
+    print "LÃ©trehozza az aktuÃ¡lis kÃ¶nyvtÃ¡rban a 'ifa.db' nevÅ± sqlite adatbÃ¡zist.\n";
+    print "(Vagy ha mÃ¡s DSN van megadva, akkor azt.)\n";
     return;
 }
 $ins = file($argv[1]);
 
-// A DSN-ben itt is meg lehet adni tetszõleges adatbázist.
+// A DSN-ben itt is meg lehet adni tetszÅ‘leges adatbÃ¡zist.
 
 $pgsql_dsn = array(
     'phptype'  => 'pgsql',
@@ -22,7 +23,7 @@ $pgsql_dsn = array(
 
 $sqlite_dsn = array(
     'phptype'  => 'sqlite',
-    'database' => 'ifa.db',
+    'database' => $IFA_db,
     'mode'     => '0644',
 );
 
@@ -96,8 +97,37 @@ CREATE TABLE Fogado (
     ido integer,
     diak integer
 )' );
+
+$res =& $db->query('CREATE TABLE ulog_id_seq (id INTEGER UNSIGNED PRIMARY KEY);' );
 if (DB::isError($res)) { die($res->getMessage()); }
 
+$res =& $db->query('CREATE TABLE admin_id_seq (id INTEGER UNSIGNED PRIMARY KEY);' );
+if (DB::isError($res)) { die($res->getMessage()); }
+
+$res =& $db->query('CREATE TRIGGER admin_id_seq_cleanup AFTER INSERT ON admin_id_seq
+   BEGIN DELETE FROM admin_id_seq WHERE id<LAST_INSERT_ROWID(); END;' );
+if (DB::isError($res)) { die($res->getMessage()); }
+
+$res =& $db->query('CREATE TRIGGER ulog_id_seq_cleanup AFTER INSERT ON ulog_id_seq
+   BEGIN DELETE FROM ulog_id_seq WHERE id<LAST_INSERT_ROWID(); END;' );
+if (DB::isError($res)) { die($res->getMessage()); }
+
+$res =& $db->query('INSERT INTO Admin VALUES (0, "2000-01-01", 192, 228, 2, "2000-01-01 08:00:00", "3000-01-01 12:00:00");' );
+if (DB::isError($res)) { die($res->getMessage()); }
+
+$res =& $db->query('INSERT INTO admin_id_seq VALUES (1)' );
+if (DB::isError($res)) { die($res->getMessage()); }
+
+#$res =& $db->query('INSERT INTO ulog_id_seq VALUES (0)' );
+#if (DB::isError($res)) { die($res->getMessage()); }
+
+#INSERT INTO "admin_id_seq" VALUES(1);
+#INSERT INTO "ulog_id_seq" VALUES(1);
+#if (DB::isError($res)) { die($res->getMessage()); }
+
 @array_walk($ins, 'insert');
+
+chmod ($IFA_db, 0660);
+chgrp ($IFA_db, 'www-data');
 
 ?>

@@ -1,137 +1,137 @@
-Iskolai Fogadóóra Adminisztráció
+Iskolai FogadÃ³Ã³ra AdminisztrÃ¡ciÃ³
 
 
-# phpdoc -dn 'IFA' -s -t ../doc -ti 'Iskolai Fogadóóra Adminisztráció' -d .
+# phpdoc -dn 'IFA' -s -t ../doc -ti 'Iskolai FogadÃ³Ã³ra AdminisztrÃ¡ciÃ³' -d .
 
-A különbözõ adatbázisok használatához telepíteni kell a megfelelõ php modulokat.
-Pl. a PostgreSQL használatához a php4-pgsql, a SQLite-hez a php4-sqlite.
+A kÃ¼lÃ¶nbÃ¶zÅ‘ adatbÃ¡zisok hasznÃ¡latÃ¡hoz telepÃ­teni kell a megfelelÅ‘ php modulokat.
+Pl. a PostgreSQL hasznÃ¡latÃ¡hoz a php4-pgsql, a SQLite-hez a php4-sqlite.
 
-Az excel-táblázat generáló perl scripthez szükség van néhány perl modulra:
+Az excel-tÃ¡blÃ¡zat generÃ¡lÃ³ perl scripthez szÃ¼ksÃ©g van nÃ©hÃ¡ny perl modulra:
 libspreadsheet-writeexcel-perl
 
-valamint az adatbáziskapcsolatnak megfelelõ perl DBD komponensre, pl.:
+valamint az adatbÃ¡ziskapcsolatnak megfelelÅ‘ perl DBD komponensre, pl.:
 libdbd-sqlite2-perl
 libdbd-pg-perl
 stb.
 
 # Megj:
-# SQLite miatt nem jó a sima SELECT * ... JOIN ... mert az eredménybe berakja
-# a táblanevet is! Helyette SELECT mezo1, ... kell
+# SQLite miatt nem jÃ³ a sima SELECT * ... JOIN ... mert az eredmÃ©nybe berakja
+# a tÃ¡blanevet is! Helyette SELECT mezo1, ... kell
 
 
-- a jelentkezés, adminisztráció web böngészõvel kezelhetõ,
-- session-alapú, a szülõknek saját jelszavuk van,
-- a jelentkezések ellenõrzöttek, hiba esetén a jelentkezõ figyelmeztetést kap,
-- az adminisztrátor részletesen állíthatja egyes tanárok jelenlétét, fogadóidejét,
-- adatbázis-absztrakciós rétegen (PEAR DB) keresztül többféle RDBMS-t képes használni,
-- a tanári listázásokhoz képes PAM, LDAP és adatbázis authentikációt is kezelni.
+- a jelentkezÃ©s, adminisztrÃ¡ciÃ³ web bÃ¶ngÃ©szÅ‘vel kezelhetÅ‘,
+- session-alapÃº, a szÃ¼lÅ‘knek sajÃ¡t jelszavuk van,
+- a jelentkezÃ©sek ellenÅ‘rzÃ¶ttek, hiba esetÃ©n a jelentkezÅ‘ figyelmeztetÃ©st kap,
+- az adminisztrÃ¡tor rÃ©szletesen Ã¡llÃ­thatja egyes tanÃ¡rok jelenlÃ©tÃ©t, fogadÃ³idejÃ©t,
+- adatbÃ¡zis-absztrakciÃ³s rÃ©tegen (PEAR DB) keresztÃ¼l tÃ¶bbfÃ©le RDBMS-t kÃ©pes hasznÃ¡lni,
+- a tanÃ¡ri listÃ¡zÃ¡sokhoz kÃ©pes PAM, LDAP Ã©s adatbÃ¡zis authentikÃ¡ciÃ³t is kezelni.
 
-A csomagban található egy teszt adatbázis generáló script, és egy SQLite
-példaadatbázis is.
+A csomagban talÃ¡lhatÃ³ egy teszt adatbÃ¡zis generÃ¡lÃ³ script, Ã©s egy SQLite
+pÃ©ldaadatbÃ¡zis is.
 
-A program cookie-ban tárolt session-azonosítókat használ, anélkül nem
-mûködik. => engedélyezni kell: a szerveren a session-öket, a kliensen a
+A program cookie-ban tÃ¡rolt session-azonosÃ­tÃ³kat hasznÃ¡l, anÃ©lkÃ¼l nem
+mÅ±kÃ¶dik. => engedÃ©lyezni kell: a szerveren a session-Ã¶ket, a kliensen a
 kukikat.
 
-Az állományok:
+Az Ã¡llomÃ¡nyok:
 
 README
 
-  Ez az állomány.
+  Ez az Ã¡llomÃ¡ny.
 
 COPYING
 
-  Közreadási feltételek: GPL-2
+  KÃ¶zreadÃ¡si feltÃ©telek: GPL-2
 
 leiras.html
 
-  A kezdõlapon megjelenõ rövid használati útmutató.
+  A kezdÅ‘lapon megjelenÅ‘ rÃ¶vid hasznÃ¡lati ÃºtmutatÃ³.
 
 ifa.ini.php
 
-  Itt találhatók az általános beállítások, úgymint adatbázis kapcsolat,
-  tanári authentikációs modell, idõpont alapértelmezések
+  Itt talÃ¡lhatÃ³k az Ã¡ltalÃ¡nos beÃ¡llÃ­tÃ¡sok, Ãºgymint adatbÃ¡zis kapcsolat,
+  tanÃ¡ri authentikÃ¡ciÃ³s modell, idÅ‘pont alapÃ©rtelmezÃ©sek
 
 ifa.inc.php
 
-  Általános függvények: adatbázis kapcsolódás, fej- és lábléc, logolás,
-  idõpont-átszámító, az ûrlapokhoz konstans vezérlõelemek stb.
+  ÃltalÃ¡nos fÃ¼ggvÃ©nyek: adatbÃ¡zis kapcsolÃ³dÃ¡s, fej- Ã©s lÃ¡blÃ©c, logolÃ¡s,
+  idÅ‘pont-Ã¡tszÃ¡mÃ­tÃ³, az Å±rlapokhoz konstans vezÃ©rlÅ‘elemek stb.
 
 index.html
 
-  Szimpla átirányítás az index.php-ra, csak hogy ne lehessen véletlenül
-  listázni a könyvtár tartalmát.
+  Szimpla Ã¡tirÃ¡nyÃ­tÃ¡s az index.php-ra, csak hogy ne lehessen vÃ©letlenÃ¼l
+  listÃ¡zni a kÃ¶nyvtÃ¡r tartalmÃ¡t.
 
 index.php
 
-  Ezt az állományt töltik be elõször, itt található a cookie-teszt.
+  Ezt az Ã¡llomÃ¡nyt tÃ¶ltik be elÅ‘szÃ¶r, itt talÃ¡lhatÃ³ a cookie-teszt.
 
 OSZTALY
 
-  Az iskolában található osztályok listája, ez egyben a megjelenítés
-  formátuma is.
+  Az iskolÃ¡ban talÃ¡lhatÃ³ osztÃ¡lyok listÃ¡ja, ez egyben a megjelenÃ­tÃ©s
+  formÃ¡tuma is.
 
 osztaly.php
 
-  Az OSZTALY állomány alapján kirakja a bal oldali menübe az osztályok
-  listáját, ha paraméterként osztályazonosítót kap, akkor azt az osztályt
-  ki is listázza.
+  Az OSZTALY Ã¡llomÃ¡ny alapjÃ¡n kirakja a bal oldali menÃ¼be az osztÃ¡lyok
+  listÃ¡jÃ¡t, ha paramÃ©terkÃ©nt osztÃ¡lyazonosÃ­tÃ³t kap, akkor azt az osztÃ¡lyt
+  ki is listÃ¡zza.
 
 login.php
 
-  Bejelentkezés, authentikáció. Ellenõrzi, hogy a kért azonosító létezik-e,
-  beállítja a felhasználó identitását a session vagy a bejelentkezés
-  alapján. Ellenõrzi a bejelentkezési idõszakot is.
+  BejelentkezÃ©s, authentikÃ¡ciÃ³. EllenÅ‘rzi, hogy a kÃ©rt azonosÃ­tÃ³ lÃ©tezik-e,
+  beÃ¡llÃ­tja a felhasznÃ¡lÃ³ identitÃ¡sÃ¡t a session vagy a bejelentkezÃ©s
+  alapjÃ¡n. EllenÅ‘rzi a bejelentkezÃ©si idÅ‘szakot is.
 
-  A bejelentkezés idõszakja a szülõk felé korlátozott, csak az elõre
-  beállított bejelentkezési idõszakban jelentkezhet be és módosíthatja a
-  foglalásokat -- egyébként csak egy üzenetet kap, hogy nincs bejelentkezési
-  idõszak. Az admin bármikor bejelentkezhet, módosíthat.
+  A bejelentkezÃ©s idÅ‘szakja a szÃ¼lÅ‘k felÃ© korlÃ¡tozott, csak az elÅ‘re
+  beÃ¡llÃ­tott bejelentkezÃ©si idÅ‘szakban jelentkezhet be Ã©s mÃ³dosÃ­thatja a
+  foglalÃ¡sokat -- egyÃ©bkÃ©nt csak egy Ã¼zenetet kap, hogy nincs bejelentkezÃ©si
+  idÅ‘szak. Az admin bÃ¡rmikor bejelentkezhet, mÃ³dosÃ­that.
 
 tanar.php
 
-  Egy tanárhoz tartozó egyéni idõpont-beállítási lehetõség, csak az admin
-  részére.
+  Egy tanÃ¡rhoz tartozÃ³ egyÃ©ni idÅ‘pont-beÃ¡llÃ­tÃ¡si lehetÅ‘sÃ©g, csak az admin
+  rÃ©szÃ©re.
 
-  Tanári bejelentkezés esetén ez írja ki a tanár egyéni listáját is.
+  TanÃ¡ri bejelentkezÃ©s esetÃ©n ez Ã­rja ki a tanÃ¡r egyÃ©ni listÃ¡jÃ¡t is.
 
 fogado.php
 
-  A normál bejelentkezés lapja, itt jelölhetik be a szülõk és az admin az
-  egyes tanárokhoz való bejelentkezéseket. Elküldés után elvégzi a
-  szükséges alapvetõ ellenõrzéseket: egy tanárhoz nem lehet kétszer
-  feliratkozni, egyszerre nem lehet két tanárhoz jelentkezni, stb.
+  A normÃ¡l bejelentkezÃ©s lapja, itt jelÃ¶lhetik be a szÃ¼lÅ‘k Ã©s az admin az
+  egyes tanÃ¡rokhoz valÃ³ bejelentkezÃ©seket. ElkÃ¼ldÃ©s utÃ¡n elvÃ©gzi a
+  szÃ¼ksÃ©ges alapvetÅ‘ ellenÅ‘rzÃ©seket: egy tanÃ¡rhoz nem lehet kÃ©tszer
+  feliratkozni, egyszerre nem lehet kÃ©t tanÃ¡rhoz jelentkezni, stb.
 
 admin.php
 
-  Új fogadónap bejegyzés létrehozása, és alapértelmezett vagy beállított
-  értékekkel feltöltése.
+  Ãšj fogadÃ³nap bejegyzÃ©s lÃ©trehozÃ¡sa, Ã©s alapÃ©rtelmezett vagy beÃ¡llÃ­tott
+  Ã©rtÃ©kekkel feltÃ¶ltÃ©se.
 
 fogado-xls.cgi
 
-  Az aktuális fogadóóra adataiból készít egy excel táblázatot. Az admin
-  oldalról érhetõ el.
+  Az aktuÃ¡lis fogadÃ³Ã³ra adataibÃ³l kÃ©szÃ­t egy excel tÃ¡blÃ¡zatot. Az admin
+  oldalrÃ³l Ã©rhetÅ‘ el.
 
 osszesit.php
 
-  Szülõi összesített lista, a szülõi bejelentkezés oldaláról érhetõ el.
+  SzÃ¼lÅ‘i Ã¶sszesÃ­tett lista, a szÃ¼lÅ‘i bejelentkezÃ©s oldalÃ¡rÃ³l Ã©rhetÅ‘ el.
 
 ifa.db
 
-  Fogadóóra példaadatbázis SQLite2 formátumban.
+  FogadÃ³Ã³ra pÃ©ldaadatbÃ¡zis SQLite2 formÃ¡tumban.
 
 default.css
 osztaly.css
 dugo.png
 favicon.ico
 
-  Dekorációk, stílusfájlok az általános lapra ill. az osztálylistára.
+  DekorÃ¡ciÃ³k, stÃ­lusfÃ¡jlok az Ã¡ltalÃ¡nos lapra ill. az osztÃ¡lylistÃ¡ra.
 
 classes
 
-  A használt osztályok: fogadoora, tanar, diak
+  A hasznÃ¡lt osztÃ¡lyok: fogadoora, tanar, diak
 
 gen
 
-  Teszt adatbázist és jelszót generáló programok. Ld.: gen/README
+  Teszt adatbÃ¡zist Ã©s jelszÃ³t generÃ¡lÃ³ programok. Ld.: gen/README
 
