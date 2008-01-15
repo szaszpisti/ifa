@@ -47,7 +47,7 @@ foreach ($OSZTALY as $oszt) {
     print "\n";
 }
 echo "<tr><td colspan=$oMax><a href=\"?o=t\">tanárok</a>\n";
-echo "</table><br />\n\n";
+echo "</table><br>\n\n";
 
 // Ha van osztály paraméter, akkor az adott osztály listáját írjuk ki
 

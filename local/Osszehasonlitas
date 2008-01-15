@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Összehasonlítja az iskolai adatbázis aktuális névsorát
+# az ifa.db névsorával.
+
+OLD=$PWD
+TMP=$( mktemp -d )
+cd $TMP
+
+/var/ifa/gen/local.gen
+/var/ifa/gen/gen-db.php local.sql
+echo .dump | sqlite3 ifa.db | sort > dump-db
+
+echo .dump | sqlite3 /var/ifa/ifa.db | egrep -v '(Ulog|Fogado|BEGIN|END|id_seq)' | sort > dump-ifa
+
+(
+diff dump-db dump-ifa
+echo '--- Tanar -------------------------------------------------'
+diff dump-db dump-ifa | grep '> INSERT INTO Tanar '
+diff dump-db dump-ifa | grep '> INSERT INTO Tanar ' | sed "s/^[^(]*(\([^,]*\),.*/delete from tanar where id='\1';/"
+diff dump-db dump-ifa | grep '< INSERT INTO Tanar ' | cut -c3-
+echo '--- Diak --------------------------------------------------'
+diff dump-db dump-ifa | grep '> INSERT INTO Diak '
+diff dump-db dump-ifa | grep '> INSERT INTO Diak ' | sed "s/^[^(]*(\([^,]*\),.*/delete from diak where id='\1';/"
+diff dump-db dump-ifa | grep '< INSERT INTO Diak ' | cut -c3-
+) | egrep -v '^([0-9]|[<>] (BEGIN|CREATE))' | less -E
+
+cd $PWD
+rm -r $TMP

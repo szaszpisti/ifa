@@ -1,3 +1,45 @@
+2007.11.03
+----------
+  Change DB content to UTF-8 ==> fogado-xls.cgi
+  Because of XLS doesn't know UTF-8 (?)
+
+--- fogado-xls.cgi~	2006-11-21 10:06:41.000000000 +0100
++++ fogado-xls.cgi	2007-11-09 14:40:17.000000000 +0100
+@@ -19,6 +19,8 @@
+ use Spreadsheet::WriteExcel;
+ use POSIX qw(strftime);
+ use constant true => 1;
++use Encode 'from_to';
++
+ 
+ # use diagnostics;
+ use constant DEBUG => 0;
+@@ -53,7 +55,7 @@
+     print "Content-Disposition: attachment; filename=$filename\n\n";
+ }
+ 
+-my $tanarLista = $db_fogado->prepare("SELECT tanar, tnev FROM Fogado, Tanar "
++	my $tanarLista = $db_fogado->prepare("SELECT tanar, tnev FROM Fogado, Tanar "
+         . "WHERE fid=" . $fid . " AND Fogado.tanar=Tanar.id "
+         . "GROUP BY tanar, tnev ORDER BY tnev");
+ 
+@@ -64,6 +66,7 @@
+ while (my $sor = $tanarLista->fetchrow_hashref) {
+     $darab++;
+     $nevsor[$darab] = $sor->{tanar};
++    from_to($sor->{tnev}, "utf-8", "iso-8859-2");
+     $tanar[$sor->{tanar}] = $sor->{tnev};
+ }
+ 
+@@ -99,6 +102,7 @@
+ my (@tabla, @paratlan);
+ while (my $t = $mind->fetchrow_hashref) {
+     (my $onev = $t->{onev}) =~ s{ }{}g;
++    from_to($t->{dnev}, "utf-8", "iso-8859-2");
+     $tabla[$t->{tanar}][$t->{ido}] = $t->{dnev} . " " . $onev;
+     if ( ($t->{ido}%2) && ($t->{dnev} ne "") && ($t->{dnev} ne "Szülői") ) {
+         $paratlan[$t->{tanar}] = true;
+
 2006.11.21
 ----------
   [classes/fogadoora.class.php]
