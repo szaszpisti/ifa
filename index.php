@@ -35,8 +35,9 @@ function kuki_teszt() {
 }
 
 if (!kuki_teszt()) {
-    echo "<div align=center><font color=red><h3>FIGYELEM!</h3></font><br>\n";
-    echo "A böngészőjében engedélyeznie kell a süti (cookie) fogadását a " . $_SERVER['HTTP_SERVER'] . " gépről!</div>\n";
+    header ("Content-Type: text/html; charset=utf-8");
+    echo "\n<div align=center><font color=red><h3>FIGYELEM!</h3></font><br>\n";
+    echo "A böngészőjében engedélyeznie kell a süti (cookie) fogadását erről a helyről! (" . $_SERVER['HTTP_HOST'] . ")</div>\n";
     exit;
 }
 ?>

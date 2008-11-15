@@ -52,6 +52,7 @@ $user = get_user($tip, $id);
 if (!$user) $hiba = "Nincs ilyen felhasználó!";
 
 if ((!$_SESSION['admin']) && ($tip == 'diak') && (!$FA->valid)) {
+    header ("Content-Type: text/html; charset=utf-8");
     print "<h3>Nincs bejelentkezési időszak!</h3>\n"
         . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "</h3>"
         . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"

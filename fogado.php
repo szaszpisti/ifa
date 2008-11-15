@@ -241,10 +241,12 @@ while (list($k, $v) = each($_POST)) {
 # 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
 $szamlalo = 0;
 # $TablaOutput .= $TablazatIdosor;
-foreach ( $FOGADO as $tanar ) {
-    if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;
-    $TablaOutput .= tanar_ki($tanar);
-    $szamlalo++;
+if (count($FOGADO) > 0) {
+    foreach ( $FOGADO as $tanar ) {
+        if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;
+        $TablaOutput .= tanar_ki($tanar);
+        $szamlalo++;
+    }
 }
 
 
