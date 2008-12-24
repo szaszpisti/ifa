@@ -1,3 +1,24 @@
+2008.11.19
+----------
+  Ha nem volt szülői bejelölve, hibát írt ki.
+
+--- admin.php~  2006-11-03 15:02:33.000000000 +0100
++++ admin.php   2008-11-19 19:00:07.000000000 +0100
+@@ -241,9 +241,11 @@
+             }
+         }
+
+-        foreach ($Szuloi as $t) {
+-            if ( $t['kezd'] && $t['veg'] && isset($JelenVan[$t['id']]) ) {
+-                for ($i=$t['kezd']; $i<$t['veg']; $i++) $Tanar[$t['id']][$i]=-2;
++        if (sizeof($Szuloi) > 0) {
++            foreach ($Szuloi as $t) {
++                if ( $t['kezd'] && $t['veg'] && isset($JelenVan[$t['id']]) ) {
++                    for ($i=$t['kezd']; $i<$t['veg']; $i++) $Tanar[$t['id']][$i]=-2;
++                }
+             }
+         }
+
 2007.11.03
 ----------
   Change DB content to UTF-8 ==> fogado-xls.cgi

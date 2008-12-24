@@ -241,9 +241,11 @@ switch ($_REQUEST['page']) {
             }
         }
 
-        foreach ($Szuloi as $t) {
-            if ( $t['kezd'] && $t['veg'] && isset($JelenVan[$t['id']]) ) {
-                for ($i=$t['kezd']; $i<$t['veg']; $i++) $Tanar[$t['id']][$i]=-2;
+        if (sizeof($Szuloi) > 0) {
+            foreach ($Szuloi as $t) {
+                if ( $t['kezd'] && $t['veg'] && isset($JelenVan[$t['id']]) ) {
+                    for ($i=$t['kezd']; $i<$t['veg']; $i++) $Tanar[$t['id']][$i]=-2;
+                }
             }
         }
 
