@@ -1,5 +1,5 @@
 #!/usr/bin/php
-<?
+<?php
 
 $userFile = $argv[1];
 

@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
  *   This file is part of the IFA suite,
@@ -33,27 +33,24 @@ foreach ($OSZTALY_file as $oszt) {
 }
 $oMax /= 2; // dupláját számoltuk
 
-echo "<table>\n"; # <!-- border=1 cellpadding=1 cellspacing=1> -->
-echo "<tr><td colspan=$oMax><a href=\"admin.php?tip=admin&amp;id=0\" target=duma>ADMIN</a>\n";
+echo "\n<p><a href=\"admin.php?tip=admin&amp;id=0\" target=duma>ADMIN</a><br>\n";
 
 foreach ($OSZTALY as $oszt) {
-    print "<tr>";
     for ($i=0; $i<sizeof($oszt)/2; $i++) {
-        echo "<td><a href=\"?o=" . $oszt[2*$i] . "\">" . $oszt[2*$i+1] . "</a>";
+        echo "<span><a href=\"?o=" . $oszt[2*$i] . "\">" . $oszt[2*$i+1] . "</a></span>";
     }
     for ( ; $i<$oMax; $i++) {
-        echo "<td>&nbsp;";
+        echo "<span>&nbsp;</span>";
     }
-    print "\n";
+    print "<br>\n";
 }
-echo "<tr><td colspan=$oMax><a href=\"?o=t\">tanárok</a>\n";
-echo "</table><br>\n\n";
+echo "<a href=\"?o=t\">tanárok</a><br>\n\n";
 
 // Ha van osztály paraméter, akkor az adott osztály listáját írjuk ki
 
 if (isset($_REQUEST['o'])) {
     $o = $_REQUEST['o'];
-    print "<h2></h2>\n"; # csak egy kis helyet csinálunk
+#    print "<h2></h2>\n"; # csak egy kis helyet csinálunk
     if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar";
     else $q = "SELECT * FROM Diak WHERE oszt='$o'";
 
@@ -68,8 +65,8 @@ if (isset($_REQUEST['o'])) {
     asort(&$index, SORT_LOCALE_STRING);
     reset($index);
     while (list($id, $dnev) = each($index)) {
-        print "<a href=\"" . ($o=='t'?'tanar.php?tip=tanar&amp;':'fogado.php?tip=diak&amp;')
-            . "id=" . $id . "\" target=duma>" . $dnev . "</a><br>\n";
+        print "<p><a href=\"" . ($o=='t'?'tanar.php?tip=tanar&amp;':'fogado.php?tip=diak&amp;')
+            . "id=" . $id . "\" target=duma>" . $dnev . "</a>\n";
     }
     print "\n";
 }

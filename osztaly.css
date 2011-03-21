@@ -4,44 +4,22 @@ body {
     font-weight: bold;
     background: #004656;
     color: white;
-    padding: .5em;
 }
 
 a { padding: .2ex .2em; text-decoration: none; color: white;  }
 a:hover { color: maroon; background: white; }
 
-td {
-    padding: 0px;
-    font-family: Helvetica, Arial, Sans-Serif;
-    font-size: 12px;
-    font-weight: bold;
-}
+span { display: inline-block; width: 3em; }
 
-tr.paratlan {
-    background: yellow;
-}
-
-li {
-    text-indent: 0em; margin: .4ex .0ex;
-    background: #00799c; 
-    padding: .2ex .0em;
-    list-style: none;
-}
-li.kiemelt {
-    background: #002323;
-    color: red;
-}
 p {
-    text-indent: 1.5em; margin: .2ex 0.3em .2ex 0.3em;
-    padding: 0px 0px 0px 0px;
+    text-indent: -.7em;
+    margin: 0;
+    padding: 0;
+    padding-bottom: .8em;
+margin-left: .7em;
 }
-ul {
-    text-indent: 0em; margin: 0em;
-}
-
-h3 {
-    font-size: 20px;
-    font-family: Times, "Times New Roman", Serif;
-    font-weight: bold;
-    text-align: center;
+p+p {
+    text-indent: -.7em;
+    padding-bottom: 0;
+margin-left: .7em;
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/php
-<?
+<?php
 
 if ($argc != 2)
     die("Az első paraméterben megadott névvel\n"

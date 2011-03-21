@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
  *   This file is part of the IFA suite,
@@ -70,8 +70,10 @@ switch ($_REQUEST['mod']) {
             }
         }
 
-        $sth = $db->prepare('INSERT INTO fogado VALUES (?, ?, ?, ?)');
-        $res =& $db->executeMultiple($sth, $INSERT);
+        if (isset($INSERT)) {
+            $sth = $db->prepare('INSERT INTO fogado VALUES (?, ?, ?, ?)');
+            $res =& $db->executeMultiple($sth, $INSERT);
+        }
 
         if (DB::isError($res)) {
             ulog (0, "SIKERTELEN BŐVÍTÉS: " . $TANAR->tnev . "($UJ_min -> $UJ_max)" );

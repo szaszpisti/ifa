@@ -1,3 +1,51 @@
+2009.02.03
+----------
+  Using Text::Unaccent for unaccent
+  Must be install libtext-unaccent-perl
+
+--- fogado-xls.cgi~	2007-11-09 14:40:17.000000000 +0100
++++ fogado-xls.cgi	2009-02-03 09:21:20.580925965 +0100
+@@ -20,6 +20,7 @@
+ use POSIX qw(strftime);
+ use constant true => 1;
+ use Encode 'from_to';
++use Text::Unaccent;
+ 
+ 
+ # use diagnostics;
+@@ -55,9 +56,9 @@
+     print "Content-Disposition: attachment; filename=$filename\n\n";
+ }
+ 
+-	my $tanarLista = $db_fogado->prepare("SELECT tanar, tnev FROM Fogado, Tanar "
+-        . "WHERE fid=" . $fid . " AND Fogado.tanar=Tanar.id "
+-        . "GROUP BY tanar, tnev ORDER BY tnev");
++my $tanarLista = $db_fogado->prepare("SELECT tanar, tnev FROM Fogado, Tanar "
++      . "WHERE fid=" . $fid . " AND Fogado.tanar=Tanar.id "
++      . "GROUP BY tanar, tnev ORDER BY tnev");
+ 
+ # A tanárokat névsorba rendezzük
+ $tanarLista->execute;
+@@ -104,7 +105,7 @@
+     (my $onev = $t->{onev}) =~ s{ }{}g;
+     from_to($t->{dnev}, "utf-8", "iso-8859-2");
+     $tabla[$t->{tanar}][$t->{ido}] = $t->{dnev} . " " . $onev;
+-    if ( ($t->{ido}%2) && ($t->{dnev} ne "") && ($t->{dnev} ne "Szülői") ) {
++    if ( ($t->{ido}%2) && ($t->{dnev} ne "") && (unac_string('iso-8859-2', $t->{dnev}) ne "Szuloi") ) {
+         $paratlan[$t->{tanar}] = true;
+     }
+ }
+@@ -140,7 +141,7 @@
+ 
+     # $tLink: a tanári lap neve: 'Monoton Manó' -> 'Monoton M'
+     ($tLink = $tanar[$id]) =~ s{^([^ ]* .).*$}{$1};
+-    $tLink =~ y/áéíóöőúüű/aeiooouuu/;
++    $tLink = unac_string ('iso-8859-2', $tLink);
+ 
+     # Az összesített lista sorai
+     # Tanárnév hivatkozásként a saját munkalapra
+
+
 2008.11.19
 ----------
   Ha nem volt szülői bejelölve, hibát írt ki.
@@ -19,10 +67,34 @@
              }
          }
 
+2009.09.27
+----------
+  Does not do anything if there is nothing to do.
+
+--- fogado.php~	2006-09-26 00:26:22.000000000 +0200
++++ fogado.php	2008-09-28 18:42:33.000000000 +0200
+@@ -241,10 +241,12 @@
+ # 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
+ $szamlalo = 0;
+ # $TablaOutput .= $TablazatIdosor;
+-foreach ( $FOGADO as $tanar ) {
+-    if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;
+-    $TablaOutput .= tanar_ki($tanar);
+-    $szamlalo++;
++if (count($FOGADO) > 0) {
++    foreach ( $FOGADO as $tanar ) {
++        if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;
++        $TablaOutput .= tanar_ki($tanar);
++        $szamlalo++;
++    }
+ }
+ 
+ 
+
 2007.11.03
 ----------
-  Change DB content to UTF-8 ==> fogado-xls.cgi
-  Because of XLS doesn't know UTF-8 (?)
+  SQLite db is in UTF-8, the CGI must be convert it to latin2
+  because of XLS doesn't know about UTF-8 (?)
 
 --- fogado-xls.cgi~	2006-11-21 10:06:41.000000000 +0100
 +++ fogado-xls.cgi	2007-11-09 14:40:17.000000000 +0100

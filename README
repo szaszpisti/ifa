@@ -8,6 +8,7 @@ Pl. a PostgreSQL használatához a php4-pgsql, a SQLite-hez a php4-sqlite.
 
 Az excel-táblázat generáló perl scripthez szükség van néhány perl modulra:
 libspreadsheet-writeexcel-perl
+libtext-unaccent-perl
 
 valamint az adatbáziskapcsolatnak megfelelő perl DBD komponensre, pl.:
 libdbd-sqlite2-perl
