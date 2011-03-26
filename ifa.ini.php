@@ -8,7 +8,7 @@
 #   Az fogadóóra adatbázisának adatforrás neve.
 #
 #   Megadható bárhogyan, akár a példától eltérő RDBMS használata is. Lényeg, hogy
-#   a végén legyen egy létező $dsn változó -- a BEAR DB::connect által várt
+#   a végén legyen egy létező $dsn változó -- a PDO által várt
 #   módon: akár szöveges, akár tömb formában.
 #
 #   A DSN (Data Source Name) részletesebb leírására ld.
@@ -27,32 +27,12 @@
 #
 # FIGYELEM! Ne felejtsd ki a PERL_DSN-t!
 
-$pgsql_dsn = array(
-    'phptype'  => 'pgsql',
-    'username' => 'fadmin',
-    'password' => '$1$JV6c.fJ6$PZLyMROI/Pct3ywWyNhgQ.',
-    'hostspec' => 'localhost',
-    'database' => 'fogado',
-);
-
-$sqlite_dsn = array(
-    'phptype'  => 'sqlite',
-    'database' => 'ifa.db',
-    'mode'     => '0660',
-);
+// $pdo = new \PDO("mysql:host={$host};dbname={$db_name}", $username, $password);
+$pgsql_dsn = 'pgsql:host=localhost;dbname=fogado;user=fadmin;password=$1$JV6c.fJ6$PZLyMROI/Pct3ywWyNhgQ.';
+$sqlite_dsn = 'sqlite:ifa.db';
 
 # $dsn = $pgsql_dsn;
 $dsn = $sqlite_dsn;
-
-# $options:
-#
-#    a PEAR DB absztrakt adatbázis kapcsolat tulajdonságai.
-#
-
-$options = array(
-    'debug'       => 2,
-    'portability' => DB_PORTABILITY_ALL,
-);
 
 #
 # PERL_DSN:
@@ -69,7 +49,7 @@ $options = array(
 
 /*
 # PERL_DSN = "DBI:Pg:dbname=fog"
-PERL_DSN = "DBI:SQLite2:dbname=ifa.db"
+PERL_DSN = "DBI:SQLite:dbname=ifa.db"
 */
 
 #
@@ -88,7 +68,7 @@ PERL_DSN = "DBI:SQLite2:dbname=ifa.db"
 #   $tanar_auth = 'DB';
 #
 
-$tanar_auth = 'LDAP';
+$tanar_auth = 'DB';
 
 #
 # $ldap:

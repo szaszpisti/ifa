@@ -1,3 +1,10 @@
+2010.03.22
+----------
+  Change to sqlite3
+  (install libdbd-sqlite3-perl)
+
+  Change DB architecture: split Diak to Diak_base and VIEW Diak
+
 2009.02.03
 ----------
   Using Text::Unaccent for unaccent

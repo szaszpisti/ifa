@@ -23,6 +23,7 @@ Head('Osztalyok', '', 'osztaly');
 $OSZTALY_file = file('OSZTALY');
 @array_walk($OSZTALY_file, 'file_trim');
 
+$oMax = 0;
 foreach ($OSZTALY_file as $oszt) {
     // $O = array('id1', 'nev1', 'id2', 'nev2'), vagyis kétszer hosszabb
     $O = explode(';', $oszt);
@@ -54,11 +55,11 @@ if (isset($_REQUEST['o'])) {
     if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar";
     else $q = "SELECT * FROM Diak WHERE oszt='$o'";
 
-    $res =& $db->query($q);
-    if (DB::isError($res)) { die($res->getMessage()); }
+    try { $res = $db->query($q); }
+    catch (PDOException $e) { echo $e->getMessage(); }
 
     $index = array();
-    while ($res->fetchInto($row)) {
+    while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
         $index[$row['id']] = $row['dnev'];
     }
     setlocale(LC_ALL, "hu_HU.UTF-8"); 

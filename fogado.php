@@ -18,6 +18,13 @@ require_once('login.php');
 require_once('ifa.inc.php');
 require_once('diak.class.php');
 
+define ('foglalt', 'foglalt');
+define ('szabad2', 'szabad2');
+define ('szabad', 'szabad');
+define ('szuloi', 'szuloi');
+define ('sajat2', 'sajat2');
+define ('sajat', 'sajat');
+
 /**
 * Egy diák számára kiírja a fogadóóra táblázatot az összes tanárral
 */
@@ -46,8 +53,10 @@ $Fejlec =
 
 // egy tanár-sor a táblázatban
 function table_row($K, $tid, $t) {
+    $tmp = '';
     for ($i=1; $i<count($K); $i++) { // 1-től kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
         $span = (count($K[$i])>1)?" colspan=" . count($K[$i]):"";
+        if (count($K[$i]) == 0) continue;
         switch ($K[$i][0]) {
             case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
             case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
@@ -65,18 +74,21 @@ function tanar_ki($tanar) {
     global $FA, $user, $K;
     // TANAR: [0]['diak']=25, [1]['diak']=-1, ...
 
-    $State = -3; // nem érvényes kezdeti értéket adunk neki
+    /* $K A színezéshez használjuk, ebben vannak számolva az egymás utáni
+    cellatípusok, hogy lehessen csoportosítani őket (colspan) */
     $K[0] = array(array()); // páros időket tesszük ebbe
     $K[1] = array(array()); // páratlanokat
+
+    $pred = null; # az előző cella értéke
     for ($i=$FA->IDO_min; $i<$FA->IDO_max; $i++) {
         if (!isset($tanar['paratlan']) && $i%2) { continue; }
-        switch ($tanar[$i]) {
+
+        if (!isset($tanar[$i])) { $d = foglalt; }
+        else switch ($tanar[$i]) {
             case -2:
                 if ( ($user->ofo == $tanar['id']) || ADMIN ) { $d = szuloi; }
                 else { $d = foglalt; }
                 break;
-            case NULL:
-                $d = foglalt; break;
             case -1:  // az előző folytatása
                 if ( $pred == szabad ) { $d = szabad2; }
                 if ( $pred == sajat ) { $d = sajat2; }
@@ -140,26 +152,24 @@ foreach (array_keys($IDO) as $ora) {
 $TablazatIdosor = $A . $B;
 
 // Az összes fogadó tanár nevét kigyűjtjük // FOGADO[id]=('id', 'nev')
-foreach ($db->getAll(
-                  "SELECT tanar, tnev FROM Fogado, Tanar "
+$res = $db->query( "SELECT tanar, tnev FROM Fogado, Tanar "
                 . "  WHERE fid=" . fid . " AND tanar=id "
                 . "    GROUP BY tanar, tnev "
-                . "    ORDER BY tnev"
-            ) as $tanar) {
+                . "    ORDER BY tnev");
 
+foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $tanar) {
     $FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
 }
 
 // mindegyikhez az összes idő => elfoglaltságot (A FOGADO-hoz rakunk még mezőket)
 // FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
-foreach ($db->getAll(
-                  "SELECT tanar, ido, diak FROM Fogado "
+$res = $db->query( "SELECT tanar, ido, diak FROM Fogado "
                 . "  WHERE fid=" . fid
-                . "    ORDER BY ido"
-            ) as $sor) {
+                . "    ORDER BY ido");
 
+foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $sor) {
     // Ha egy páratlan sorszámú időpontban lehet érték..., azt jelezzük
-    if ( $sor['ido']%2 && $sor['diak']>=0 && ($sor['diak'] != "") ) {
+    if ( ($sor['ido']%2 == 1) && ($sor['diak']>=0) ) { #  && ($sor['diak'] != "") ) {
         $FOGADO[$sor['tanar']]['paratlan'] = 1;
     }
     $FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
@@ -171,7 +181,7 @@ foreach ($db->getAll(
 function ValidateRadio ( $Teacher, $Time ) {
 // (ezeket jó lenne triggerként berakni a tábla-definícióba...)
     global $FOGADO, $user;
-    $ret = array (valid => true, value => NULL);
+    $ret = array ('valid' => true, 'value' => NULL);
     if ( $FOGADO[$Teacher][$Time] != 0 ) {
         return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " időpontja már foglalt, ide nem iratkozhat fel!");
     }
@@ -196,7 +206,7 @@ function ValidateRadio ( $Teacher, $Time ) {
 //
 // checkboxok ellenőrzése (leiratkozás)
 //
-if ( $_POST['page'] == 'mod' ) {
+if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
     foreach ( $FOGADO as $tanar ) {
         $v = "c" . $tanar['id'];
         foreach ( array_keys($tanar) as $Time ) {
@@ -241,6 +251,7 @@ while (list($k, $v) = each($_POST)) {
 # 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
 $szamlalo = 0;
 # $TablaOutput .= $TablazatIdosor;
+$TablaOutput = '';
 if (count($FOGADO) > 0) {
     foreach ( $FOGADO as $tanar ) {
         if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;

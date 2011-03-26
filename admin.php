@@ -17,7 +17,7 @@
 require_once('login.php');
 require_once('ifa.inc.php');
 
-if (!$_SESSION['admin']) redirect('leiras.html');
+if (!isset($_SESSION['admin'])) redirect('leiras.html');
 
 if (!isset($_REQUEST['page'])) $_REQUEST['page'] = 0;
 
@@ -141,12 +141,12 @@ switch ($_REQUEST['page']) {
         $Out .= "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
 
         // Kiírjuk soronként a tanárokat az egyéni beállításokhoz
-        // eredmény: Tanar[id] = array (emil, tnev, ofo)
+        // eredmény: Tanar['id'] = array (emil, tnev, ofo)
         $Tanar =& $db->getAssoc(
-                          "SELECT id, jelszo, emil, tnev, ofo FROM Tanar AS T"
+                          "SELECT id, emil, tnev, ofo FROM Tanar AS T"
                         . "    LEFT OUTER JOIN"
-                        . "  (SELECT ofo FROM Diak GROUP BY ofo) AS D"
-                        . "    ON (T.id=D.ofo) ORDER BY tnev",
+                        . "  (SELECT ofo FROM Osztaly) AS O"
+                        . "    ON (T.id=O.ofo) ORDER BY tnev",
                         true, array(), DB_FETCHMODE_ASSOC);
 
         // Out-ba gyűjtjük a kimenetet, kezdjük a fejléccel
@@ -206,8 +206,8 @@ switch ($_REQUEST['page']) {
 
 
         // A kapott űrlap-változókat rendezzük használható tömbökbe
-        //    $JelenVan[id] (id, kezd, veg, tartam)
-        //    $Szuloi[id] (id, kezd, veg)
+        //    $JelenVan['id'] (id, kezd, veg, tartam)
+        //    $Szuloi['id'] (id, kezd, veg)
 
         reset($_REQUEST);
         while (list($k, $v) = each ($_REQUEST)) {

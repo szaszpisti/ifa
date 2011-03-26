@@ -20,7 +20,7 @@ require_once('tanar.class.php');
 
 $TANAR = new Tanar($_REQUEST['id']);
 
-switch ($_REQUEST['mod']) {
+if (isset($_REQUEST['mod'])) switch ($_REQUEST['mod']) {
     # az egyes időpontok módosítása
     case 1:
         reset($_POST);
@@ -28,9 +28,9 @@ switch ($_REQUEST['mod']) {
             if ( ereg ("^r([0-9]+)$", $key, $match) ) {
                 unset($q);
                 $ido = $match[1];
-                if (isset($TANAR->fogado_ido[$ido][diak])) {
+                if (isset($TANAR->fogado_ido[$ido]['diak'])) {
                     if ($diak=="x") $q = "DELETE FROM Fogado WHERE fid=" . fid . " AND tanar=" . $TANAR->id . " AND ido=" . $ido;
-                    elseif ($diak != $TANAR->fogado_ido[$ido][diak])
+                    elseif ($diak != $TANAR->fogado_ido[$ido]['diak'])
                         $q = "UPDATE Fogado SET diak=" . $diak . " WHERE fid=" . fid . " AND tanar=" . $TANAR->id . " AND ido=" . $ido;
                 }
                 else {
@@ -71,16 +71,14 @@ switch ($_REQUEST['mod']) {
         }
 
         if (isset($INSERT)) {
-            $sth = $db->prepare('INSERT INTO fogado VALUES (?, ?, ?, ?)');
-            $res =& $db->executeMultiple($sth, $INSERT);
-        }
-
-        if (DB::isError($res)) {
-            ulog (0, "SIKERTELEN BŐVÍTÉS: " . $TANAR->tnev . "($UJ_min -> $UJ_max)" );
-            die($res->getMessage());
-        }
-        else {
-            ulog (0, $TANAR->tnev . " bővítés: $UJ_min -> $UJ_max ($tartam)" );
+            try {
+                $sth = $db->prepare('INSERT INTO fogado VALUES (?, ?, ?, ?)');
+                $res = $db->execute($sth, $INSERT);
+                ulog (0, $TANAR->tnev . " bővítés: $UJ_min -> $UJ_max ($tartam)" );
+            } catch (PDOException $e) {
+                ulog (0, "SIKERTELEN BŐVÍTÉS: " . $TANAR->tnev . "($UJ_min -> $UJ_max)" );
+                die($res->getMessage());
+            }
         }
 
         break;
@@ -106,7 +104,7 @@ if (ADMIN) {
             . "       <input type=submit value=' Mehet '>\n";
         for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido++) {
             $TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
-            $diak = $TANAR->fogado_ido[$ido][diak];
+            $diak = $TANAR->fogado_ido[$ido]['diak'];
             $TABLA .= "<td>" . FiveToString($ido);
             $TABLA .= "  <td class=foglalt><input type=radio name=r$ido value=x" . (!isset($diak)?" checked":"") . ">\n";
             $TABLA .= "  <td class=szabad><input type=radio name=r$ido value=0" . ($diak=="0"?" checked":"") . ">\n";
@@ -114,7 +112,7 @@ if (ADMIN) {
             $TABLA .= "  <td class=szuloi><input type=radio name=r$ido value=-2" . ($diak=="-2"?" checked":"") . ">\n";
             if ($diak>0) {
                 $TABLA .= "  <td class=sajat><input type=radio name=r$ido value=$diak checked><td><a class=diak href=\"fogado.php?"
-                    . "tip=diak&amp;id=" . $diak . "\">" . $TANAR->fogado_ido[$ido][dnev] . "</a>\n";
+                    . "tip=diak&amp;id=" . $diak . "\">" . $TANAR->fogado_ido[$ido]['dnev'] . "</a>\n";
             } else {
                 $TABLA .= "  <td colspan=2>&nbsp;\n";
             }
@@ -189,9 +187,9 @@ if (ADMIN) {
         $ora = floor($ido/12);
         if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan=3><hr>\n"; }
         $TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
-        $diak = $TANAR->fogado_ido[$ido][diak];
+        $diak = $TANAR->fogado_ido[$ido]['diak'];
         $TABLA .= "<td" . ($diak=="-2"?" class=szuloi":"") . ">" . FiveToString($ido)
-            . "<td> -- <td>" . ($diak>0?$TANAR->fogado_ido[$ido][dnev]:"&nbsp;") . "\n";
+            . "<td> -- <td>" . ($diak>0?$TANAR->fogado_ido[$ido]['dnev']:"&nbsp;") . "\n";
     }
     $TABLA .= "</table>\n";
 
