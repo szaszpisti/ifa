@@ -22,7 +22,7 @@ $pgsql_dsn = array(
 );
 
 $sqlite_dsn = array(
-    'phptype'  => 'sqlite',
+    'phptype'  => 'sqlite3',
     'database' => $IFA_db,
     'mode'     => '0644',
 );
@@ -49,7 +49,7 @@ function insert($value, $key) {
 
 $res =& $db->query('
 CREATE TABLE Admin (
-    id serial NOT NULL,
+    id serial NOT NULL PRIMARY KEY,
     datum date,
     kezd integer,
     veg integer,
@@ -61,7 +61,7 @@ if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('
 CREATE TABLE Ulog (
-    id serial NOT NULL,
+    id serial NOT NULL PRIMARY KEY,
     ido timestamp without time zone,
     uid integer,
     host inet,
@@ -70,20 +70,17 @@ CREATE TABLE Ulog (
 if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('
-CREATE TABLE Diak (
-    id integer NOT NULL,
+CREATE TABLE Diak_base (
+    id integer NOT NULL PRIMARY KEY,
     jelszo character(32),
     dnev text,
-    oszt character(4),
-    onev character(5),
-    ofo integer,
-    ofonev text
+    oszt character(4)
 )' );
 if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('
 CREATE TABLE Tanar (
-    id integer NOT NULL,
+    id integer NOT NULL PRIMARY KEY,
     jelszo character(32),
     emil text,
     tnev text
@@ -91,12 +88,26 @@ CREATE TABLE Tanar (
 if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('
+CREATE TABLE Osztaly (
+    oszt text NOT NULL PRIMARY KEY,
+    onev text,
+    ofo integer
+)' );
+if (DB::isError($res)) { die($res->getMessage()); }
+
+$res =& $db->query('
 CREATE TABLE Fogado (
-    fid integer,
+    fid integer NOT NULL,
     tanar integer,
     ido integer,
     diak integer
 )' );
+
+$res =& $db->query('CREATE VIEW Diak AS SELECT D.id, D.jelszo, D.dnev, D.oszt, O.onev, O.ofo, T.tnev AS ofonev                                       
+    FROM Osztaly AS O, Tanar AS T, Diak_base AS D
+    WHERE D.oszt = O.oszt
+        AND O.ofo = T.id;' );
+if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('CREATE TABLE ulog_id_seq (id INTEGER UNSIGNED PRIMARY KEY);' );
 if (DB::isError($res)) { die($res->getMessage()); }

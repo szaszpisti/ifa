@@ -16,14 +16,7 @@
 
 require_once('ifa.inc.php');
 
-@session_start();
-
-if (isset($_REQUEST['kilep']) ) {
-    session_destroy();
-    redirect('leiras.html');
-}
-
-# if (isset($_SESSION['valid']) && $_SESSION['valid']) { return 0; }
+session_start();
 
 function redirect($uri = '') {
     if ($uri==='') $uri = $_SERVER['REQUEST_URI'];
@@ -44,6 +37,11 @@ function get_user($tip, $id) {
     return ($user);
 }
 
+if (isset($_REQUEST['kilep']) ) {
+    session_destroy();
+    redirect('leiras.html');
+}
+
 // Ha tip, id jött a REQUEST-ben, akkor azt vesszük figyelembe,
 // egyébként a SESSION-változót.
 
@@ -60,7 +58,7 @@ else unset($id);
 if (!isset($id)) { $tip = 'admin'; $id = 0; }
 
 $user = get_user($tip, $id);
-if (!isset($user)) $hiba = "Nincs ilyen felhasználó!";
+if (!$user) $hiba = "Nincs ilyen felhasználó!";
 
 if (!isset($_SESSION['admin']) && ($tip == 'diak') && (!$FA->valid)) {
     header ("Content-Type: text/html; charset=utf-8");
@@ -149,6 +147,9 @@ if (!isset($_SESSION['valid'])) {
     tail();
     exit;
 }
+
+if (isset($_SESSION['admin'])) { $ADMIN = $_SESSION['admin']; }
+else { $ADMIN = false; }
 
 session_write_close();
 

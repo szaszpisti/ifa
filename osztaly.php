@@ -55,8 +55,8 @@ if (isset($_REQUEST['o'])) {
     if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar";
     else $q = "SELECT * FROM Diak WHERE oszt='$o'";
 
-    try { $res = $db->query($q); }
-    catch (PDOException $e) { echo $e->getMessage(); }
+    try { $res = $db->query($q);
+    } catch (PDOException $e) { echo $e->getMessage(); }
 
     $index = array();
     while ($row = $res->fetch(PDO::FETCH_ASSOC)) {

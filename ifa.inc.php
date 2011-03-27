@@ -24,18 +24,20 @@
 
 require_once('ifa.ini.php');
 
-session_start();
-if (isset($_SESSION['admin'])) { define ('ADMIN', true); }
-else { define('ADMIN', false); }
-
+$ADMIN = false;
 set_include_path(get_include_path() . ':./classes');
 
 try {
     $db = new PDO($dsn);
-#    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
     $db->exec('PRAGMA foreign_keys = true;');
-#    $db->exec('SELECT id, tnev AS dnev FROM Tanar ORDER BY tnev');
+} catch (PDOException $e) { echo $e->getMessage(); }
+
+try {
+    $q = "SELECT id, tnev AS dnev FROM Tanar ORDER BY tnev";
+    $res = $db->query($q);
+    $res->setFetchMode(PDO::FETCH_ASSOC);
 } catch (PDOException $e) { echo $e->getMessage(); }
 
 // először megkeressük az aktuális időpontot
@@ -43,7 +45,7 @@ require_once('fogadoora.class.php');
 $FA = new Fogadoora();
 
 // Ha még nincs semmi bejegyezve, csak az admin tud újat létrehozni
-if (!isset($FA)) require_once('login.php');
+if (!$FA) require_once('login.php');
 
 /**
  * Az aktuális fogadóóra bejegyzés azonosítója
@@ -177,7 +179,7 @@ function Tail() {
 function ulog($uid, $s) {
     global $db;
     $res = $db->prepare("INSERT INTO Ulog (ido, uid, host, log) VALUES (?, ?, ?, ?)");
-    $res->execute(array(date("Y-m-d H:i:s"), ADMIN?0:$uid, $_SERVER['REMOTE_ADDR'], $s));
+    $res->execute(array(date("Y-m-d H:i:s"), $ADMIN?0:$uid, $_SERVER['REMOTE_ADDR'], $s));
 }
 
 /**

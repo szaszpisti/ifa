@@ -17,7 +17,7 @@
 require_once('login.php');
 require_once('ifa.inc.php');
 
-if (!isset($_SESSION['admin'])) redirect('leiras.html');
+if (!$_SESSION['admin']) redirect('leiras.html');
 
 if (!isset($_REQUEST['page'])) $_REQUEST['page'] = 0;
 
@@ -141,7 +141,7 @@ switch ($_REQUEST['page']) {
         $Out .= "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
 
         // Kiírjuk soronként a tanárokat az egyéni beállításokhoz
-        // eredmény: Tanar['id'] = array (emil, tnev, ofo)
+        // eredmény: Tanar[id] = array (emil, tnev, ofo)
         $Tanar =& $db->getAssoc(
                           "SELECT id, emil, tnev, ofo FROM Tanar AS T"
                         . "    LEFT OUTER JOIN"
@@ -206,8 +206,8 @@ switch ($_REQUEST['page']) {
 
 
         // A kapott űrlap-változókat rendezzük használható tömbökbe
-        //    $JelenVan['id'] (id, kezd, veg, tartam)
-        //    $Szuloi['id'] (id, kezd, veg)
+        //    $JelenVan[id] (id, kezd, veg, tartam)
+        //    $Szuloi[id] (id, kezd, veg)
 
         reset($_REQUEST);
         while (list($k, $v) = each ($_REQUEST)) {

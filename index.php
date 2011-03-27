@@ -13,8 +13,34 @@
  *   as published by the Free Software Foundation; either version
  *   2 of the License, or (at your option) any later version.
  */
-?>
 
+function kuki_teszt() {
+    session_start();
+    $self = $_SERVER['PHP_SELF'];
+    if (!$_GET['FID'] && !$_SESSION['cookie']) {
+        header ("Location: " . $_SERVER['PHP_SELF'] . "?FID=" . session_id());
+        exit;
+    }
+    if (!$_SESSION['cookie']) {
+        if (session_id() == $_GET['FID']) {
+            $_SESSION['cookie'] = true;
+            header ("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } else {
+            $_SESSION['cookie'] = false;
+        }
+    }
+    session_write_close();
+    return $_SESSION['cookie'];
+}
+
+if (!kuki_teszt()) {
+    header ("Content-Type: text/html; charset=utf-8");
+    echo "\n<div align=center><font color=red><h3>FIGYELEM!</h3></font><br>\n";
+    echo "A böngészőjében engedélyeznie kell a süti (cookie) fogadását erről a helyről! (" . $_SERVER['HTTP_HOST'] . ")</div>\n";
+    exit;
+}
+?>
 <html>
 <base target="_top">
 <head>
