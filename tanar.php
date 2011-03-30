@@ -20,17 +20,18 @@ require_once('tanar.class.php');
 
 $TANAR = new Tanar($_REQUEST['id']);
 
-switch ($_REQUEST['mod']) {
+if (isset($_REQUEST['mod'])) switch ($_REQUEST['mod']) {
     # az egyes időpontok módosítása
     case 1:
         reset($_POST);
+        $db->beginTransaction();
         while (list($key, $diak) = each($_POST)) {
             if ( ereg ("^r([0-9]+)$", $key, $match) ) {
                 unset($q);
                 $ido = $match[1];
-                if (isset($TANAR->fogado_ido[$ido][diak])) {
+                if (isset($TANAR->fogado_ido[$ido]['diak'])) {
                     if ($diak=="x") $q = "DELETE FROM Fogado WHERE fid=" . fid . " AND tanar=" . $TANAR->id . " AND ido=" . $ido;
-                    elseif ($diak != $TANAR->fogado_ido[$ido][diak])
+                    elseif ($diak != $TANAR->fogado_ido[$ido]['diak'])
                         $q = "UPDATE Fogado SET diak=" . $diak . " WHERE fid=" . fid . " AND tanar=" . $TANAR->id . " AND ido=" . $ido;
                 }
                 else {
@@ -42,6 +43,7 @@ switch ($_REQUEST['mod']) {
                 }
             }
         }
+        $db->commit();
         break;
 
     # az intervallum bővítése
@@ -71,11 +73,14 @@ switch ($_REQUEST['mod']) {
         }
 
         if (isset($INSERT)) {
+            print_r($INSERT);
             try {
-                $sth = $db->prepare('INSERT INTO fogado VALUES (?, ?, ?, ?)');
-                $res = $db->execute($sth, $INSERT);
+                $db->beginTransaction();
+                $res = $db->prepare('INSERT INTO fogado (fid, tanar, ido, diak) VALUES (?, ?, ?, ?)');
+                foreach ($INSERT as $sor) $res->execute($sor);
                 ulog (0, $TANAR->tnev . " bővítés: $UJ_min -> $UJ_max ($tartam)" );
-            } catch {
+                $db->commit();
+            } catch (PDOException $e) {
                 ulog (0, "SIKERTELEN BŐVÍTÉS: " . $TANAR->tnev . "($UJ_min -> $UJ_max)" );
                 die($res->getMessage());
             }
@@ -95,7 +100,7 @@ echo "\n<table width=\"100%\"><tr>\n"
 # A külső táblázat első cellájában az időpont-lista
 $TABLA = "<table border=0><tr><td>\n";
 
-if ($ADMIN) {
+if (ADMIN) {
     if ($TANAR->fogad) {
         $TABLA .= "<form action=\"\" method=post name=tabla>\n<table border=1>\n"
             . "<tr><th><th>A<th>B<th>C<th>D<th>E\n"
@@ -103,8 +108,9 @@ if ($ADMIN) {
             . "       <input type=reset value='RESET'>\n"
             . "       <input type=submit value=' Mehet '>\n";
         for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido++) {
+            if (!isset($TANAR->fogado_ido[$ido])) continue; // Ha közben kicsit elmegy
             $TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
-            $diak = $TANAR->fogado_ido[$ido][diak];
+            $diak = $TANAR->fogado_ido[$ido]['diak'];
             $TABLA .= "<td>" . FiveToString($ido);
             $TABLA .= "  <td class=foglalt><input type=radio name=r$ido value=x" . (!isset($diak)?" checked":"") . ">\n";
             $TABLA .= "  <td class=szabad><input type=radio name=r$ido value=0" . ($diak=="0"?" checked":"") . ">\n";
@@ -112,7 +118,7 @@ if ($ADMIN) {
             $TABLA .= "  <td class=szuloi><input type=radio name=r$ido value=-2" . ($diak=="-2"?" checked":"") . ">\n";
             if ($diak>0) {
                 $TABLA .= "  <td class=sajat><input type=radio name=r$ido value=$diak checked><td><a class=diak href=\"fogado.php?"
-                    . "tip=diak&amp;id=" . $diak . "\">" . $TANAR->fogado_ido[$ido][dnev] . "</a>\n";
+                    . "tip=diak&amp;id=" . $diak . "\">" . $TANAR->fogado_ido[$ido]['dnev'] . "</a>\n";
             } else {
                 $TABLA .= "  <td colspan=2>&nbsp;\n";
             }
@@ -187,9 +193,9 @@ if ($ADMIN) {
         $ora = floor($ido/12);
         if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan=3><hr>\n"; }
         $TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
-        $diak = $TANAR->fogado_ido[$ido][diak];
+        $diak = $TANAR->fogado_ido[$ido]['diak'];
         $TABLA .= "<td" . ($diak=="-2"?" class=szuloi":"") . ">" . FiveToString($ido)
-            . "<td> -- <td>" . ($diak>0?$TANAR->fogado_ido[$ido][dnev]:"&nbsp;") . "\n";
+            . "<td> -- <td>" . ($diak>0?$TANAR->fogado_ido[$ido]['dnev']:"&nbsp;") . "\n";
     }
     $TABLA .= "</table>\n";
 

@@ -86,7 +86,7 @@ function tanar_ki($tanar) {
         if (!isset($tanar[$i])) { $d = foglalt; }
         else switch ($tanar[$i]) {
             case -2:
-                if ( ($user->ofo == $tanar['id']) || $ADMIN ) { $d = szuloi; }
+                if ( ($user->ofo == $tanar['id']) || ADMIN ) { $d = szuloi; }
                 else { $d = foglalt; }
                 break;
             case -1:  // az előző folytatása
@@ -112,7 +112,7 @@ function tanar_ki($tanar) {
     }
 
     $tmp = "\n<tr><th align=left nowrap" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;"
-        . ($ADMIN?"<a href=\"tanar.php?tip=tanar&amp;id=" . $tanar['id'] . "\">" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
+        . (ADMIN?"<a href=\"tanar.php?tip=tanar&amp;id=" . $tanar['id'] . "\">" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
 
 // párosak:
     $tmp .= table_row($K[0], $tanar['id'], $FA->IDO_min);
@@ -181,12 +181,16 @@ foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $sor) {
 function ValidateRadio ( $Teacher, $Time ) {
 // (ezeket jó lenne triggerként berakni a tábla-definícióba...)
     global $FOGADO, $user;
-    $ret = array (valid => true, value => NULL);
+    $ret = array ('valid' => true, 'value' => NULL);
     if ( $FOGADO[$Teacher][$Time] != 0 ) {
         return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " időpontja már foglalt, ide nem iratkozhat fel!");
     }
+#    print_r($FOGADO);
+#    print_r($Time);
+#    print_r($user);
+
     foreach ( $FOGADO as $tan ) {
-        if ( $tan[$Time] == $user->id ) {
+        if ( isset($tan[$Time]) &&  $tan[$Time] == $user->id ) {
             return array(false, "Önnek már foglalt a " . FiveToString($Time) . " időpontja (" . $tan['nev'] . ") - előbb arról iratkozzon le!");
         }
     }
@@ -195,7 +199,7 @@ function ValidateRadio ( $Teacher, $Time ) {
             return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($k) . " időpontjára már feliratkozott - ha változtatni akar, előbb azt törölje!");
         }
     }
-    if ( $FOGADO[$user->ofo][$Time] == -2 ) {
+    if ( isset($FOGADO[$user->ofo][$Time]) &&  $FOGADO[$user->ofo][$Time] == -2 ) {
         return array(true, "Önnek szülői értekezlete van ebben az időpontban (" . FiveToString($Time) . ")!");
     }
     return array(true, NULL);

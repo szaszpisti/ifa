@@ -30,17 +30,15 @@ print "\n<h3>Fogadóóra: " . $FA->datum . "<br>\n"
     . $USER->dnev . " " . $USER->onev . "<br>\n"
     . "<font size=-1>(Osztályfőnök: " . $USER->ofonev . ")</h3>\n";
 
-$szuloi =& $db->getRow(
+$res = $db->prepare(
               "SELECT MIN(ido) AS eleje, MAX(ido) AS vege"
             . "  FROM Fogado"
-            . "    WHERE fid=" . fid
-            . "        AND tanar=" . $USER->ofo
-            . "        AND diak=-2",
-            array(), DB_FETCHMODE_ASSOC);
-
-if (DB::isError($data)) {
-    die($data->getMessage());
-}
+            . "    WHERE fid=?"
+            . "        AND tanar=?"
+            . "        AND diak=-2"
+            );
+$res->execute(array(fid, $USER->ofo));
+$szuloi = $res->fetch(PDO::FETCH_ASSOC);
 
 if ($szuloi['eleje']) {
     $SzuloiSor = "<br><b>" . FiveToString($szuloi['eleje'])
@@ -49,15 +47,18 @@ if ($szuloi['eleje']) {
     $SzuloiEleje = $szuloi['eleje'];
 }
 
-$res =& $db->query(
+$res = $db->prepare(
               "SELECT ido, tnev"
             . "  FROM Fogado, Tanar"
-            . "    WHERE fid=" . fid
+            . "    WHERE fid=?"
             . "        AND Tanar.id=tanar"
-            . "        AND diak=" . $USER->id
-            . "      ORDER BY ido");
+            . "        AND diak=?"
+            . "      ORDER BY ido"
+            );
+$res->execute(array(fid, $USER->id));
+$rows = $res->fetchAll(PDO::FETCH_ASSOC);
 
-while ($res->fetchInto($row)) {
+foreach ($rows as $row) {
     if ($SzuloiEleje < $row['ido']) {
         $Output .= $SzuloiSor;
         $SzuloiSor = "";

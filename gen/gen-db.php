@@ -74,7 +74,8 @@ CREATE TABLE Diak_base (
     id integer NOT NULL PRIMARY KEY,
     jelszo character(32),
     dnev text,
-    oszt character(4)
+    oszt character(4),
+    FOREIGN KEY(oszt) REFERENCES Osztaly(oszt)
 )' );
 if (DB::isError($res)) { die($res->getMessage()); }
 
@@ -100,13 +101,25 @@ CREATE TABLE Fogado (
     fid integer NOT NULL,
     tanar integer,
     ido integer,
-    diak integer
+    diak integer,
+    FOREIGN KEY(fid) REFERENCES Admin(id),
+    FOREIGN KEY(tanar) REFERENCES Tanar(id),
+    FOREIGN KEY(diak) REFERENCES Diak(id)
 )' );
 
-$res =& $db->query('CREATE VIEW Diak AS SELECT D.id, D.jelszo, D.dnev, D.oszt, O.onev, O.ofo, T.tnev AS ofonev                                       
-    FROM Osztaly AS O, Tanar AS T, Diak_base AS D
-    WHERE D.oszt = O.oszt
-        AND O.ofo = T.id;' );
+$res =& $db->query('CREATE VIEW Diak AS
+                SELECT  D.id AS id,
+                        D.jelszo AS jelszo,
+                        D.dnev AS dnev,
+                        D.oszt AS oszt,
+                        O.onev AS onev,
+                        O.ofo AS ofo,
+                        T.tnev AS ofonev
+                    FROM Osztaly AS O, Tanar AS T, Diak_base AS D
+                    WHERE D.oszt = O.oszt AND O.ofo = T.id
+                UNION
+                SELECT 0, "b5c6ccf9dade76f27e48a96599855083", "Admin", "", "", "", "";' );
+
 if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('CREATE TABLE ulog_id_seq (id INTEGER UNSIGNED PRIMARY KEY);' );
@@ -128,13 +141,6 @@ if (DB::isError($res)) { die($res->getMessage()); }
 
 $res =& $db->query('INSERT INTO admin_id_seq VALUES (1)' );
 if (DB::isError($res)) { die($res->getMessage()); }
-
-#$res =& $db->query('INSERT INTO ulog_id_seq VALUES (0)' );
-#if (DB::isError($res)) { die($res->getMessage()); }
-
-#INSERT INTO "admin_id_seq" VALUES(1);
-#INSERT INTO "ulog_id_seq" VALUES(1);
-#if (DB::isError($res)) { die($res->getMessage()); }
 
 @array_walk($ins, 'insert');
 

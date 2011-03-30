@@ -52,11 +52,10 @@ td.szuloi { background-color: yellow; }
 
 table.tanar {
     border-spacing: 0px;
-    text-indent: 5pt;
 }
 tr.paratlan { background-color: #EEEEEE; }
 
-address { font-size: 8 pt; }
+address { font-size: 8pt; }
 
 div.kiemelt {
     padding: .2em;

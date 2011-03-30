@@ -17,7 +17,7 @@
 require_once('login.php');
 require_once('ifa.inc.php');
 
-if (!$_SESSION['admin']) redirect('leiras.html');
+if (!isset($_SESSION['admin'])) redirect('leiras.html');
 
 if (!isset($_REQUEST['page'])) $_REQUEST['page'] = 0;
 
@@ -46,37 +46,76 @@ switch ($_REQUEST['page']) {
 
     case 1:  // 1. ADMIN OLDAL
         $MaiDatum = date('Y-m-d');
+        $Ido_kora = SelectIdo("kora", "kperc", $FogadoIdo[0]);
+        $Ido_vora = SelectIdo("vora", "vperc", $FogadoIdo[1]);
+        $Ido_tartam = SelectTartam('tartam');
+        $Ido_skora = SelectIdo("skora", "skperc", $SzuloiIdo[0]);
+        $Ido_svora = SelectIdo("svora", "svperc", $SzuloiIdo[1]);
 
-        $Out .= "<h3>Új időpont létrehozása</h3>\n"
-            . "<ul><form method=post><table class=tanar cellpadding=3>\n"
-            . "<tr><td colspan=2>&nbsp;\n"
+        $Out .= <<< Vege
 
-            . "<tr><td class=left colspan=2><b><i>Fogadóóra napja:</i></b>\n"
-            . "<tr><td>\n"
-            . "    <td class=right><input name=datum type=text size=10 value=\"$MaiDatum\">\n"
-            . "<tr><td colspan=2>&nbsp;\n"
+<style type="text/css" media="all">@import "js/datechooser.css";</style>
+<script type="text/javascript" src="js/datechooser.js"></script>
+<script type="text/javascript"><!--
+events.add(window, 'load', WindowLoad);
+function WindowLoad() {
+    var dc = document.getElementById('pdatum');
+    dc.DateChooser = new DateChooser();
+    dc.DateChooser.setCloseTime(400);
+    dc.DateChooser.setWeekStartDay(1);
+    dc.DateChooser.setUpdateField('datum', 'Y-m-d');
+    dc.DateChooser.setUpdateFunction(hetfo_beir);
+    dc.DateChooser.setIcon('js/datechooser.png', 'datum', true, 'Válasszon dátumot!');
+}
+function datum_copy() {
+   old = document.forms[0].valid_veg.value;
+   ora = old.substr(old.indexOf(' '), 10);
+   document.forms[0].valid_veg.value = document.forms[0].datum.value + ora;
+}
+// http://yellow5.us/projects/datechooser/example/
+function hetfo_beir() {
+   d = document.forms[0].datum.value;
+   // a firefox csak mm/dd/yyyy formában szereti a dátumot
+   var datum = new Date(d.substr(5,2) + '/' + d.substr(8,2) + '/' + d.substr(0,4));
+   m = datum.getTime() - (datum.getDay()-1) * 86400000; // ennyi napot visszaszámolunk a hétfőig
+   datum = new Date(m); // ez az előző hétfő
+   y = datum.getFullYear();
+   m = datum.getMonth()+1;
+   d = datum.getDate();
+   hetfo = y+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;
+   document.forms[0].valid_kezd.value = hetfo + ' 08:00';
+   datum_copy();
+}
+//--></script>
 
-            . "<tr><td class=left colspan=2><b><i>Bejelentkezési időszak:</i></b>\n"
-            . "<tr><td class=right> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kezdete:\n"
-            . "    <td><input name=valid_kezd type=text size=16 value=\"$MaiDatum 08:00\">\n"
-            . "<tr><td class=right>vége:\n"
-            . "    <td><input name=valid_veg type=text size=16 value=\"$MaiDatum 14:00\">\n"
-            . "<tr><td colspan=2>&nbsp;\n"
+<h3>Új időpont létrehozása</h3>
+<div style="margin-left: 3em;"><form method="post"><table class="tanar" cellpadding="3">
 
-            . "<tr><td class=left colspan=2><b><i>Alapértelmezések:</i></b>\n"
-            . "<tr><td class=right>jelenlét: <td>\n"
-            . "    " . SelectIdo("kora", "kperc", $FogadoIdo[0]) . "\n"
-            . "    " . SelectIdo("vora", "vperc", $FogadoIdo[1]) . "\n"
-            . "<tr><td class=right>tartam: <td>\n"
-            . "    " . SelectTartam('tartam') . " perc\n"
-            . "<tr><td class=right>szülői: <td>\n"
-            . "    " . SelectIdo("skora", "skperc", $SzuloiIdo[0]) . "\n"
-            . "    " . SelectIdo("svora", "svperc", $SzuloiIdo[1]) . "\n"
-            . "<tr><td>\n"
-            . "    <td class=right><input type=hidden name=page value=2>\n"
-            . "        <input type=submit value=\" Mehet \">\n"
-            . "</table>\n"
-            . "</form></ul>\n";
+<tr><td class="left" colspan="2"><hr><b><i>Fogadóóra napja:</i></b></td>
+<tr><td>&nbsp;</td>
+    <td class="left" id="pdatum"><input name="datum" id="datum" type="text" size="10" value="$MaiDatum"
+        onKeyUp="datum_copy();" onChange="hetfo_beir();"></td>
+
+<tr><td class="left" colspan="2"><hr><b><i>Bejelentkezési időszak:</i></b></td>
+<tr><td class="right"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kezdete:</td>
+    <td><input name="valid_kezd" type="text" size="20" value="$MaiDatum 08:00"></td>
+<tr><td class="right">vége:</td>
+    <td><input name="valid_veg" type="text" size="20" value="$MaiDatum 14:00"></td>
+
+<tr><td class="left" colspan="2"><hr><b><i>Alapértelmezések:</i></b></td>
+<tr><td class="right">jelenlét: <td>$Ido_kora $Ido_vora</td>
+<tr><td class="right">tartam: <td>$Ido_tartam perc</td>
+<tr><td class="right">szülői: <td>$Ido_skora $Ido_svora</td>
+<tr><td class="left" colspan="2"><hr></td>
+<tr><td>&nbsp;</td>
+    <td class="right"><input type="hidden" name="page" value="2">
+        <input type="submit" value=" Mehet "></td>
+</table>
+</form></div>
+<script type="text/javascript"><!--
+hetfo_beir();
+//--></script>
+Vege;
 
         break;
 
@@ -91,9 +130,10 @@ switch ($_REQUEST['page']) {
 
         if ( !isset($_REQUEST['datum']) ) { hiba ("Nincs dátum megadva"); return 1; }
 
-        $result =& $db->query("SELECT * FROM Admin WHERE datum='" . $_REQUEST['datum'] . "'" );
+        $res = $db->query("SELECT * FROM Admin WHERE datum='" . $_REQUEST['datum'] . "'" );
+        $rows = $res->fetchAll(PDO::FETCH_ASSOC);
 
-        if ( $result->numRows() === 0 ) { // nincs még ilyen nap, létre lehet hozni
+        if ( count($rows) === 0 ) { // nincs még ilyen nap, létre lehet hozni
             $FogadoIdo = array (
                 $_REQUEST['kora'] + $_REQUEST['kperc'],
                 $_REQUEST['vora'] + $_REQUEST['vperc']
@@ -103,29 +143,23 @@ switch ($_REQUEST['page']) {
             if (!$_REQUEST['valid_kezd']) { hiba ("Érvényesség kezdete nincs megadva"); return 1; }
             if (!$_REQUEST['valid_veg']) { hiba ("Érvényesség vége nincs megadva"); return 1; }
 
-            $fid = $db->nextId('admin_id');
-            if (DB::isError($fid)) { die($fid->getMessage()); }
+            try {
+                $res = $db->prepare('INSERT INTO Admin (datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES (?, ?, ?, ?, ?, ?)');
+                $res->execute(array(
+                    $_REQUEST['datum'], $FogadoIdo[0], $FogadoIdo[1], $_REQUEST['tartam'],
+                    $_REQUEST['valid_kezd'], $_REQUEST['valid_veg']));
 
-            $q = "INSERT INTO Admin (id, datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES ($fid, '"
-                    . $_REQUEST['datum'] . "', $FogadoIdo[0], $FogadoIdo[1], "
-                    . $_REQUEST['tartam'] . ", '"
-                    . $_REQUEST['valid_kezd'] . "', '"
-                    . $_REQUEST['valid_veg'] . "')";
-
-            $res =& $db->query($q);
-            if (DB::isError($res)) {
+                Ulog(0, "RENDBEN: ".$_REQUEST['datum']);
+            } catch (PDOException $e) {
                 hiba ("Nem sikerült regisztrálni a fogadóórát");
-                die($res->getMessage());
-            }
-            else {
-                Ulog(0, "RENDBEN: $q");
+                throw new pdoDbException($e);
             }
 
         }
-        elseif ( $result->numRows() === 1 ) {
-            $result->fetchInto($row);
-            $num =& $db->getOne("SELECT count(*) AS num FROM Fogado WHERE fid=" . $row['id']);
-            if ($num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
+        elseif ( count($rows) === 1 ) {
+            $res = $db->query("SELECT count(*) AS num FROM Fogado WHERE fid=" . $rows[0]['id']);
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            if ($row['num'] > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
         }
         else {
             hiba ("HAJAJ! Nagy GÁZ van... (több egyforma dátum?)");
@@ -135,19 +169,18 @@ switch ($_REQUEST['page']) {
         // túl vagyunk az időpontbejegyzésen, újból beolvassuk az aktuálisat
         // $FA a fogadóóra bejegyzés asszociatív tömbje
 
-        $FA =& $db->getRow("SELECT * FROM Admin WHERE datum='" . $_REQUEST['datum'] . "'" );
-        if (DB::isError($FA)) { die($FA->getMessage()); }
+        $res = $db->query("SELECT * FROM Admin WHERE datum='" . $_REQUEST['datum'] . "'" );
+        $FA = $res->fetch(PDO::FETCH_ASSOC);
 
         $Out .= "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
 
         // Kiírjuk soronként a tanárokat az egyéni beállításokhoz
-        // eredmény: Tanar[id] = array (emil, tnev, ofo)
-        $Tanar =& $db->getAssoc(
-                          "SELECT id, emil, tnev, ofo FROM Tanar AS T"
+        // eredmény: Tanar['id'] = array (emil, tnev, ofo)
+        $res = $db->query("SELECT id, tnev, ' (' || onev || ')' AS onev, ofo FROM Tanar AS T"
                         . "    LEFT OUTER JOIN"
-                        . "  (SELECT ofo FROM Osztaly) AS O"
-                        . "    ON (T.id=O.ofo) ORDER BY tnev",
-                        true, array(), DB_FETCHMODE_ASSOC);
+                        . "  (SELECT onev, ofo FROM Osztaly) AS O"
+                        . "    ON (T.id=O.ofo) ORDER BY tnev" );
+        $Tanar = $res->fetchAll(PDO::FETCH_ASSOC);
 
         // Out-ba gyűjtjük a kimenetet, kezdjük a fejléccel
         $Out .= "<form method=post>\n<table class=tanar>\n"
@@ -155,12 +188,13 @@ switch ($_REQUEST['page']) {
             . "<tr><th>Tanár neve<th><th>Fogadóóra<th>tartam<th><th colspan=2>Szülői<th>\n";
 
         // A tanár tömbön megyünk végig egyesével
-        foreach (array_keys($Tanar) as $id) {
-            $t = $Tanar[$id];
+        $paratlan = 0;
+        foreach ($Tanar as $t) {
+            $id = $t['id'];
 
             $paratlan = 1-$paratlan;   // a színezés miatt váltott sorosan haladunk
 
-            $Out .= "\n<tr" . ($paratlan?" class=paratlan":"") . "><td>" . $t['tnev'] . "\n"
+            $Out .= "\n<tr" . ($paratlan?" class=paratlan":"") . "><td>" . $t['tnev'] . $t['onev'] . "\n"
                 . "  <td><input type=checkbox name=a$id checked>\n"
                 . "  <td>" . SelectIdo("b$id", "c$id", $FogadoIdo[0]) . " &nbsp;\n"
                 . "      " . SelectIdo("d$id", "e$id", $FogadoIdo[1]) . " &nbsp;\n"
@@ -195,19 +229,27 @@ switch ($_REQUEST['page']) {
         if (!isset($_REQUEST['fid'])) { hiba ("Nincs fogadó-azonosító"); return 1; }
 
         // csak akkor tudunk továbblépni, ha 1! bejegyzés van az adott napon
-        $num =& $db->getOne("SELECT count(*) AS num FROM Admin WHERE id=" . $_REQUEST['fid'] );
-        if (DB::isError($num)) { die($num->getMessage()); }
-        if ( $num != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
+#        $num =& $db->getOne("SELECT count(*) AS num FROM Admin WHERE id=" . $_REQUEST['fid'] );
+#        if (DB::isError($num)) { die($num->getMessage()); }
+#        if ( $num != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
+
+        $res = $db->query("SELECT count(*) AS num FROM Admin WHERE id=" . $_REQUEST['fid'] );
+        $row = $res->fetch(PDO::FETCH_ASSOC);
+        if ( $row['num'] != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
 
         // ha ilyen id van már bejegyezve az időpontoknál, akkor már jártunk itt -> hiba
-        $num =& $db->getOne("SELECT count(*) AS num FROM Fogado WHERE fid=" . $_REQUEST['fid'] );
-        if (DB::isError($num)) { die($num->getMessage()); }
-        if ( $num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
+#        $num =& $db->getOne("SELECT count(*) AS num FROM Fogado WHERE fid=" . $_REQUEST['fid'] );
+#        if (DB::isError($num)) { die($num->getMessage()); }
+#        if ( $num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
+
+        $res = $db->query("SELECT count(*) AS num FROM Fogado WHERE fid=" . $_REQUEST['fid'] );
+        $row = $res->fetch(PDO::FETCH_ASSOC);
+        if ( $row['num'] > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
 
 
         // A kapott űrlap-változókat rendezzük használható tömbökbe
-        //    $JelenVan[id] (id, kezd, veg, tartam)
-        //    $Szuloi[id] (id, kezd, veg)
+        //    $JelenVan['id'] (id, kezd, veg, tartam)
+        //    $Szuloi['id'] (id, kezd, veg)
 
         reset($_REQUEST);
         while (list($k, $v) = each ($_REQUEST)) {
@@ -249,21 +291,20 @@ switch ($_REQUEST['page']) {
             }
         }
 
-        foreach ( array_keys($Tanar) as $id ) {
-            reset ($Tanar[$id]);
-            while (list ($key, $val) = each ($Tanar[$id])) {
-               $Tanar_copy[] = array($_REQUEST['fid'], $id, $key, $val);
+        try {
+            $db->beginTransaction();
+            $res = $db->prepare('INSERT INTO fogado VALUES (?, ?, ?, ?)');
+            foreach ( array_keys($Tanar) as $id ) {
+                reset ($Tanar[$id]);
+                while (list ($key, $val) = each ($Tanar[$id])) {
+                    $res->execute( array($_REQUEST['fid'], $id, $key, $val) );
+                }
             }
-        }
-
-        $sth = $db->prepare('INSERT INTO fogado VALUES (?, ?, ?, ?)');
-        $res =& $db->executeMultiple($sth, $Tanar_copy);
-        if (DB::isError($res)) {
-            ulog (0, "SIKERTELEN ADATBEVITEL");
-            die($res->getMessage());
-        }
-        else {
+            $db->commit();
             ulog (0, "Új időpont felvitele sikerült." );
+        } catch (PDOException $e) {
+            ulog (0, "SIKERTELEN ADATBEVITEL");
+            echo $e->getMessage();
         }
 
         header("Location: " . $_SERVER['PHP_SELF'] . "?page=4&datum=" . $_REQUEST['datum']);
