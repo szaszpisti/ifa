@@ -23,86 +23,75 @@ if (isset($_REQUEST['kilep']) ) {
     redirect('leiras.html');
 }
 
-# if (isset($_SESSION['valid']) && $_SESSION['valid']) { return 0; }
-
 function redirect($uri = '') {
     if ($uri==='') $uri = $_SERVER['REQUEST_URI'];
     header ("Location: $uri");
 }
 
 // ellenőrzi, hogy adott típus, id esetén létezik-e az userid
-function get_user($tip, $id) {
+// paraméterként pl. a _REQUEST vagy a _SESSION tömböt várja
+function get_user($param) {
     global $db;
+    if ( !isset($param['tip']) || !isset($param['id']) ) return false;           // valami nincs megadva
+    if (!preg_match('/^[0-9]{1,10}$/', $param['id'])) return false;              // nem jó az id
+    if (!in_array($param['tip'], array('admin', 'tanar', 'diak'))) return false; // nem jó a típus
+    $tip = $param['tip'];
+    $id = $param['id'];
     if ($tip == 'admin') $tip='diak';
-    if (($tip != 'tanar') && ($tip != 'diak')) return (NULL);
+    if (($tip != 'tanar') && ($tip != 'diak')) die('Sikertelen azonosítás!');
 
-    try { $res = $db->query("SELECT * FROM $tip WHERE id=$id");
-    } catch (PDOException $e) { echo $e->getMessage(); }
-    $user = $res->fetch(PDO::FETCH_ASSOC);
+    try {
+        $user = $db->query("SELECT * FROM $tip WHERE id=".$param['id'])->fetch(PDO::FETCH_ASSOC);
+        if (!isset($user['id'])) return false; // nincs találat
+    } catch (PDOException $e) {
+        die($e->getMessage());
+    }
+    if ($tip == 'tanar') $user['onev'] = '';
 
     $user['nev'] = $user[$tip[0].'nev']; // 'tnev' vagy 'dnev' az oszlop neve
+    $user['tip'] = $param['tip'];
     return ($user);
 }
 
-// Ha tip, id jött a REQUEST-ben, akkor azt vesszük figyelembe,
-// egyébként a SESSION-változót.
+function login($user, $hiba=NULL) {
+    session_destroy();
 
-if (isset($_REQUEST['tip'])) $tip = $_REQUEST['tip'];
-elseif (isset($_SESSION['tip'])) $tip = $_SESSION['tip'];
-else unset($tip);
+    if (isset($hiba)) {
+        header('Content-Type: text/html; charset=utf-8');
+        hiba($hiba);
+    }
+    head("Fogadóóra - " . $user['nev'], ' onLoad="document.login.jelszo.focus()"');
 
-if (isset($_REQUEST['id'])) $id = $_REQUEST['id'];
-elseif (isset($_SESSION['id'])) $id = $_SESSION['id'];
-else unset($id);
-
-#$tip = isset($_REQUEST['tip'])?$_REQUEST['tip']:$_SESSION['tip'];
-#$id  = isset($_REQUEST['id'])?$_REQUEST['id']:$_SESSION['id'];
-if (!isset($id)) { $tip = 'admin'; $id = 0; }
-
-$user = get_user($tip, $id);
-if (!isset($user)) $hiba = "Nincs ilyen felhasználó!";
-
-if (!isset($_SESSION['admin']) && ($tip == 'diak') && (!$FA->valid)) {
-    header ("Content-Type: text/html; charset=utf-8");
-    print "<h3>Nincs bejelentkezési időszak!</h3>\n"
-        . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "</h3>"
-        . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
-        . $FA->valid_veg_str . "</b> &nbsp; között lehet bejelentkezni.\n";
+    print "<table width=\"100%\"><tr><td>\n";
+    print "\n<h3>" . $user['nev'] . ($user['tip']=='diak'?' ('.$user['onev'].')':'') . "</h3>\n"
+        . "<form name=\"login\" action=\"" . $_SERVER['REQUEST_URI'] . "\" method=\"post\">\n"
+        . "  Jelszó: <input type=\"password\" size=\"8\" name=\"jelszo\">\n"
+        . "  <input type=\"hidden\" name=\"id\" value=\"" . $user['id'] . "\">\n"
+        . "  <input type=\"hidden\" name=\"tip\" value=\"" . $user['tip'] . "\">\n"
+        . "  <input type=\"submit\" value=\"Belépés\">\n"
+        . "</form>\n\n"
+        . "<td align=\"right\" valign=\"top\"><a href=\"leiras.html\"> Leírás </a>\n</table>\n";
+    tail();
     exit;
 }
 
-if (isset($_SESSION['valid'])) {
+$user = get_user($_REQUEST);
 
-    // ha kaptunk id-et, akkor vsz. új identitás kell
-    if (isset($_REQUEST['tip']) && isset($_REQUEST['id'])) {
-
-        // admin automatikusan megkapja, regisztráljuk a sessionbe.
-        if (isset($_SESSION['admin']) && get_user($tip, $id)) {
-            $_SESSION['tip'] = $tip;
-            $_SESSION['id']  = $id;
-        }
-        // Ha változott, akkor újrakezdjük a bejelentkezést
-        elseif (($_SESSION['tip'] !== $tip) || ($_SESSION['id'] !== $id)) {
-            $_SESSION['valid'] = false;
-            redirect();
-        }
-    }
-}
-
-elseif ( (isset($_POST['jelszo'])) && (strlen($_POST['jelszo']) > 0) ) {
+// Ha jelszót kaptunk, mindenképpen ellenőrizni kell.
+if ( isset($_POST['jelszo']) ) {
+    if (!$user) redirect('leiras.html');
     $jo = false;
-    switch ($tip) {
+    switch ($user['tip']) {
         case 'tanar':
             switch ($tanar_auth) {
                 case 'PAM':
-                    $jo = (isset($user) && (pam_auth($user['emil'], $_POST['jelszo'], &$error)));
+                    $jo = (pam_auth($user['emil'], $_POST['jelszo'], &$error));
                     break;
                 case 'DB':
-                    $jo = (isset($user) && (md5($_POST['jelszo']) == $user['jelszo']));
+                    $jo = (md5($_POST['jelszo']) == $user['jelszo']);
                     break;
                 case 'LDAP':
                     $dn = preg_replace ('/#USER#/', $user['emil'], $ldap['base']);
-//                    $dn = 'uid=' . $user['emil'] . ',' . $ldap['base'];
                     if($connect = ldap_connect($ldap['host'])) {
                         ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, $ldap['version']);
                         $jo = @ldap_bind($connect, $dn, $_POST['jelszo']);
@@ -113,41 +102,48 @@ elseif ( (isset($_POST['jelszo'])) && (strlen($_POST['jelszo']) > 0) ) {
             break;
 
         case 'diak':
-            $jo = (isset($user) && (md5($_POST['jelszo']) == $user['jelszo']));
+            $jo = (md5($_POST['jelszo']) == $user['jelszo']);
             break;
 
         case 'admin':
-            $jo = (isset($user) && (md5($_POST['jelszo']) == $user['jelszo']));
+            $jo = (md5($_POST['jelszo']) == $user['jelszo']);
             if ($jo) $_SESSION['admin'] = true;
             break;
     }
     if ($jo) {
-        $_SESSION['tip']   = $tip;
-        $_SESSION['id']    = $id;
+        $_SESSION['tip']   = $user['tip'];
+        $_SESSION['id']    = $user['id'];
         $_SESSION['nev']   = $user['nev'];
-        $_SESSION['valid'] = true;
+        ulog ($user['id'], $user['nev'] . " bejelentkezett.");
     }
-    if (isset($_SESSION['valid'])) ulog ($user['id'], $user['nev'] . " bejelentkezett.");
-    elseif (!isset($hiba)) $hiba = "Érvénytelen bejelentkezés ($tip, $id)!";
+    else { login ($user, "Érvénytelen bejelentkezés (".($user['tip'].", ".$user['id']).")!"); }
+
+    if (!ADMIN && ($_SESSION['tip'] == 'diak') && (!$FA->valid)) {
+        header ("Content-Type: text/html; charset=utf-8");
+        print "<h3>Nincs bejelentkezési időszak!</h3>\n"
+            . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "</h3>"
+            . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
+            . $FA->valid_veg_str . "</b> &nbsp; között lehet bejelentkezni.\n";
+        tail();
+        exit;
+    }
 }
 
-if (!isset($_SESSION['valid'])) {
-    session_destroy();
-
-    head("Fogadóóra - " . $user['nev'], ' onLoad="document.login.jelszo.focus()"');
-
-    print "<table width=\"100%\"><tr><td>\n";
-    if (isset($hiba)) { hiba($hiba); }
-    print "\n<h3>" . $user['nev'] . ($tip=='diak'?' ('.$user['onev'].')':'') . "</h3>\n"
-        . "<form name=login action='" . $_SERVER['REQUEST_URI'] . "' method=post>\n"
-        . "  Jelszó: <input type=password size=8 name=jelszo>\n"
-        . "  <input type=hidden name=id value=" . $id . ">\n"
-        . "  <input type=hidden name=tip value=" . $tip . ">\n"
-        . "  <input type=submit value='Belépés'>\n"
-        . "</form>\n\n"
-        . "<td align=right valign=top><a href=\"leiras.html\"> Leírás </a>\n</table>\n";
-    tail();
-    exit;
+if ($user) {
+    if (ADMIN) {
+        // Az admin felveszi az identitást.
+        $_SESSION['tip'] = $user['tip'];
+        $_SESSION['id'] = $user['id'];
+    } elseif ( get_user($_SESSION) == $user ) {
+        // Nem-admin próbálkozhat a saját identitásával; semmit nem kell csinálni.
+    } else {
+        // Egyébként login a kért azonosítóval.
+        login($user);
+    }
+} elseif (!ADMIN && ( !get_user($_SESSION) || !$user ) ) {
+    // Ha _REQUEST-ben és _SESSION-ben sincs rendes user
+    @session_destroy();
+    redirect('leiras.html');
 }
 
 session_write_close();

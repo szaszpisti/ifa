@@ -18,9 +18,6 @@
  * Általános függvények: adatbázis kapcsolódás, fej- és lábléc, logolás,
  * időpont-átszámító, az űrlapokhoz konstans vezérlőelemek stb.
  */
-/**
- *
- */
 
 require_once('ifa.ini.php');
 
@@ -32,10 +29,8 @@ set_include_path(get_include_path() . ':./classes');
 
 try {
     $db = new PDO($dsn);
-#    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT); // PDO::ERRMODE_WARNING);
     $db->exec('PRAGMA foreign_keys = true;');
-#    $db->exec('SELECT id, tnev AS dnev FROM Tanar ORDER BY tnev');
 } catch (PDOException $e) { echo $e->getMessage(); }
 
 // először megkeressük az aktuális időpontot
@@ -95,11 +90,11 @@ function TimeToFive($ora, $perc) { return $ora*12+floor($perc/5); }
 /**
  * $SELECT: az óra választó konstans string
  */
-$SELECT = "<select name=#NAME#>";
+$SELECT = "  <select name=#NAME#>\n";
 for ($i=$Kiir_tartam[0]; $i<=$Kiir_tartam[1]; $i++) {
-    $SELECT .= "<option value=" . $i*12 . ">$i";
+    $SELECT .= "    <option value=\"" . $i*12 . "\">$i\n";
 }
-$SELECT .= "</select>";
+$SELECT .= "  </select>\n";
 
 
 /**
@@ -114,12 +109,12 @@ function SelectIdo($name_ora, $name_perc, $ido){
     $ora = 12*floor($ido/12);
     $perc = $ido - $ora;
 
-    $ret = preg_replace("/value=$ora>/", "value=$ora selected>", $SELECT);
-    $ret = preg_replace("/#NAME#/", "$name_ora", $ret);
+    $ret = preg_replace("/value=\"$ora\">/", "value=\"$ora\" selected>", $SELECT);
+    $ret = preg_replace("/#NAME#/", "\"$name_ora\"", $ret);
 
-    $ret .= preg_replace("/value=$perc>/", "value=$perc selected>",
-                "<select name=$name_perc><option value=0>00<option value=2>10<option value=4>20" .
-                "<option value=6>30<option value=8>40<option value=10>50</select>");
+    $ret .= preg_replace("/value=\"$perc\">/", "value=\"$perc\" selected>",
+                "  <select name=\"$name_perc\">\n    <option value=\"0\">00\n    <option value=\"2\">10\n    <option value=\"4\">20" .
+                "\n    <option value=\"6\">30\n    <option value=\"8\">40\n    <option value=\"10\">50\n  </select>\n");
     return $ret;
 }
 
@@ -129,9 +124,9 @@ function SelectIdo($name_ora, $name_perc, $ido){
  * @param string $name a HTML tag "name" értéke
  */
 function SelectTartam($name) {
-    return preg_replace("/#NAME#/", "$name", "<select name=#NAME#>"
-        . "<option value=1>5<option value=2 selected>10"
-        . "<option value=3>15<option value=4>20</select>");
+    return preg_replace("/#NAME#/", "\"$name\"", "  <select name=#NAME#>\n"
+        . "    <option value=\"1\">5\n    <option value=\"2\" selected>10\n"
+        . "    <option value=\"3\">15\n    <option value=\"4\">20\n  </select>\n");
 }
 
 
@@ -164,8 +159,7 @@ print "\n\n<body$onload>\n";
  * @desc Kiírja a HTML láblécet.
  */
 function Tail() {
-    print "\n<p><hr><a href=\"mailto:hiena@szepi.hu\"></a>\n";
-    print "<img src=dugo.png align=top alt=\"dugo@szepi_PONT_hu\">\n";
+    print "\n\n<p><hr><img src=\"dugo.png\" align=\"top\" alt=\"dugo@szepi_PONT_hu\">\n";
     print "</body>\n</html>\n";
 }
 
@@ -177,7 +171,6 @@ function Tail() {
 function ulog($uid, $s) {
     global $db;
     $res = $db->prepare("INSERT INTO Ulog (ido, uid, host, log) VALUES (?, ?, ?, ?)");
-    print_r($res);
     $res->execute(array(date("Y-m-d H:i:s"), ADMIN?0:$uid, $_SERVER['REMOTE_ADDR'], $s));
 }
 

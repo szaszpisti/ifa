@@ -17,8 +17,6 @@
 require_once('login.php');
 require_once('ifa.inc.php');
 
-if (!isset($_SESSION['admin'])) redirect('leiras.html');
-
 if (!isset($_REQUEST['page'])) $_REQUEST['page'] = 0;
 
 /*
@@ -57,6 +55,7 @@ switch ($_REQUEST['page']) {
 <style type="text/css" media="all">@import "js/datechooser.css";</style>
 <script type="text/javascript" src="js/datechooser.js"></script>
 <script type="text/javascript"><!--
+/* http://yellow5.us/projects/datechooser/example/ */
 events.add(window, 'load', WindowLoad);
 function WindowLoad() {
     var dc = document.getElementById('pdatum');
@@ -72,7 +71,6 @@ function datum_copy() {
    ora = old.substr(old.indexOf(' '), 10);
    document.forms[0].valid_veg.value = document.forms[0].datum.value + ora;
 }
-// http://yellow5.us/projects/datechooser/example/
 function hetfo_beir() {
    d = document.forms[0].datum.value;
    // a firefox csak mm/dd/yyyy formában szereti a dátumot
@@ -103,9 +101,9 @@ function hetfo_beir() {
     <td><input name="valid_veg" type="text" size="20" value="$MaiDatum 14:00"></td>
 
 <tr><td class="left" colspan="2"><hr><b><i>Alapértelmezések:</i></b></td>
-<tr><td class="right">jelenlét: <td>$Ido_kora $Ido_vora</td>
-<tr><td class="right">tartam: <td>$Ido_tartam perc</td>
-<tr><td class="right">szülői: <td>$Ido_skora $Ido_svora</td>
+<tr><td class="right">jelenlét: <td>\n$Ido_kora$Ido_vora</td>
+<tr><td class="right">tartam: <td>\n$Ido_tartam perc</td>
+<tr><td class="right">szülői: <td>\n$Ido_skora$Ido_svora</td>
 <tr><td class="left" colspan="2"><hr></td>
 <tr><td>&nbsp;</td>
     <td class="right"><input type="hidden" name="page" value="2">
@@ -196,13 +194,13 @@ Vege;
 
             $Out .= "\n<tr" . ($paratlan?" class=paratlan":"") . "><td>" . $t['tnev'] . $t['onev'] . "\n"
                 . "  <td><input type=checkbox name=a$id checked>\n"
-                . "  <td>" . SelectIdo("b$id", "c$id", $FogadoIdo[0]) . " &nbsp;\n"
+                . "  <td>\n" . SelectIdo("b$id", "c$id", $FogadoIdo[0]) . " &nbsp;\n"
                 . "      " . SelectIdo("d$id", "e$id", $FogadoIdo[1]) . " &nbsp;\n"
-                . "  <td align=center>" . SelectTartam("f$id") . "<td>\n";
+                . "  <td align=center>\n" . SelectTartam("f$id") . "<td>\n";
 
             if ( $t['ofo'] > 0 ) {
                 $Out .= "  <td><input type=checkbox name=g$id checked>\n"
-                    . "  <td>" . SelectIdo("h$id", "i$id", $_REQUEST['skora'] + $_REQUEST['skperc']) . " &nbsp;\n"
+                    . "  <td>\n" . SelectIdo("h$id", "i$id", $_REQUEST['skora'] + $_REQUEST['skperc']) . " &nbsp;\n"
                     . "      " . SelectIdo("j$id", "k$id", $_REQUEST['svora'] + $_REQUEST['svperc']) . " &nbsp;\n";
             }
             else {

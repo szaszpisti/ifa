@@ -18,7 +18,7 @@ require_once('login.php');
 require_once('ifa.inc.php');
 require_once('tanar.class.php');
 
-$TANAR = new Tanar($_REQUEST['id']);
+$TANAR = new Tanar($_SESSION['id']);
 
 if (isset($_REQUEST['mod'])) switch ($_REQUEST['mod']) {
     # az egyes időpontok módosítása
@@ -73,7 +73,6 @@ if (isset($_REQUEST['mod'])) switch ($_REQUEST['mod']) {
         }
 
         if (isset($INSERT)) {
-            print_r($INSERT);
             try {
                 $db->beginTransaction();
                 $res = $db->prepare('INSERT INTO fogado (fid, tanar, ido, diak) VALUES (?, ?, ?, ?)');
@@ -187,15 +186,18 @@ if (ADMIN) {
 
 } else {
     // Hogy a kezdő mindenképpen páros legyen:
-    $elso = floor((($TANAR->IDO_min)+1)/2)*2;
-    $elozo = 0;
-    for ($ido = $elso; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
-        $ora = floor($ido/12);
-        if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan=3><hr>\n"; }
-        $TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
-        $diak = $TANAR->fogado_ido[$ido]['diak'];
-        $TABLA .= "<td" . ($diak=="-2"?" class=szuloi":"") . ">" . FiveToString($ido)
-            . "<td> -- <td>" . ($diak>0?$TANAR->fogado_ido[$ido]['dnev']:"&nbsp;") . "\n";
+    if (isset($TANAR->IDO_min)) {
+        $elso = floor((($TANAR->IDO_min)+1)/2)*2;
+        $elozo = 0;
+        for ($ido = $elso; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
+            $ora = floor($ido/12);
+            if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan=3><hr>\n"; }
+            $TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
+            if (isset($TANAR->fogado_ido[$ido]['diak'])) $diak = $TANAR->fogado_ido[$ido]['diak'];
+            else $diak = 0;
+            $TABLA .= "<td" . ($diak=="-2"?" class=szuloi":"") . ">" . FiveToString($ido)
+                . "<td> -- <td>" . ($diak>0?$TANAR->fogado_ido[$ido]['dnev']:"&nbsp;") . "\n";
+        }
     }
     $TABLA .= "</table>\n";
 

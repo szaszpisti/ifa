@@ -185,9 +185,6 @@ function ValidateRadio ( $Teacher, $Time ) {
     if ( $FOGADO[$Teacher][$Time] != 0 ) {
         return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " időpontja már foglalt, ide nem iratkozhat fel!");
     }
-#    print_r($FOGADO);
-#    print_r($Time);
-#    print_r($user);
 
     foreach ( $FOGADO as $tan ) {
         if ( isset($tan[$Time]) &&  $tan[$Time] == $user->id ) {
@@ -211,6 +208,7 @@ function ValidateRadio ( $Teacher, $Time ) {
 // checkboxok ellenőrzése (leiratkozás)
 //
 if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
+    $db->beginTransaction();
     foreach ( $FOGADO as $tanar ) {
         $v = "c" . $tanar['id'];
         foreach ( array_keys($tanar) as $Time ) {
@@ -225,6 +223,7 @@ if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
             }
         }
     }
+    $db->commit();
 }
 
 //
@@ -232,6 +231,7 @@ if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
 //
 reset($_POST);
 while (list($k, $v) = each($_POST)) {
+    $db->beginTransaction();
     if ( ereg ("^r([0-9]+)$", $k, $match) ) {
         $Teacher = $match[1];
         $Time = $v;
@@ -250,6 +250,7 @@ while (list($k, $v) = each($_POST)) {
             else { Ulog($user->id, "Légy került a levesbe: $q!"); }
         }
     }
+    $db->commit();
 }
 
 # 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
