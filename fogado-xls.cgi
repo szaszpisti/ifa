@@ -89,7 +89,7 @@ while (my $t = $minmaxPerUser->fetchrow_hashref) {
 }
 
 # nagy táblázat, minden bejegyzés benne van
-my $q = "SELECT tanar, ido, dnev, onev FROM Fogado AS F"
+my $q = "SELECT * FROM Fogado AS F"
         . " LEFT OUTER JOIN"
         . "   ( SELECT * FROM Diak UNION"
         . "     SELECT -2 AS id, NULL AS jelszo, 'Szülői' AS dnev, NULL AS oszt,"

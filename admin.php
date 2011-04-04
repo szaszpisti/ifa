@@ -75,8 +75,9 @@ function hetfo_beir() {
    d = document.forms[0].datum.value;
    // a firefox csak mm/dd/yyyy formában szereti a dátumot
    var datum = new Date(d.substr(5,2) + '/' + d.substr(8,2) + '/' + d.substr(0,4));
-   m = datum.getTime() - (datum.getDay()-1) * 86400000; // ennyi napot visszaszámolunk a hétfőig
-   datum = new Date(m); // ez az előző hétfő
+   day = datum.getDay()==0?7:datum.getDay();
+   epoch = datum.getTime() - (day-1)*86400000; // ennyi napot visszaszámolunk a hétfőig
+   datum = new Date(epoch); // ez az előző hétfő
    y = datum.getFullYear();
    m = datum.getMonth()+1;
    d = datum.getDate();

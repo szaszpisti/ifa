@@ -4,21 +4,24 @@ Iskolai Fogadóóra Adminisztráció
 # phpdoc -dn 'IFA' -s -t ../doc -ti 'Iskolai Fogadóóra Adminisztráció' -d .
 
 A különböző adatbázisok használatához telepíteni kell a megfelelő php modulokat.
-Pl. a PostgreSQL használatához a php4-pgsql, a SQLite-hez a php4-sqlite.
+Pl. a PostgreSQL használatához a php5-pgsql, a SQLite-hez a php5-sqlite.
 
 Az excel-táblázat generáló perl scripthez szükség van néhány perl modulra:
 libspreadsheet-writeexcel-perl
 libtext-unaccent-perl
 
 valamint az adatbáziskapcsolatnak megfelelő perl DBD komponensre, pl.:
-libdbd-sqlite2-perl
-libdbd-pg-perl
-stb.
+libdbd-sqlite3-perl
 
-# Megj:
-# SQLite miatt nem jó a sima SELECT * ... JOIN ... mert az eredménybe berakja
-# a táblanevet is! Helyette SELECT mezo1, ... kell
+Az táblázat generáló CGI scripthez engedélyezni kell a web szerveren
+a CGI modult (a2enmod cgi) és a futtatást az adott könyvtárra:
+    <Directory "/valami/ifa/">
+        Options ExecCGI
+        AddHandler cgi-script .cgi
+        ...
+    </Directory>
 
+###############################################################################
 
 - a jelentkezés, adminisztráció web böngészővel kezelhető,
 - session-alapú, a szülőknek saját jelszavuk van,
@@ -27,12 +30,12 @@ stb.
 - adatbázis-absztrakciós rétegen (PEAR DB) keresztül többféle RDBMS-t képes használni,
 - a tanári listázásokhoz képes PAM, LDAP és adatbázis authentikációt is kezelni.
 
-A csomagban található egy teszt adatbázis generáló script, és egy SQLite
+A csomagban található egy teszt adatbázis generáló script, és egy SQLite3
 példaadatbázis is.
 
 A program cookie-ban tárolt session-azonosítókat használ, anélkül nem
 működik. => engedélyezni kell: a szerveren a session-öket, a kliensen a
-kukikat.
+sütiket.
 
 Az állományok:
 
@@ -60,12 +63,7 @@ ifa.inc.php
 
 index.html
 
-  Szimpla átirányítás az index.php-ra, csak hogy ne lehessen véletlenül
-  listázni a könyvtár tartalmát.
-
-index.php
-
-  Ezt az állományt töltik be először, itt található a cookie-teszt.
+  Ezt az állományt töltik be először, tartalmazza a kereteket.
 
 OSZTALY
 
@@ -76,15 +74,15 @@ osztaly.php
 
   Az OSZTALY állomány alapján kirakja a bal oldali menübe az osztályok
   listáját, ha paraméterként osztályazonosítót kap, akkor azt az osztályt
-  ki is listázza.
+  ki is listázza. (<-osztaly.css)
 
 login.php
 
   Bejelentkezés, authentikáció. Ellenőrzi, hogy a kért azonosító létezik-e,
   beállítja a felhasználó identitását a session vagy a bejelentkezés
-  alapján. Ellenőrzi a bejelentkezési időszakot is.
+  alapján. Ellenőrzi a bejelentkezési időszakot is (kivéve Adminnál).
 
-  A bejelentkezés időszakja a szülők felé korlátozott, csak az előre
+  A bejelentkezés ideje a szülők felé korlátozott, csak az előre
   beállított bejelentkezési időszakban jelentkezhet be és módosíthatja a
   foglalásokat -- egyébként csak egy üzenetet kap, hogy nincs bejelentkezési
   időszak. Az admin bármikor bejelentkezhet, módosíthat.
@@ -94,19 +92,20 @@ tanar.php
   Egy tanárhoz tartozó egyéni időpont-beállítási lehetőség, csak az admin
   részére.
 
-  Tanári bejelentkezés esetén ez írja ki a tanár egyéni listáját is.
+  Tanári bejelentkezés esetén a tanár egyéni listáját írja ki.
 
 fogado.php
 
-  A normál bejelentkezés lapja, itt jelölhetik be a szülők és az admin az
-  egyes tanárokhoz való bejelentkezéseket. Elküldés után elvégzi a
-  szükséges alapvető ellenőrzéseket: egy tanárhoz nem lehet kétszer
-  feliratkozni, egyszerre nem lehet két tanárhoz jelentkezni, stb.
+  A normál diák-bejelentkezés lapja, itt jelölhetik be a szülők és az
+  admin az egyes tanárokhoz való bejelentkezéseket. Elküldés után elvégzi
+  a szükséges alapvető ellenőrzéseket: egy tanárhoz nem lehet kétszer
+  feliratkozni, egyszerre nem lehet két tanárhoz jelentkezni, figyelmeztet,
+  ha az osztálynak abban az időben szülői értekezlete van stb.
 
 admin.php
 
   Új fogadónap bejegyzés létrehozása, és alapértelmezett vagy beállított
-  értékekkel feltöltése.
+  értékekkel feltöltése. Innen lehet letölteni a kinyomtatandó táblázatot.
 
 fogado-xls.cgi
 
@@ -119,7 +118,7 @@ osszesit.php
 
 ifa.db
 
-  Fogadóóra példaadatbázis SQLite2 formátumban.
+  Fogadóóra példaadatbázis SQLite3 formátumban.
 
 default.css
 osztaly.css

@@ -62,7 +62,7 @@ if (isset($_REQUEST['mod'])) switch ($_REQUEST['mod']) {
             for ($ido = $UJ_min; $ido < $TANAR->IDO_min; $ido++ ) {
                 $INSERT[] = array(fid, $TANAR->id, $ido, ($ido%$tartam?-1:0));
             }
-            for ($ido = $TANAR->IDO_max+1; $ido < $UJ_max; $ido++) {
+            for ($ido = $TANAR->IDO_max; $ido < $UJ_max; $ido++) {
                 $INSERT[] = array(fid, $TANAR->id, $ido, ($ido%$tartam?-1:0));
             }
         }
@@ -92,39 +92,39 @@ $TANAR = new Tanar($_REQUEST['id']); # újra beolvassuk az adatbázisból
 
 Head("Fogadóóra - " . $TANAR->tnev);
 
-echo "\n<table width=\"100%\"><tr>\n"
+echo "\n<table width='100%'><tr>\n"
     . "<td><h3>" . $TANAR->tnev .  " (" . $FA->datum . ")</h3>\n"
-    . "<td align=right><a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n</table>\n";
+    . "<td align='right'><a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n</table>\n";
 
 # A külső táblázat első cellájában az időpont-lista
-$TABLA = "<table border=0><tr><td>\n";
+$TABLA = "<table border='0'><tr><td>\n";
 
 if (ADMIN) {
     if ($TANAR->fogad) {
-        $TABLA .= "<form action=\"\" method=post name=tabla>\n<table border=1>\n"
+        $TABLA .= "<form method='post' name='tabla'>\n<table border='1'>\n"
             . "<tr><th><th>A<th>B<th>C<th>D<th>E\n"
-            . "    <td colspan=2 align=right><input type=hidden name=mod value=1>\n"
-            . "       <input type=reset value='RESET'>\n"
-            . "       <input type=submit value=' Mehet '>\n";
+            . "    <td colspan='2' align='right'><input type='hidden' name='mod' value='1'>\n"
+            . "       <input type='reset' value='RESET'>\n"
+            . "       <input type='submit' value=' Mehet '>\n";
         for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido++) {
-            if (!isset($TANAR->fogado_ido[$ido])) continue; // Ha közben kicsit elmegy
-            $TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
-            $diak = $TANAR->fogado_ido[$ido]['diak'];
+            $TABLA .= ($ido%2?"<tr class='paratlan'>":"<tr>");
+            if (array_key_exists($ido, $TANAR->fogado_ido)) $diak = $TANAR->fogado_ido[$ido]['diak'];
+            else $diak = NULL;
             $TABLA .= "<td>" . FiveToString($ido);
-            $TABLA .= "  <td class=foglalt><input type=radio name=r$ido value=x" . (!isset($diak)?" checked":"") . ">\n";
-            $TABLA .= "  <td class=szabad><input type=radio name=r$ido value=0" . ($diak=="0"?" checked":"") . ">\n";
-            $TABLA .= "  <td class=szabad><input type=radio name=r$ido value=-1" . ($diak=="-1"?" checked":"") . ">\n";
-            $TABLA .= "  <td class=szuloi><input type=radio name=r$ido value=-2" . ($diak=="-2"?" checked":"") . ">\n";
+            $TABLA .= "  <td class='foglalt'><input type='radio' name='r$ido' value='x'" . (!isset($diak)?" checked":"") . ">\n";
+            $TABLA .= "  <td class='szabad'><input type='radio' name='r$ido' value='0'" . ($diak=="0"?" checked":"") . ">\n";
+            $TABLA .= "  <td class='szabad'><input type='radio' name='r$ido' value='-1'" . ($diak=="-1"?" checked":"") . ">\n";
+            $TABLA .= "  <td class='szuloi'><input type='radio' name='r$ido' value='-2'" . ($diak=="-2"?" checked":"") . ">\n";
             if ($diak>0) {
-                $TABLA .= "  <td class=sajat><input type=radio name=r$ido value=$diak checked><td><a class=diak href=\"fogado.php?"
-                    . "tip=diak&amp;id=" . $diak . "\">" . $TANAR->fogado_ido[$ido]['dnev'] . "</a>\n";
+                $TABLA .= "  <td class='sajat'><input type='radio' name=r$ido value='$diak' checked><td><a class='diak' href='fogado.php?"
+                    . "tip=diak&amp;id=" . $diak . "'>" . $TANAR->fogado_ido[$ido]['dnev'] . "</a>\n";
             } else {
-                $TABLA .= "  <td colspan=2>&nbsp;\n";
+                $TABLA .= "  <td colspan='2'>&nbsp;\n";
             }
         }
-        $TABLA .= "<tr><td colspan=7 align=right><input type=hidden name=mod value=1>\n"
-            . "       <input type=reset value='RESET'>\n"
-            . "       <input type=submit value=' Mehet '>\n"
+        $TABLA .= "<tr><td colspan='7' align='right'><input type='hidden' name='mod' value='1'>\n"
+            . "       <input type='reset' value='RESET'>\n"
+            . "       <input type='submit' value=' Mehet '>\n"
             . "</table>\n"
             . "</form>\n"
     # A külső táblázat második cellája
@@ -139,7 +139,7 @@ if (ADMIN) {
         . "   <li>D: szülői értekezlet<br>\n"
         . "   <li>E: már bejelentkezett diák\n"
         . "</ul>\n"
-        . "<script language=JavaScript type=\"text/javascript\"><!--\n"
+        . "<script language=JavaScript type='text/javascript'><!--\n"
         . "function fivedel() {\n"
         . "  for (var i=0; i<document.tabla.length; i++) {\n"
         . "    o = document.tabla.elements[i]; // az űrlap elemeit veszi sorra\n"
@@ -156,21 +156,21 @@ if (ADMIN) {
         . "  }\n"
         . "}\n"
         . "//--></script>\n"
-        . "<form action=\"\" method=post>\n"
-        . "  <input type=hidden name=mod value=2>\n";
+        . "<form method='post'>\n"
+        . "  <input type='hidden' name='mod' value='2'>\n";
 
     if ($TANAR->fogad) {
         $TABLA .= "<p>Bővítés: "
             . SelectIdo("kora", "kperc", $TANAR->IDO_min) . " - \n"
             . SelectIdo("vora", "vperc", $TANAR->IDO_max) . "\n &nbsp; &nbsp;"
             . SelectTartam('tartam') . "\n"
-            . "  <input type=submit value=' Uccu! '></p><br><br>\n"
+            . "  <input type='submit' value=' Uccu! '></p><br><br>\n"
             . "</form>\n"
-            . "<p class=elso><i>Gombok gyors állítása:</i>\n<ul>\n"
+            . "<p class='elso'><i>Gombok gyors állítása:</i>\n<ul>\n"
             . "  <li>Ha mégsem fog fogadni (összes -> A):\n"
-            . "      <br> &nbsp; &nbsp; <input type=button value=' Megjelöl ' onClick='nincs()'>\n"
+            . "      <br> &nbsp; &nbsp; <input type='button' value=' Megjelöl ' onClick='nincs()'>\n"
             . "  <li>Ha az 5 percekben is fogadni akar (összes: C -> B):\n"
-            . "      <br> &nbsp; &nbsp; <input type=button value=' Megjelöl ' onClick='fivedel()'>\n"
+            . "      <br> &nbsp; &nbsp; <input type='button' value=' Megjelöl ' onClick='fivedel()'>\n"
             . "  <br>(Ezek után még kell a ,,Mehet'' gomb!)\n</ul>\n\n"
             . "</table>\n";
     }
@@ -179,7 +179,7 @@ if (ADMIN) {
             . SelectIdo("kora", "kperc", $FA->IDO_min) . " - \n"
             . SelectIdo("vora", "vperc", $FA->IDO_max) . "\n &nbsp; &nbsp;"
             . SelectTartam('tartam') . "\n"
-            . "  <input type=submit value=' Uccu! '><br>\n"
+            . "  <input type='submit' value=' Uccu! '><br>\n"
             . "</form>\n"
             . "</table>\n";
     }
@@ -191,8 +191,8 @@ if (ADMIN) {
         $elozo = 0;
         for ($ido = $elso; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
             $ora = floor($ido/12);
-            if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan=3><hr>\n"; }
-            $TABLA .= ($ido%2?"<tr class=paratlan>":"<tr>");
+            if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan='3'><hr>\n"; }
+            $TABLA .= ($ido%2?"<tr class='paratlan'>":"<tr>");
             if (isset($TANAR->fogado_ido[$ido]['diak'])) $diak = $TANAR->fogado_ido[$ido]['diak'];
             else $diak = 0;
             $TABLA .= "<td" . ($diak=="-2"?" class=szuloi":"") . ">" . FiveToString($ido)

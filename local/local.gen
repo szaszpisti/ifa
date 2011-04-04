@@ -6,12 +6,12 @@ LOCAL=local.sql
 [ -f "$LOCAL" ] && { echo "Töröld a $LOCAL filet!"; exit 1; }
 
 {
-echo "INSERT INTO Diak_base (id, jelszo, dnev) VALUES (0, 'b5c6ccf9dade76f27e48a96599855083', 'Admin');"
+echo "INSERT INTO \"Diak_base\" (id, jelszo, dnev) VALUES (0, 'b5c6ccf9dade76f27e48a96599855083', 'Admin');"
 echo
 
 psql -A -t -q -c "SELECT \
-    'INSERT INTO Tanar (id, jelszo, emil, tnev) VALUES (', \
-    esz, ', \'\', \'', TRIM(emil), '\', \'', convert(enev, 'UTF-8') AS enev, '\');' \
+    'INSERT INTO \"Tanar\" (id, jelszo, emil, tnev) VALUES (', \
+    esz, ', NULL, \'', TRIM(emil), '\', \'', convert(enev, 'UTF-8') AS enev, '\');' \
     FROM Ember WHERE oszt LIKE '%x%' ORDER BY enev;" iskola \
     | tr -d '|'
 echo
@@ -22,12 +22,12 @@ psql -A -t -q -F';' -c "SELECT id, jelszo, convert(dnev, 'UTF-8'), oszt, onev FR
 | while read sor; do
     IFS=';'
     set $sor
-    echo "INSERT INTO Diak_base VALUES ($1, '$2', '$3', '$4');"
+    echo "INSERT INTO \"Diak_base\" VALUES ($1, '$2', '$3', '$4');"
 done
 echo
 
 psql -A -t -q -c "SELECT \
-    'INSERT INTO Osztaly (oszt, onev, ofo) VALUES (\'', \
+    'INSERT INTO \"Osztaly\" (oszt, onev, ofo) VALUES (\'', \
     oszt, '\', \'', onev, '\', ', esz, ');' FROM Osztaly_view WHERE evf<14" iskola \
     | tr -d '|'
 echo

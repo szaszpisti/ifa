@@ -11,7 +11,7 @@ $outfile = $argv[1];
 
 $fVnev = file('csaladnev.txt');
 $fKnev = file('keresztnev.txt');
-$fOsztaly = file('../OSZTALY');
+$fOsztaly = file('OSZTALY');
 
 $adminPwd = md5('x');
 $tanarPwd = md5('t');
@@ -23,12 +23,12 @@ function file_trim_tomb(&$value, $key) { $value = array($key, trim($value)); }
 function file_trim(&$value, $key) { $value = trim($value); }
 
 function nev () {
-    global $fVnev, $aKnev;
-    $v = rand(1, sizeof($fVnev)-1);
-    $k = rand(0, sizeof($aKnev)-1);
+    global $fVnev, $aKnev, $vmax, $kmax;
+    $v = rand(1, $vmax);
+    $k = rand(0, $kmax);
     $nev = $fVnev[$v][1] . " " . $aKnev[$k][1];
-    $fVnev[$v] = $fVnev[sizeof($fVnev)-1]; array_pop($fVnev);
-    $aKnev[$k] = $aKnev[sizeof($aKnev)-1]; array_pop($aKnev);
+    $fVnev[$v] = $fVnev[$vmax]; array_pop($fVnev); $vmax -= 1;
+    $aKnev[$k] = $aKnev[$kmax]; array_pop($aKnev); $kmax -= 1;
     return (array($v, $nev));
 }
 
@@ -47,18 +47,26 @@ $aKnev = explode (' ', implode (' ', $aKnevek));
 
 @array_walk($fOsztaly, 'file_trim');
 
+$vmax = count($fVnev)-1;
+$kmax = count($aKnev)-1;
+
+$oMax = 0;
 foreach ($fOsztaly as $oszt) {
     $O = explode(';', $oszt);
     if (sizeof($O) > $oMax) $oMax = sizeof($O);
     $OSZTALY[] = $O;
 }
 
-// Mindenekelőtt az Admin és egy általános fogadóóra bejegyzés beszúrása
-$OUT .= "INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES (0, '"
-    . $adminPwd . "', 'Admin', '', '', 0, '');\n\n";
-$OUT .= "INSERT INTO Admin (id, datum, kezd, veg, tartam, valid_kezd, valid_veg) "
-    . "VALUES (1, '2000-01-01', 192, 228, 2, '2000-01-01 08:00:00', '3000-01-01 12:00:00');\n\n";
+# Mindenekelőtt az Admin és egy általános fogadóóra bejegyzés beszúrása
+# $OUT .= "INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES (0, '"
+#      . $adminPwd . "', 'Admin', '', '', 0, '');\n\n";
+$OUT .= "INSERT INTO \"Admin\" VALUES (1,'2000-01-01',192, 228, 2,'2000-01-01 08:00','3000-01-01 12:00');\n\n";
 
+$osztalyOUT = '';
+$diakOUT = '';
+$tanarOUT = '';
+#$OUT = '';
+#$OUT = '';
 foreach ($OSZTALY as $oszt) {
     for ($o=0; $o<sizeof($oszt); $o+=2) {
         $oid = $oszt[$o];
@@ -69,17 +77,16 @@ foreach ($OSZTALY as $oszt) {
         // az osztályfőnököket berakjuk a tanárlistába
         $TANAR[] = $OFO;
 
-        $Ostring = "'".$OFO[2]."', '".$OFO[3]."', ".$OFO[0].", '".$OFO[1]."'";
+        $osztalyOUT .= "INSERT INTO \"Osztaly\" VALUES ('" . $OFO[2] . "','" . $OFO[3] . "'," . $OFO[0] . ");\n";
         $n = rand(25, 35);
         for ($i=0; $i<=$n; $i++) {
             list($id, $dnev) = nev();
-            $q = "INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES ("
-                . $id . ", '" . $diakPwd . "', '" . $dnev . "', " . $Ostring . ");";
-            $OUT .= $q . "\n";
+            $q = "INSERT INTO \"Diak_base\" VALUES ("
+                . $id . ",'" . $diakPwd . "','" . $dnev . "','" . $OFO[2] . "');";
+            $diakOUT .= "$q\n";
         }
     }
 }
-$OUT .= "\n";
 
 // még néhány nevet hozzáadunk a tanárokhoz
 $n = rand(15, 25);
@@ -89,13 +96,15 @@ for ($i=0; $i<=$n; $i++) {
 
 foreach ($TANAR as $t) {
     list($id, $tnev) = $t;
-    $q = "INSERT INTO Tanar (id, jelszo, tnev) VALUES ("
-        . $id . ", '" . $tanarPwd . "', '" . $tnev . "');";
-    $OUT .= $q . "\n";
+    $q = "INSERT INTO \"Tanar\" VALUES ($id,'$tanarPwd',NULL,'$tnev');";
+    $tanarOUT .= $q . "\n";
 }
 
+$OUT .= "$tanarOUT\n$osztalyOUT\n$diakOUT\n";
 $fh = fopen ($outfile, 'w');
+fwrite ($fh, "BEGIN TRANSACTION;\n\n");
 fwrite ($fh, $OUT);
+fwrite ($fh, "COMMIT;\n");
 fclose ($fh);
 
 ?>

@@ -29,9 +29,10 @@ set_include_path(get_include_path() . ':./classes');
 
 try {
     $db = new PDO($dsn);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT); // PDO::ERRMODE_WARNING);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+#   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
     $db->exec('PRAGMA foreign_keys = true;');
-} catch (PDOException $e) { echo $e->getMessage(); }
+} catch (PDOException $e) { hiba($e->getMessage()); }
 
 // először megkeressük az aktuális időpontot
 require_once('fogadoora.class.php');
@@ -48,8 +49,10 @@ define('fid', $FA->id);
 /**
  * @desc A paraméterként kapott hibaszöveget kiírja, majd logolja
  * @param string $err A kiírandó hibaüzenet
+ * @param boot $utf Kell-e utf-8 headert küldeni?                                                                               
  */
-function hiba($err) {
+function hiba($err, $utf=false) {
+    if ($utf) header('Content-Type: text/html; charset=utf-8');
     print "<p><hr><b>!!! - $err - !!!</b><hr>\n";
     Ulog (0, $err);
 }

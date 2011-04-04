@@ -26,9 +26,12 @@ $USER = new Diak($_SESSION['id']);
 
 Head("Fogadóóra - " . $USER->dnev);
 
-print "\n<h3>Fogadóóra: " . $FA->datum . "<br>\n"
+print "\n<table width='100%'>\n"
+    . "<tr><td><h3>Fogadóóra: " . $FA->datum . "<br>\n"
     . $USER->dnev . " " . $USER->onev . "<br>\n"
-    . "<font size=-1>(Osztályfőnök: " . $USER->ofonev . ")</h3>\n";
+    . "<font size=-1>(Osztályfőnök: " . $USER->ofonev . ")</h3>\n"
+    . "<td align='right' valign='top'><span class='noprint'><a href='fogado.php?".$_SERVER["QUERY_STRING"]."'>Vissza</a></span>\n"
+    . "</table>\n";
 
 $res = $db->prepare(
               "SELECT MIN(ido) AS eleje, MAX(ido) AS vege"
@@ -40,6 +43,8 @@ $res = $db->prepare(
 $res->execute(array(fid, $USER->ofo));
 $szuloi = $res->fetch(PDO::FETCH_ASSOC);
 
+$SzuloiSor  = '';
+$SzuloiEleje  = 0;
 if ($szuloi['eleje']) {
     $SzuloiSor = "<br><b>" . FiveToString($szuloi['eleje'])
         . "-" . FiveToString($szuloi['vege']+1)
@@ -58,6 +63,7 @@ $res = $db->prepare(
 $res->execute(array(fid, $USER->id));
 $rows = $res->fetchAll(PDO::FETCH_ASSOC);
 
+$Output = '';
 foreach ($rows as $row) {
     if ($SzuloiEleje < $row['ido']) {
         $Output .= $SzuloiSor;

@@ -68,7 +68,7 @@ PERL_DSN = "DBI:SQLite:dbname=ifa.db"
 #   $tanar_auth = 'DB';
 #
 
-$tanar_auth = 'DB';
+$tanar_auth = 'LDAP';
 
 #
 # $ldap:

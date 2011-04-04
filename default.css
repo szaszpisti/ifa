@@ -11,6 +11,10 @@ p.so { margin-top: .7em; text-indent: 0em; }
 a { text-decoration: none; color: maroon; }
 a:hover { background: #cccccc; }
 
+@media print {
+  .noprint { visibility:hidden; }
+}
+
 p.menu {
     font-size: 12pt;
     color: #999999;

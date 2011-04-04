@@ -33,15 +33,14 @@ function redirect($uri = '') {
 function get_user($param) {
     global $db;
     if ( !isset($param['tip']) || !isset($param['id']) ) return false;           // valami nincs megadva
-    if (!preg_match('/^[0-9]{1,10}$/', $param['id'])) return false;              // nem jó az id
-    if (!in_array($param['tip'], array('admin', 'tanar', 'diak'))) return false; // nem jó a típus
     $tip = $param['tip'];
     $id = $param['id'];
+    if (!preg_match('/^[0-9]{1,10}$/', $id)) return false;              // nem jó az id
+    if (!in_array($tip, array('admin', 'tanar', 'diak'))) return false; // nem jó a típus
     if ($tip == 'admin') $tip='diak';
-    if (($tip != 'tanar') && ($tip != 'diak')) die('Sikertelen azonosítás!');
 
     try {
-        $user = $db->query("SELECT * FROM $tip WHERE id=".$param['id'])->fetch(PDO::FETCH_ASSOC);
+        $user = $db->query("SELECT * FROM $tip WHERE id=$id")->fetch(PDO::FETCH_ASSOC);
         if (!isset($user['id'])) return false; // nincs találat
     } catch (PDOException $e) {
         die($e->getMessage());
@@ -56,11 +55,9 @@ function get_user($param) {
 function login($user, $hiba=NULL) {
     session_destroy();
 
-    if (isset($hiba)) {
-        header('Content-Type: text/html; charset=utf-8');
-        hiba($hiba);
-    }
     head("Fogadóóra - " . $user['nev'], ' onLoad="document.login.jelszo.focus()"');
+
+    if (isset($hiba)) hiba($hiba);
 
     print "<table width=\"100%\"><tr><td>\n";
     print "\n<h3>" . $user['nev'] . ($user['tip']=='diak'?' ('.$user['onev'].')':'') . "</h3>\n"
@@ -118,13 +115,14 @@ if ( isset($_POST['jelszo']) ) {
     }
     else { login ($user, "Érvénytelen bejelentkezés (".($user['tip'].", ".$user['id']).")!"); }
 
-    if (!ADMIN && ($_SESSION['tip'] == 'diak') && (!$FA->valid)) {
+    if (!$_SESSION['admin'] && (!$FA->valid)) {
         header ("Content-Type: text/html; charset=utf-8");
         print "<h3>Nincs bejelentkezési időszak!</h3>\n"
             . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "</h3>"
             . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
             . $FA->valid_veg_str . "</b> &nbsp; között lehet bejelentkezni.\n";
         tail();
+        Ulog ($user['tip']." ".$user['id'], "Nincs bejelentkezési időszak!");
         exit;
     }
 }
@@ -144,6 +142,7 @@ if ($user) {
     // Ha _REQUEST-ben és _SESSION-ben sincs rendes user
     @session_destroy();
     redirect('leiras.html');
+    exit;
 }
 
 session_write_close();

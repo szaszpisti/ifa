@@ -36,34 +36,34 @@ Head("Fogadóóra - " . $user->dnev);
 $USER_LOG = array();
 
 $Fejlec = 
-      "  <script language=JavaScript type=\"text/javascript\"><!--\n"
+      "  <script language=JavaScript type='text/javascript'><!--\n"
     . "    function torol(sor) {\n"
     . "    eval('var s = document.tabla.'+sor);\n"
     . "    for (var i=0; i<s.length; i++)\n"
     . "      s[i].checked=0;\n"
     . "    }\n"
     . "  //--></script>\n\n"
-    . "<table width=\"100%\"><tr><td>\n"
+    . "<table width='100%'><tr><td>\n"
     . "<h3>" . $user->dnev . " " . $user->onev .  " (" . $FA->datum . ")<br>\n"
     . "<font size=-1>(Osztályfőnök: " . $user->ofonev . ")</font></h3>\n"
-    . "<td align=right valign=top>\n"
-    . "  <a href=\"osszesit.php?tip=diak&amp;id=" . $user->id . "\"> Összesítés </a> | \n"
-    . "  <a href=\"leiras.html\"> Leírás </a> | \n"
-    . "  <a href=\"" . $_SERVER['PHP_SELF'] . "?kilep=\"> Kilépés </a>\n</table>\n";
+    . "<td align=right valign=top><span class='noprint'>\n"
+    . "  <a href='osszesit.php?tip=diak&amp;id=" . $user->id . "'> Összesítés </a> | \n"
+    . "  <a href='leiras.html'> Leírás </a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='> Kilépés </a>\n</span></table>\n";
 
 // egy tanár-sor a táblázatban
 function table_row($K, $tid, $t) {
     $tmp = '';
     for ($i=1; $i<count($K); $i++) { // 1-től kell kezdeni, mert a K inicializálásakor került bele egy fölös elem
-        $span = (count($K[$i])>1)?" colspan=" . count($K[$i]):"";
+        $span = (count($K[$i])>1)?" colspan='".count($K[$i])."'":"";
         if (count($K[$i]) == 0) continue;
         switch ($K[$i][0]) {
-            case foglalt: $tmp .= "  <td class=foglalt$span>&nbsp;\n"; break;
-            case szuloi:  $tmp .= "  <td class=szuloi$span>&nbsp;\n"; break;
-            case szabad:  $tmp .= "  <td class=szabad$span><input type=radio name=r$tid value=$t>\n"; break;
-            case szabad2: $tmp .= "  <td class=szabad$span>&nbsp;\n"; break;
-            case sajat:   $tmp .= "  <td class=sajat$span><input type=checkbox name=c$tid checked>\n"; break;
-            case sajat2:  $tmp .= "  <td class=sajat$span>&nbsp;\n"; break;
+            case foglalt: $tmp .= "  <td class='foglalt'$span>&nbsp;\n"; break;
+            case szuloi:  $tmp .= "  <td class='szuloi'$span>&nbsp;\n"; break;
+            case szabad:  $tmp .= "  <td class='szabad'$span><input type='radio' name='r$tid' value='$t'>\n"; break;
+            case szabad2: $tmp .= "  <td class='szabad'$span>&nbsp;\n"; break;
+            case sajat:   $tmp .= "  <td class='sajat'$span><input type='checkbox' name='c$tid' checked>\n"; break;
+            case sajat2:  $tmp .= "  <td class='sajat'$span>&nbsp;\n"; break;
         }
         $t += count($K[$i]) * 2;
     }
@@ -111,8 +111,8 @@ function tanar_ki($tanar) {
         $pred = $d;
     }
 
-    $tmp = "\n<tr><th align=left nowrap" . (isset($tanar['paratlan'])?" rowspan=2 valign=top":"") . ">&nbsp;"
-        . (ADMIN?"<a href=\"tanar.php?tip=tanar&amp;id=" . $tanar['id'] . "\">" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
+    $tmp = "\n<tr><th align='left' nowrap" . (isset($tanar['paratlan'])?" rowspan='2' valign='top'":"") . ">&nbsp;"
+        . (ADMIN?"<a href='tanar.php?tip=tanar&amp;id=" . $tanar['id'] . "'>" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
 
 // párosak:
     $tmp .= table_row($K[0], $tanar['id'], $FA->IDO_min);
@@ -140,8 +140,8 @@ for ($ido=$FA->IDO_min; $ido<$FA->IDO_max; $ido+=2) {
     array_push ($IDO[$ora], ($ido % 12)/2);
 }
 
-$A = "\n<tr bgcolor=lightblue><td rowspan=2>";
-$B = "\n<tr bgcolor=lightblue>";
+$A = "\n<tr bgcolor='lightblue'><td rowspan='2'>";
+$B = "\n<tr bgcolor='lightblue'>";
 
 if (!sizeof($IDO)) die('Nincsenek még időpontok!');
 foreach (array_keys($IDO) as $ora) {
@@ -230,8 +230,8 @@ if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
 // rádiógombok ellenőrzése (feliratkozás)
 //
 reset($_POST);
+$db->beginTransaction();
 while (list($k, $v) = each($_POST)) {
-    $db->beginTransaction();
     if ( ereg ("^r([0-9]+)$", $k, $match) ) {
         $Teacher = $match[1];
         $Time = $v;
@@ -250,8 +250,8 @@ while (list($k, $v) = each($_POST)) {
             else { Ulog($user->id, "Légy került a levesbe: $q!"); }
         }
     }
-    $db->commit();
 }
+$db->commit();
 
 # 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
 $szamlalo = 0;
@@ -272,18 +272,18 @@ print $Fejlec;
 
 if ($USER_LOG) {
     print "<hr>\n";
-    print "<table border=0 width=\"100%\"><tr><td bgcolor=\"#e8e8e8\">\n";
-    foreach ($USER_LOG as $log) print "<font size=-1><b>$log</b></font><br>\n";
+    print "<table border='0' width='100%'><tr><td bgcolor='#e8e8e8'>\n";
+    foreach ($USER_LOG as $log) print "<font size='-1'><b>$log</b></font><br>\n";
     print "</table>\n";
 }
 
-print "\n<form action=\"\" name=tabla method=post><table border=1>"
-    . "<tr><td colspan=" . (($FA->IDO_max-$FA->IDO_min)/2+2) . " align=right class=right>\n"
-    . "  <input type=submit value=' Mehet '>\n"
+print "\n<form name='tabla' method='post'><table border='1'>"
+    . "<tr><td colspan='" . (($FA->IDO_max-$FA->IDO_min)/2+2) . "' align='right' class='right'>\n"
+    . "  <input type='submit' value=' Mehet '>\n"
     . $TablaOutput
-    . "<tr><td colspan=" . (($FA->IDO_max-$FA->IDO_min)/2+2) . " align=right class=right>\n"
-    . "  <input type=hidden name=page value=mod>\n"
-    . "  <input type=submit value=' Mehet '>\n"
+    . "<tr><td colspan='" . (($FA->IDO_max-$FA->IDO_min)/2+2) . "' align='right' class='right'>\n"
+    . "  <input type='hidden' name='page' value='mod'>\n"
+    . "  <input type='submit' value=' Mehet '>\n"
     . "</table>\n\n"
     . "</form>\n";
 
