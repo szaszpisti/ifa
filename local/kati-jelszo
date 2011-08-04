@@ -1,0 +1,6 @@
+#!/bin/bash
+
+su -c "psql iskola -A -q -t -F ';' -c 'select * from fogado_diak_kati'" szaszi | recode ../crlf > ~kati/fogado-jelszo.csv
+chmod 600 ~kati/fogado-jelszo.csv
+chown kati:tanar ~kati/fogado-jelszo.csv
+

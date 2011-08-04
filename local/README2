@@ -1,0 +1,25 @@
+# Osztaly: psql -c 'SELECT oszt, onev, esz FROM Osztaly_view' iskola
+# Tanar:            SELECT esz AS id, emil, enev AS tnev FROM Ember_view;
+# Diak_base:        SELECT id, jelszo, dnev, oszt FROM Fogado_diak_view;
+# Diak: CREATE VIEW Diak AS SELECT id, jelszo, dnev, oszt, onev, esz AS ofo, tnev AS ofonev
+# 			FROM Osztaly, Tanar, Diak_base
+# 			WHERE Diak_base.oszt = Osztaly.oszt
+# 				AND Osztaly.esz = Tanar.id;
+# 
+# echo .dump | sqlite /var/ifa/ifa.db | sed -r 's+(INSERT INTO Diak [^,]*(,[^,]*){3}),.*$+\1);+' | grep Diak | head
+# echo .dump | sqlite /var/ifa/ifa.db | sed -r -e 's+(INSERT INTO Diak [^,]*(,[^,]*){3}),.*$+\1);+' -e '/ oszt /,/ ofonev /c\    ofo integer' | grep -A7 'TABLE Diak'
+
+if [ "$1" == "-f" ]; then
+	out() { dd of=j; }
+else
+	out() { sqlite3 ifa.db; }
+fi
+
+cp local/ifa.db .
+echo .dump \
+	| sqlite /var/ifa/ifa.db \
+	| sed -r -e 's+(INSERT INTO Diak [^,]*(,[^,]*){3}),.*$+\1);+' \
+		-e '/ oszt /,/ ofonev /c\    ofo integer' \
+		-e 's/Diak/Diak_base/g' \
+	| out
+#	| sqlite3 ifa.db

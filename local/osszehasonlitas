@@ -3,15 +3,15 @@
 # Összehasonlítja az iskolai adatbázis aktuális névsorát
 # az ifa.db névsorával.
 
-OLD=$PWD
+BASE=$PWD
 TMP=$( mktemp -d )
 cd $TMP
 
-/var/ifa/gen/local.gen
+$BASE/local.gen
 /var/ifa/gen/gen-db.php local.sql
-echo .dump | sqlite3 ifa.db | sort > dump-db
+echo .dump | sqlite ifa.db | sort > dump-db
 
-echo .dump | sqlite3 /var/ifa/ifa.db | egrep -v '(Ulog|Fogado|BEGIN|END|id_seq)' | sort > dump-ifa
+echo .dump | sqlite /var/ifa/ifa.db | egrep -v '(Ulog|Fogado|BEGIN|END|id_seq)' | sort > dump-ifa
 
 (
 diff dump-db dump-ifa
@@ -23,7 +23,8 @@ echo '--- Diak --------------------------------------------------'
 diff dump-db dump-ifa | grep '> INSERT INTO Diak '
 diff dump-db dump-ifa | grep '> INSERT INTO Diak ' | sed "s/^[^(]*(\([^,]*\),.*/delete from diak where id='\1';/"
 diff dump-db dump-ifa | grep '< INSERT INTO Diak ' | cut -c3-
-) | egrep -v '^([0-9]|[<>] (BEGIN|CREATE))' | less -E
+) | egrep -v '^([0-9]|[<>] (BEGIN|CREATE))' | less -r
 
-cd $PWD
+cd $BASE
 rm -r $TMP
+
