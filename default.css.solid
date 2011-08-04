@@ -1,0 +1,86 @@
+body {
+    background-color: white;
+    padding: .5em;
+/*    border-left: 10px double #00688b; */
+}
+
+p { text-indent: 0.0em; margin: 0.0em; }
+p.elso { margin-top: .0em; text-indent: 0em; }
+p.so { margin-top: .0em; text-indent: 0em; }
+
+a { text-decoration: none; color: maroon; }
+a:hover { background: #cccccc; }
+
+@media print {
+  .noprint { visibility:hidden; }
+}
+
+p.menu {
+    font-size: 12pt;
+    color: #999999;
+    background-color: #00688b;
+    text-indent: 0em; margin: 0px;
+    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+    padding: 3px;
+}
+a.menu {
+    color: #cccccc;
+    padding: 2pt 4pt;
+    background: #00688b;
+}
+a.menu:hover {
+    color: white;
+    padding: 2pt 4pt;
+    background: #00688b;
+}
+
+.justify { text-align: justify; text-indent: 0em; }
+.center { text-align: center; text-indent: 0em; }
+.right { text-align: right; text-indent: 0em; }
+.left { text-align: left; text-indent: 0em; }
+.kicsi { font-size: 10pt; }
+
+table {
+    font-size: 8pt;
+    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+    border-spacing: 0px;
+/*    border: outset .5pt; */
+}
+th { margin: 0px; padding: 0px;
+    font-size: 8pt;
+    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+}
+td { margin: 0px; padding: 0px;
+    font-size: 8pt;
+    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+}
+td.sajat { margin: 0px; background-color: red; padding: 0px;
+    font-size: 8pt;
+    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+}
+td.foglalt { margin: 0px; background-color: #D0E0E0; padding: 0px;
+    font-size: 8pt;
+    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+}
+td.szuloi { margin: 0px; background-color: yellow; padding: 0px;
+    font-size: 8pt;
+    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+}
+
+/* Itt jönnek az admin.php stílusai */
+
+table.tanar {
+    border-spacing: 0px;
+    text-indent: 5pt;
+}
+tr.paratlan { background-color: #EEEEEE; }
+
+address { font-size: 8 pt; }
+
+div.kiemelt {
+    padding: .2em;
+    border: solid thin;
+    margin: .5em 0;
+    background: #ddd;
+}
+

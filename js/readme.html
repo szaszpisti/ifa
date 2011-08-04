@@ -1,0 +1,426 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>DateChooser Demo</title>
+	<link rel="stylesheet" type="text/css" media="all" href="datechooser.css">
+	<script type="text/javascript" src="datechooser.js"></script>
+	<script type="text/javascript">
+	<!-- //
+
+		events.add(window, 'load', WindowLoad);
+
+		function WindowLoad()
+		{
+			/*
+				Example 1 Description:
+				The DateChooser will close 200 milliseconds after mouseout.
+				It will show 10 pixels to the right of, and 10 pixels above the click.
+				It will call the FunctionEx1() function (below) when updated.
+				Instead of using setLink() or setIcon(), so it attaches an event handler to 'datelinkex1' in the markup.
+			*/
+
+			var ndExample1 = document.getElementById('datechooserex1');
+			ndExample1.DateChooser = new DateChooser();
+
+			// Check if the browser has fully loaded the DateChooser object, and supports it.
+			if (!ndExample1.DateChooser.display)
+			{
+				return false;
+			}
+
+			ndExample1.DateChooser.setCloseTime(200);
+			ndExample1.DateChooser.setXOffset(10);
+			ndExample1.DateChooser.setYOffset(-10);
+			ndExample1.DateChooser.setUpdateFunction(FunctionEx1);
+			document.getElementById('datelinkex1').onclick = ndExample1.DateChooser.display;
+
+			/*
+				Example 2 Description:
+				The DateChooser will not close until a date is chosen.
+				It will show 5 pixels to the right of, and 5 pixels above the click.
+				It will initially open with a date of April 19 of the current year.
+				It will update the 'dateinputex2' input with the PHP-style date 'D., M j Y' (ex. Wed., Apr 19 2006).
+				It will add a link to the right of the 'dateinputex2' input, with text 'Example 2'.
+				The link will have the default title ('Click to choose a date').
+			*/
+
+			var objStartDateEx2 = new Date();
+			objStartDateEx2.setMonth(3);
+			objStartDateEx2.setDate(19);
+
+			var ndExample2 = document.getElementById('datechooserex2');
+			ndExample2.DateChooser = new DateChooser();
+			ndExample2.DateChooser.setXOffset(5);
+			ndExample2.DateChooser.setYOffset(-5);
+			ndExample2.DateChooser.setStartDate(objStartDateEx2);
+			ndExample2.DateChooser.setUpdateField('dateinputex2', 'D., M j Y');
+			ndExample2.DateChooser.setLink('Example 2', 'dateinputex2');
+
+			/*
+				Example 3 Description:
+				The DateChooser will close 400 milliseconds after mouseout.
+				It will show 5 pixels below the click.
+				It will only allow dates no earlier than today, and no later than a month from today.
+				It will only allow Mondays, Wednesdays, or Fridays to be selected.
+				It will update the 'monthselectex3' select with the PHP-style date 'm' (month number with preceding '0').
+				It will also update the 'dayselectex3' select with the PHP-style date 'd' (day number with preceding '0').
+				It will also update the 'yearselectex3' select with the PHP-style date 'Y' (4-digit year).
+				It will place an icon (datechooser.png) to the left of the 'monthselectex3' select.
+				The icon will have a custom title ('Click for example 3')
+			*/
+
+			var objEarlyDateEx3 = new Date();
+			objEarlyDateEx3.setMonth(objEarlyDateEx3.getMonth());
+			var objLateDateEx3 = new Date();
+			objLateDateEx3.setMonth(objLateDateEx3.getMonth() + 1);
+
+			var ndExample3 = document.getElementById('datechooserex3');
+			ndExample3.DateChooser = new DateChooser();
+			ndExample3.DateChooser.setCloseTime(400);
+			ndExample3.DateChooser.setYOffset(5);
+			ndExample3.DateChooser.setEarliestDate(objEarlyDateEx3);
+			ndExample3.DateChooser.setLatestDate(objLateDateEx3);
+			ndExample3.DateChooser.setAllowedDays(['1', '3', '5']);
+			ndExample3.DateChooser.setUpdateField(['monthselectex3', 'dayselectex3', 'yearselectex3'], ['m', 'd', 'Y']);
+			ndExample3.DateChooser.setIcon('datechooser.png', 'monthselectex3', false, 'Click for example 3');
+
+			/*
+				Example 4 Description:
+				It will show exactly where the icon is clicked
+				It will update the 'monthselectex4' select with the PHP-style date 'n' (month number with no preceding '0').
+				It will also update the 'dayselectex4' select with the PHP-style date 'j' (day number with no preceding '0').
+				It will also update the 'yearselectex4' select with the PHP-style date 'Y' (4-digit year).
+				It will place an icon ('datechooser.png') to the right of the 'yearselectex4' select.
+				The icon will have the default title ('Click to choose a date').
+			*/
+
+			var ndExample4 = document.getElementById('datechooserex4');
+			ndExample4.DateChooser = new DateChooser();
+			ndExample4.DateChooser.setUpdateField({'monthselectex4':'n', 'dayselectex4':'j', 'yearselectex4':'Y'});
+			ndExample4.DateChooser.setIcon('datechooser.png', 'yearselectex4');
+
+			return true;
+		}
+
+		function FunctionEx1(objDate)
+		{
+			// objDate is a plain old Date object, with the getPHPDate() property added on.
+			document.getElementById('dateinputex1').value = objDate.getPHPDate('F jS, Y');
+			return true;
+		}
+
+		function FunctionEx6(objDate)
+		{
+			var ndExample5 = document.getElementById('datechooserex5');
+			ndExample5.DateChooser.setEarliestDate(objDate);
+			ndExample5.DateChooser.updateFields();
+
+			return true;
+		}
+
+	// -->
+	</script>
+</head>
+<body>
+	<div id="container">
+		<h1>DateChooser Examples</h1>
+		<p>(View source for javascript help, or go to <a href="http://yellow5.us/projects/datechooser/">http://yellow5.us/projects/datechooser/</a> for more information.)</p>
+		<hr>
+		<p id="datechooserex1">
+			<a id="datelinkex1" href="#">Example 1</a>
+			<input id="dateinputex1" type="text" value="">
+		</p>
+		<p id="datechooserex2"><input id="dateinputex2" type="text" value=""></p>
+		<p id="datechooserex3">
+			<select id="monthselectex3" name="monthselectex3">
+				<option value="01">January</option>
+				<option value="02">February</option>
+				<option value="03">March</option>
+				<option value="04">April</option>
+				<option value="05">May</option>
+				<option value="06">June</option>
+				<option value="07">July</option>
+				<option value="08">August</option>
+				<option value="09" selected="selected">September</option>
+				<option value="10">October</option>
+				<option value="11">November</option>
+				<option value="12">December</option>
+			</select>
+			<select id="dayselectex3" name="dayselectex3">
+				<option value="01">1</option>
+				<option value="02">2</option>
+				<option value="03">3</option>
+				<option value="04" selected="selected">4</option>
+				<option value="05">5</option>
+				<option value="06">6</option>
+				<option value="07">7</option>
+				<option value="08">8</option>
+				<option value="09">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+				<option value="18">18</option>
+				<option value="19">19</option>
+				<option value="20">20</option>
+				<option value="21">21</option>
+				<option value="22">22</option>
+				<option value="23">23</option>
+				<option value="24">24</option>
+				<option value="25">25</option>
+				<option value="26">26</option>
+				<option value="27">27</option>
+				<option value="28">28</option>
+				<option value="29">29</option>
+				<option value="30">30</option>
+				<option value="31">31</option>
+			</select>
+			<select id="yearselectex3" name="yearselectex3">
+				<option value="1990">1990</option>
+				<option value="1991">1991</option>
+				<option value="1992">1992</option>
+				<option value="1993">1993</option>
+				<option value="1994">1994</option>
+				<option value="1995">1995</option>
+				<option value="1996">1996</option>
+				<option value="1997">1997</option>
+				<option value="1998">1998</option>
+				<option value="1999">1999</option>
+				<option value="2000">2000</option>
+				<option value="2001">2001</option>
+				<option value="2002">2002</option>
+				<option value="2003">2003</option>
+				<option value="2004">2004</option>
+				<option value="2005">2005</option>
+				<option value="2006" selected="selected">2006</option>
+				<option value="2007">2007</option>
+				<option value="2008">2008</option>
+				<option value="2009">2009</option>
+				<option value="2010">2010</option>
+				<option value="2011">2011</option>
+				<option value="2012">2012</option>
+				<option value="2013">2013</option>
+				<option value="2014">2014</option>
+				<option value="2015">2015</option>
+				<option value="2016">2016</option>
+				<option value="2017">2017</option>
+				<option value="2018">2018</option>
+				<option value="2019">2019</option>
+				<option value="2020">2020</option>
+			</select>
+		</p>
+		<p id="datechooserex4">
+			<select id="monthselectex4" name="monthselectex4">
+				<option value="1">January</option>
+				<option value="2">February</option>
+				<option value="3">March</option>
+				<option value="4">April</option>
+				<option value="5">May</option>
+				<option value="6">June</option>
+				<option value="7">July</option>
+				<option value="8">August</option>
+				<option value="9" selected="selected">September</option>
+				<option value="10">October</option>
+				<option value="11">November</option>
+				<option value="12">December</option>
+			</select>
+			<select id="dayselectex4" name="dayselectex4">
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4" selected="selected">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+				<option value="7">7</option>
+				<option value="8">8</option>
+				<option value="9">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+				<option value="18">18</option>
+				<option value="19">19</option>
+				<option value="20">20</option>
+				<option value="21">21</option>
+				<option value="22">22</option>
+				<option value="23">23</option>
+				<option value="24">24</option>
+				<option value="25">25</option>
+				<option value="26">26</option>
+				<option value="27">27</option>
+				<option value="28">28</option>
+				<option value="29">29</option>
+				<option value="30">30</option>
+				<option value="31">31</option>
+			</select>
+			<select id="yearselectex4" name="yearselectex4">
+				<option value="1990">1990</option>
+				<option value="1991">1991</option>
+				<option value="1992">1992</option>
+				<option value="1993">1993</option>
+				<option value="1994">1994</option>
+				<option value="1995">1995</option>
+				<option value="1996">1996</option>
+				<option value="1997">1997</option>
+				<option value="1998">1998</option>
+				<option value="1999">1999</option>
+				<option value="2000">2000</option>
+				<option value="2001">2001</option>
+				<option value="2002">2002</option>
+				<option value="2003">2003</option>
+				<option value="2004">2004</option>
+				<option value="2005">2005</option>
+				<option value="2006" selected="selected">2006</option>
+				<option value="2007">2007</option>
+				<option value="2008">2008</option>
+				<option value="2009">2009</option>
+				<option value="2010">2010</option>
+				<option value="2011">2011</option>
+				<option value="2012">2012</option>
+				<option value="2013">2013</option>
+				<option value="2014">2014</option>
+				<option value="2015">2015</option>
+				<option value="2016">2016</option>
+				<option value="2017">2017</option>
+				<option value="2018">2018</option>
+				<option value="2019">2019</option>
+				<option value="2020">2020</option>
+			</select>
+		</p>
+		<p id="datechooserex5" class="datechooser dc-textlink='Example 5'">
+			<select name="monthselectex5" class="dc-dateformat='n'">
+				<option value="1">January</option>
+				<option value="2">February</option>
+				<option value="3">March</option>
+				<option value="4">April</option>
+				<option value="5">May</option>
+				<option value="6">June</option>
+				<option value="7">July</option>
+				<option value="8">August</option>
+				<option value="9" selected="selected">September</option>
+				<option value="10">October</option>
+				<option value="11">November</option>
+				<option value="12">December</option>
+			</select>
+			<select name="dayselectex5" class="dc-dateformat='j'">
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4" selected="selected">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+				<option value="7">7</option>
+				<option value="8">8</option>
+				<option value="9">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+				<option value="18">18</option>
+				<option value="19">19</option>
+				<option value="20">20</option>
+				<option value="21">21</option>
+				<option value="22">22</option>
+				<option value="23">23</option>
+				<option value="24">24</option>
+				<option value="25">25</option>
+				<option value="26">26</option>
+				<option value="27">27</option>
+				<option value="28">28</option>
+				<option value="29">29</option>
+				<option value="30">30</option>
+				<option value="31">31</option>
+			</select>
+			<select name="yearselectex5" class="dc-dateformat='Y'">
+				<option value="1990">1990</option>
+				<option value="1991">1991</option>
+				<option value="1992">1992</option>
+				<option value="1993">1993</option>
+				<option value="1994">1994</option>
+				<option value="1995">1995</option>
+				<option value="1996">1996</option>
+				<option value="1997">1997</option>
+				<option value="1998">1998</option>
+				<option value="1999">1999</option>
+				<option value="2000">2000</option>
+				<option value="2001">2001</option>
+				<option value="2002">2002</option>
+				<option value="2003">2003</option>
+				<option value="2004">2004</option>
+				<option value="2005">2005</option>
+				<option value="2006" selected="selected">2006</option>
+				<option value="2007">2007</option>
+				<option value="2008">2008</option>
+				<option value="2009">2009</option>
+				<option value="2010">2010</option>
+				<option value="2011">2011</option>
+				<option value="2012">2012</option>
+				<option value="2013">2013</option>
+				<option value="2014">2014</option>
+				<option value="2015">2015</option>
+				<option value="2016">2016</option>
+				<option value="2017">2017</option>
+				<option value="2018">2018</option>
+				<option value="2019">2019</option>
+				<option value="2020">2020</option>
+			</select>
+		</p>
+		<p><input id="datechooserex6" class="datechooser dc-dateformat='Y-n-j' dc-iconlink='datechooser.png' dc-alloweddays='1,4' dc-weekstartday='1' dc-startdate='06241999' dc-latestdate='07312000' dc-earliestdate='05241999' dc-onupdate='FunctionEx6'" type="text" value=""></p>
+		<hr>
+		<h2>DateChooser structure (for CSS support)</h2>
+		<pre>
+&lt;div class="calendar"&gt;
+	&lt;table summary="DateChooser"&gt;
+		&lt;thead&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;a class="previousyear" href="#" title="Previous Year"&gt;&amp;laquo;&lt;/a&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;a class="previousmonth" href="#" title="Previous Month"&gt;&amp;lt;&lt;/a&gt;&lt;/th&gt;
+				&lt;th colspan="3"&gt;&lt;a class="currentdate" href="#" title="Current Date"&gt;May 2006&lt;/a&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;a class="nextmonth" href="#" title="Next Month"&gt;&amp;gt;&lt;/a&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;a class="nextyear" href="#" title="Next Year"&gt;&amp;raquo;&lt;/a&gt;&lt;/th&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td&gt;S&lt;/td&gt;
+				&lt;td&gt;M&lt;/td&gt;
+				&lt;td&gt;T&lt;/td&gt;
+				&lt;td&gt;W&lt;/td&gt;
+				&lt;td&gt;T&lt;/td&gt;
+				&lt;td&gt;F&lt;/td&gt;
+				&lt;td&gt;S&lt;/td&gt;
+			&lt;/tr&gt;
+		&lt;/thead&gt;
+		&lt;tbody&gt;
+			&lt;!-- Notice the "selectedday" class for the date picked --&gt;
+			&lt;!-- Today's date will have class "today" --&gt;
+			&lt;!-- Dates out of range will have class "invalidday" --&gt;
+			&lt;tr&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;a href="#"&gt;1&lt;/a&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;a href="#"&gt;2&lt;/a&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;a class="selectedday" href="#"&gt;3&lt;/a&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;a href="#"&gt;4&lt;/a&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;a href="#"&gt;5&lt;/a&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;a href="#"&gt;6&lt;/a&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;!-- ...and on through the rest of the month --&gt;
+		&lt;/tbody&gt;
+	&lt;/table&gt;
+&lt;/div&gt;
+		</pre>
+		<p>The link created by the setLink() property has class 'calendarlink', and the icon created by the setIcon() property has class 'calendaricon'.</p>
+	</div>
+</body>
+</html>
