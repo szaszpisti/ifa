@@ -1,3 +1,4 @@
+
 CREATE TABLE Admin (
         id INTEGER PRIMARY KEY,
         datum DATE,
@@ -52,3 +53,6 @@ CREATE VIEW Diak AS
                         FROM Osztaly AS O, Tanar AS T, Diak_base AS D
                         WHERE D.oszt = O.oszt AND O.ofo = T.id
                     UNION SELECT 0, "0cc175b9c0f1b6a831c399e269772661", "Admin", "", "", "", "" -- public;
+
+CREATE VIEW Ip as SELECT COUNT(host) AS num, host FROM Ulog WHERE ido > (SELECT MAX(valid_kezd) FROM admin) GROUP BY host;
+
