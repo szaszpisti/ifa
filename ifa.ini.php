@@ -74,21 +74,21 @@ $tanar_auth = 'LDAP';
 # $ldap:
 #
 #   Tanári azonosításhoz az általános LDAP DN. Csak akkor van rá szükség, ha a
-#   $tanar_auth változóban LDAP szerepel. Ekkor a #USER# helyére fogja
-#   a program beírni az tanári azonosítót.
+#   $tanar_auth változóban LDAP szerepel. Ekkor a 'base' dn-ben megkeresi a tanár
+#   uid-et, a kapott dn-nel és a jelszóval próbál authentikálni.
 #
 #   Példa:
 #
 #   $ldap = array(
 #       'host' => 'ldap://localhost',
-#       'base' => 'uid=#USER#,ou=People,dc=szepi,dc=hu',
+#       'base' => 'uid=ou=People,dc=szepi,dc=hu',
 #       'version' => 3
 #   );
 #
 
 $ldap = array(
     'host' => 'ldap://localhost',
-    'base' => 'uid=#USER#,ou=People,dc=szepi,dc=hu',
+    'base' => 'ou=People,dc=szepi,dc=hu',
     'version' => 3
 );
 

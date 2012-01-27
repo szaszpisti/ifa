@@ -88,12 +88,17 @@ if ( isset($_POST['jelszo']) ) {
                     $jo = (md5($_POST['jelszo']) == $user['jelszo']);
                     break;
                 case 'LDAP':
-                    $dn = preg_replace ('/#USER#/', $user['emil'], $ldap['base']);
                     if($connect = ldap_connect($ldap['host'])) {
                         ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, $ldap['version']);
+                        $filter = "(uid=".$user['emil'].")";
+                        $result = ldap_search($connect, $ldap['base'], $filter);
+                        $entries = ldap_get_entries($connect, $result);
+                        if ($entries['count'] != 1) { break; }
+                        $dn = $entries[0]['dn'];
                         $jo = @ldap_bind($connect, $dn, $_POST['jelszo']);
                         @ldap_unbind ($connect);
                     }
+
                     break;
             }
             break;
