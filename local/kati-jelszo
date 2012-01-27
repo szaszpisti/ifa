@@ -1,6 +1,11 @@
 #!/bin/bash
 
-su -c "psql iskola -A -q -t -F ';' -c 'select * from fogado_diak_kati'" szaszi | recode ../crlf > ~kati/fogado-jelszo.csv
-chmod 600 ~kati/fogado-jelszo.csv
-chown kati:tanar ~kati/fogado-jelszo.csv
+if [ $UID -ne 0 ]; then
+	echo "Only for root!"
+	exit 1
+fi
+
+su -c "psql iskola -A -q -t -F ';' -c 'select * from fogado_diak_kati'" szaszi | recode u8..l2/crlf > ~adam/fogado-jelszo.csv
+chmod 600 ~adam/fogado-jelszo.csv
+chown adam:iroda ~adam/fogado-jelszo.csv
 
