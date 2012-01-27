@@ -72,11 +72,26 @@ function login($user, $hiba=NULL) {
     exit;
 }
 
+function timeout() {
+    global $FA;
+    header ("Content-Type: text/html; charset=utf-8");
+    print "<h3>Nincs bejelentkezési időszak!</h3>\n"
+        . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "</h3>"
+        . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
+        . $FA->valid_veg_str . "</b> &nbsp; között lehet bejelentkezni.\n";
+    tail();
+    Ulog ($user['tip']." ".$user['id'], "Nincs bejelentkezési időszak!");
+    @session_destroy();
+    exit;
+}
+
 $user = get_user($_REQUEST);
+if (!$user) redirect('leiras.html');
+
+if (($user['tip'] == 'diak') && !$_SESSION['admin'] && (!$FA->valid)) timeout();
 
 // Ha jelszót kaptunk, mindenképpen ellenőrizni kell.
 if ( isset($_POST['jelszo']) ) {
-    if (!$user) redirect('leiras.html');
     $jo = false;
     switch ($user['tip']) {
         case 'tanar':
@@ -119,17 +134,6 @@ if ( isset($_POST['jelszo']) ) {
         ulog ($user['id'], $user['nev'] . " bejelentkezett.");
     }
     else { login ($user, "Érvénytelen bejelentkezés (".($user['tip'].", ".$user['id']).")!"); }
-
-    if (!$_SESSION['admin'] && (!$FA->valid)) {
-        header ("Content-Type: text/html; charset=utf-8");
-        print "<h3>Nincs bejelentkezési időszak!</h3>\n"
-            . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "</h3>"
-            . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
-            . $FA->valid_veg_str . "</b> &nbsp; között lehet bejelentkezni.\n";
-        tail();
-        Ulog ($user['tip']." ".$user['id'], "Nincs bejelentkezési időszak!");
-        exit;
-    }
 }
 
 if ($user) {
