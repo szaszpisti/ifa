@@ -1,0 +1,9 @@
+
+2011.11.08
+Ha ' van a jelszóban, valami nem jó,
+nem lehet bejelentkezni.
+
+2012.01.27
+Ha bejelentkezett valaki és "Nincs bejelentkezési időszak", akkor logikailag bejelentkezett,
+vagyis ismét a saját nevére kattintva már tud módosítani.
+
