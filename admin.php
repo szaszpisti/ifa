@@ -17,7 +17,9 @@
 require_once('login.php');
 require_once('ifa.inc.php');
 
-if (!isset($_REQUEST['page'])) $_REQUEST['page'] = 0;
+if (!isset($_REQUEST['page']) || !in_array($_REQUEST['page'], array(0, 1, 2, 3, 4))) {
+    $_REQUEST['page'] = 0;
+}
 
 /*
 Ha oldalszám nélkül hívjuk, akkor megnézi, hogy van-e időben következő fogadóóra:
@@ -127,9 +129,12 @@ Vege;
                    ha nem létezik, létrehozzuk, mehet tovább.
         */
 
-        if ( !isset($_REQUEST['datum']) ) { hiba ("Nincs dátum megadva"); return 1; }
+        if ( !isset($_REQUEST['datum']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_REQUEST['datum'])) {
+            hiba ("Nincs dátum megadva"); return 1;
+        }
 
-        $res = $db->query("SELECT * FROM Admin WHERE datum='" . $_REQUEST['datum'] . "'" );
+        $res = $db->prepare("SELECT * FROM Admin WHERE datum=?");
+        $res->execute(array($_REQUEST['datum']));
         $rows = $res->fetchAll(PDO::FETCH_ASSOC);
 
         if ( count($rows) === 0 ) { // nincs még ilyen nap, létre lehet hozni
@@ -156,7 +161,8 @@ Vege;
 
         }
         elseif ( count($rows) === 1 ) {
-            $res = $db->query("SELECT count(*) AS num FROM Fogado WHERE fid=" . $rows[0]['id']);
+            $res = $db->prepare("SELECT count(*) AS num FROM Fogado WHERE fid=?");
+            $res->execute(array($rows[0]['id']));
             $row = $res->fetch(PDO::FETCH_ASSOC);
             if ($row['num'] > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
         }
@@ -168,7 +174,8 @@ Vege;
         // túl vagyunk az időpontbejegyzésen, újból beolvassuk az aktuálisat
         // $FA a fogadóóra bejegyzés asszociatív tömbje
 
-        $res = $db->query("SELECT * FROM Admin WHERE datum='" . $_REQUEST['datum'] . "'" );
+        $res = $db->prepare("SELECT * FROM Admin WHERE datum=?");
+        $res->execute(array($_REQUEST['datum']));
         $FA = $res->fetch(PDO::FETCH_ASSOC);
 
         $Out .= "<b>Fogadóóra: " . $FA['datum'] . "</b>\n\n";
@@ -232,7 +239,8 @@ Vege;
 #        if (DB::isError($num)) { die($num->getMessage()); }
 #        if ( $num != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
 
-        $res = $db->query("SELECT count(*) AS num FROM Admin WHERE id=" . $_REQUEST['fid'] );
+        $res = $db->prepare("SELECT count(*) AS num FROM Admin WHERE id=?");
+        $res->execute(array($_REQUEST['fid']));
         $row = $res->fetch(PDO::FETCH_ASSOC);
         if ( $row['num'] != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
 
@@ -241,7 +249,8 @@ Vege;
 #        if (DB::isError($num)) { die($num->getMessage()); }
 #        if ( $num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
 
-        $res = $db->query("SELECT count(*) AS num FROM Fogado WHERE fid=" . $_REQUEST['fid'] );
+        $res = $db->prepare("SELECT count(*) AS num FROM Fogado WHERE fid=?");
+        $res->execute(array($_REQUEST['fid']));
         $row = $res->fetch(PDO::FETCH_ASSOC);
         if ( $row['num'] > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
 

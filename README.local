@@ -1,1 +1,2 @@
-SELECT * FROM Ulog ORDER BY ido DESC LIMIT 30;
+echo 'SELECT * FROM Ulog ORDER BY ido DESC LIMIT 30;' | sqlite3 ifa.db
+
