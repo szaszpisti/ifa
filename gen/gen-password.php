@@ -70,7 +70,7 @@ $i = 0;
 $n = sizeof($fUser);
 
 // Tanárok felsorolása
-while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
+while ($i < $n && !preg_match('/===/', $fUser[$i])) {
     $sor = trim($fUser[$i]);
     if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
         $i++;
@@ -90,7 +90,7 @@ $OUT .= $fUser[$i++];
 $INSERT .= "\n";
 
 // Osztályok felsorolása
-while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
+while ($i < $n && !preg_match('/===/', $fUser[$i])) {
     $sor = trim($fUser[$i]);
     if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
         $i++;
@@ -120,7 +120,7 @@ $i++;
 
 
 // Diákok felsorolása
-while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
+while ($i < $n && !preg_match('/===/', $fUser[$i])) {
     $sor = trim($fUser[$i]);
     if (preg_match('/^$/', $sor) || preg_match('/^#/', $sor)) {
         $i++;
@@ -144,7 +144,6 @@ while (!preg_match('/===/', $fUser[$i]) && $i <= $n) {
     $OUT .= $t[0] . ";" . $osztaly[$oid]['onev'] . ";" . $jelszo . "\n";
     $i++;
 }
-$OUT .= $fUser[$i++];
 
 $fh = fopen ($userFile . ".insert" , 'w');
 fwrite ($fh, $INSERT);
