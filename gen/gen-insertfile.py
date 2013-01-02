@@ -59,11 +59,6 @@ for i in range(randint(25, 35)):
     tanarOUT.append("INSERT INTO Tanar VALUES (%d, '%s', '', '%s');" % (nTanar, tJelszo, nev()))
     nTanar += 1
 
-# egy általános fogadóóra bejegyzés beszúrása
-OUT = ["INSERT INTO Admin VALUES (1, '2000-01-01', 192, 228, 2, '2000-01-01 08:00', '3000-01-01 12:00');"]
-OUT += tanarOUT
-OUT += osztalyOUT
-OUT += diakOUT
-
+OUT = tanarOUT + osztalyOUT + diakOUT
 open(outfile, 'w').write('\n'.join(OUT))
 
