@@ -13,11 +13,11 @@ $fVnev = file('csaladnev.txt');
 $fKnev = file('keresztnev.txt');
 $fOsztaly = file('OSZTALY');
 
-$adminPwd = md5('x');
+$adminPwd = md5('a');
 $tanarPwd = md5('t');
 $diakPwd = md5('d');
 
-$OUT = '';
+$OUT = "BEGIN TRANSACTION;\n\n";
 
 function file_trim_tomb(&$value, $key) { $value = array($key, trim($value)); }
 function file_trim(&$value, $key) { $value = trim($value); }
@@ -57,16 +57,12 @@ foreach ($fOsztaly as $oszt) {
     $OSZTALY[] = $O;
 }
 
-# Mindenekelőtt az Admin és egy általános fogadóóra bejegyzés beszúrása
-# $OUT .= "INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES (0, '"
-#      . $adminPwd . "', 'Admin', '', '', 0, '');\n\n";
-$OUT .= "INSERT INTO \"Admin\" VALUES (1,'2000-01-01',192, 228, 2,'2000-01-01 08:00','3000-01-01 12:00');\n\n";
+# az Admin és egy általános fogadóóra bejegyzés beszúrása
+$OUT .= "INSERT INTO Admin VALUES (1, '2000-01-01', 192, 228, 2, '2000-01-01 08:00', '3000-01-01 12:00');\n\n";
 
 $osztalyOUT = '';
-$diakOUT = '';
+$diakOUT = "INSERT INTO Diak_base VALUES (0, '$adminPwd', 'Admin', '', '', 0, '');\n\n";
 $tanarOUT = '';
-#$OUT = '';
-#$OUT = '';
 foreach ($OSZTALY as $oszt) {
     for ($o=0; $o<sizeof($oszt); $o+=2) {
         $oid = $oszt[$o];
@@ -77,13 +73,11 @@ foreach ($OSZTALY as $oszt) {
         // az osztályfőnököket berakjuk a tanárlistába
         $TANAR[] = $OFO;
 
-        $osztalyOUT .= "INSERT INTO \"Osztaly\" VALUES ('" . $OFO[2] . "','" . $OFO[3] . "'," . $OFO[0] . ");\n";
+        $osztalyOUT .= "INSERT INTO Osztaly VALUES ('" . $OFO[2] . "','" . $OFO[3] . "'," . $OFO[0] . ");\n";
         $n = rand(25, 35);
         for ($i=0; $i<=$n; $i++) {
             list($id, $dnev) = nev();
-            $q = "INSERT INTO \"Diak_base\" VALUES ("
-                . $id . ",'" . $diakPwd . "','" . $dnev . "','" . $OFO[2] . "');";
-            $diakOUT .= "$q\n";
+            $diakOUT .= "INSERT INTO Diak_base VALUES ($id, '$diakPwd', '$dnev', '" . $OFO[2] . "');\n";
         }
     }
 }
@@ -91,20 +85,13 @@ foreach ($OSZTALY as $oszt) {
 // még néhány nevet hozzáadunk a tanárokhoz
 $n = rand(15, 25);
 for ($i=0; $i<=$n; $i++) {
-    $TANAR[] = nev();
+    list($id, $tnev) = nev();
+    $tanarOUT .= "INSERT INTO Tanar VALUES ($id,'$tanarPwd',NULL,'$tnev');\n";
 }
 
-foreach ($TANAR as $t) {
-    list($id, $tnev) = $t;
-    $q = "INSERT INTO \"Tanar\" VALUES ($id,'$tanarPwd',NULL,'$tnev');";
-    $tanarOUT .= $q . "\n";
-}
-
-$OUT .= "$tanarOUT\n$osztalyOUT\n$diakOUT\n";
+$OUT .= "$tanarOUT\n$osztalyOUT\n$diakOUT\nCOMMIT;\n";
 $fh = fopen ($outfile, 'w');
-fwrite ($fh, "BEGIN TRANSACTION;\n\n");
 fwrite ($fh, $OUT);
-fwrite ($fh, "COMMIT;\n");
 fclose ($fh);
 
 ?>
