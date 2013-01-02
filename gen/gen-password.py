@@ -79,13 +79,9 @@ def gen_password(p='', l=8, f=4):
 
 fUser = open(userFile)
 
-jelszo = gen_password()
 Insert = "INSERT INTO %s (id, jelszo, %s) VALUES (%s, '%s', '%s');"
 
-# Az Admint is berakjuk de jelszót külön kell neki adni!
-INSERT = [Insert % ('Diak', 'dnev', '0', md5(jelszo), 'Admin'), '']
-
-OUT = ['Admin;%s' % jelszo, '===']
+INSERT, OUT = [], []
 
 List = fUser.read().split('===\n')
 
@@ -105,19 +101,20 @@ for sor in List[0].split('\n'):
 OUT.append('===')
 INSERT.append('')
 
-listOsztaly = {}
 # Osztályok felsorolása
+listOsztaly = {}
 for sor in List[1].split('\n'):
     if len(sor) == 0 or sor[0] == '#': continue
-    oszt, onev, ofonev = sor.split(';')
+    oszt, onev, ofo = sor.split(';')
     if listOsztaly.has_key(oszt): Exit('Dupla osztály azonosító: %s' % oszt)
-    if not listTanar.has_key(ofonev): Exit('%s osztály főnöke (%s) nem szerepel a tanárok közt!' % (oszt, ofonev))
+    if not listTanar.has_key(ofo): Exit('%s osztály főnöke (%s) nem szerepel a tanárok közt!' % (oszt, ofo))
+    listOsztaly[oszt] = onev
 
-    listOsztaly[oszt] = "INSERT INTO Diak (id, jelszo, dnev, oszt, onev, ofo, ofonev) VALUES (" +\
-                        "%s, '%s', '%s', '" + oszt + "', '" + onev + "', '" + ofonev + "');"
+    INSERT.append("INSERT INTO Osztaly (oszt, onev, ofo) VALUES ('%s', '%s', %s);" % (oszt, onev, ofo))
 
+INSERT.append('')
 
-# Tanárok felsorolása
+# Diákok felsorolása
 listDiak = {}
 for sor in List[2].split('\n'):
     if len(sor) == 0 or sor[0] == '#': continue
@@ -128,7 +125,7 @@ for sor in List[2].split('\n'):
     jelszo = gen_password()
 
     OUT.append('%s;%s' % (nev, jelszo))
-    INSERT.append(listOsztaly[oszt] % (uid, md5(jelszo), nev))
+    INSERT.append("INSERT INTO Diak_base (id, jelszo, dnev, oszt) VALUES (%s, '%s', '%s', '%s');" % (uid, md5(jelszo), nev, oszt))
 
 
 open(userFile + '.insert', 'w').write('\n'.join(INSERT))
