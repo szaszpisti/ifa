@@ -20,7 +20,7 @@ if os.path.isfile(outfile):
 aVnev = open('csaladnev.txt').read().strip().split('\n')
 nVnev = len(aVnev)
 
-# A keresztneveket beolvassuk az aKnev tömbbe
+# A keresztneveket az aKnev-be
 aKnev = []
 for nap in open('keresztnev.txt').readlines():
     try: aKnev += nap.strip().split(': ')[1].split()
@@ -36,7 +36,7 @@ dJelszo = md5('d');
 
 nev = lambda: aVnev[randint(0, nVnev-1)] + ' ' + aKnev[randint(0, nKnev-1)]
 
-osztalyok = open('OSZTALY').read().replace('\n', ';').split(';') # 'd10a;7. A;d09a;8. A;...'
+osztalyok = open('OSZTALY').read().replace('\n', ';').split(';') # 'd10a;7. A;....'
 # Minden második osztályazonosító
 OSZTALY = dict( [ (osztalyok[i], osztalyok[i+1]) for i in range(0, len(osztalyok)-1, 2) ] )
 
