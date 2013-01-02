@@ -5,15 +5,14 @@ Easy Administrate Consulting Hours
 Fogadóóra Iskolában - Könnyű Adminisztráció
 
 
-gen-insertfile.php file.sql
+gen-insertfile.py file.sql
 
   A csaladnev.txt és a keresztnev.txt állományokból generál egy példa
   adatbázist, pontosabban az annak feltöltéséhez szükséges SQL INSERT
   parancsokat. Az OSZTALY fájlban leírt osztályazonosítónként egy átlagos
-  osztályszámmal és generált osztályfőnökkel.
+  osztályszámmal és osztályfőnökkel.
 
-  A paraméterként megadott nevű fájlba beteszi még az admin azonosítót is,
-  és egy kezdeti fogadó-időpontot a teszteléshez.
+  A paraméterként megadott nevű fájlba betesz egy kezdeti fogadó-időpontot.
 
 gen-db.php file.sql
 
@@ -22,19 +21,19 @@ gen-db.php file.sql
 
 csaladnev.txt
 
-  Innen-onnan gyűjtött kb. 2500 családnév.
+  Innen-onnan gyűjtött családnevek.
 
 keresztnev.txt
 
   Keresztnevek listája. Forrás: http://www.nemokap.hu/kozer/datum.htm
 
-gen-password.php user.lst
+gen-password.py user.lst
 
-  Az első paraméterként megadott ($userFile) állományból generál insert sorokat
-  az adatbázishoz, Létrehoz egy $userFile.pw fájlt a kiosztandó jelszókkal és egy
-  $userFile.insert fájlt, amit fel lehet használni a gen-db.php programhoz.
+  Az első paraméterként megadott (userFile) állományból generál insert sorokat
+  az adatbázishoz, Létrehoz egy userFile.pw fájlt a kiosztandó jelszókkal és egy
+  userFile.insert fájlt, amit fel lehet használni a gen-db.php programhoz.
 
-  A $userFile felépítése:
+  userFile felépítése:
   Tanar Neve;tid
   ===
   oid;Osztaly Neve;tid
