@@ -40,23 +40,24 @@ osztalyok = open('OSZTALY').read().replace('\n', ';').split(';') # 'd10a;7. A;d0
 # Minden második osztályazonosító
 OSZTALY = dict( [ (osztalyok[i], osztalyok[i+1]) for i in range(0, len(osztalyok)-1, 2) ] )
 
+tanarOUT = []
 osztalyOUT = ['']
 diakOUT = ['']
-tanarOUT = ['']
 
+tFormat = "INSERT INTO Tanar (id, jelszo, tnev) VALUES (%d, '%s', '%s');"
 for oid, onev in OSZTALY.items():
-    tanarOUT.append("INSERT INTO Tanar VALUES (%d, '%s', '', '%s');" % (nTanar, tJelszo, nev()))
-    osztalyOUT.append("INSERT INTO Osztaly VALUES ('%s', '%s', %d);" % (oid, onev, nTanar))
+    tanarOUT.append(tFormat % (nTanar, tJelszo, nev()))
+    osztalyOUT.append("INSERT INTO Osztaly (oszt, onev, ofo) VALUES ('%s', '%s', %d);" % (oid, onev, nTanar))
 
     # minden osztályhoz felveszünk néhány diákot
     for i in range(randint(25, 35)):
-        diakOUT.append("INSERT INTO Diak_base VALUES (%d, '%s', '%s', '%s');" % (nDiak, dJelszo, nev(), oid))
+        diakOUT.append("INSERT INTO Diak_base (id, jelszo, dnev, oszt) VALUES (%d, '%s', '%s', '%s');" % (nDiak, dJelszo, nev(), oid))
         nDiak += 1
     nTanar += 1
 
 # még néhány tanárt hozzáadunk (eddig az osztályfőnökök vannak)
 for i in range(randint(25, 35)):
-    tanarOUT.append("INSERT INTO Tanar VALUES (%d, '%s', '', '%s');" % (nTanar, tJelszo, nev()))
+    tanarOUT.append(tFormat % (nTanar, tJelszo, nev()))
     nTanar += 1
 
 OUT = tanarOUT + osztalyOUT + diakOUT
