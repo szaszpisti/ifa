@@ -2,3 +2,5 @@
 *.swp
 *.db*
 tmp
+ChangeLog
+cl
