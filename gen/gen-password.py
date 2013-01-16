@@ -131,3 +131,6 @@ for sor in List[2].split('\n'):
 open(userFile + '.insert', 'w').write('\n'.join(INSERT))
 open(userFile + '.pw', 'w').write('\n'.join(OUT))
 
+# Admin jelszo generalasa
+jelszo = gen_password()
+open('admin.pw', 'w').write('admin;%s;%s' % (jelszo, md5(jelszo)))
