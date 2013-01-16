@@ -124,7 +124,7 @@ for sor in List[2].split('\n'):
 
     jelszo = gen_password()
 
-    OUT.append('%s;%s' % (nev, jelszo))
+    OUT.append('%s;%s;%s' % (nev, listOsztaly[oszt], jelszo))
     INSERT.append("INSERT INTO Diak_base (id, jelszo, dnev, oszt) VALUES (%s, '%s', '%s', '%s');" % (uid, md5(jelszo), nev, oszt))
 
 
