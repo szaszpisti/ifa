@@ -50,8 +50,7 @@ echo "<a href=\"?o=t\">tanárok</a><br>\n\n";
 // Ha van osztály paraméter, akkor az adott osztály listáját írjuk ki
 
 if (isset($_REQUEST['o'])) {
-    $o = $_REQUEST['o'];
-#    print "<h2></h2>\n"; # csak egy kis helyet csinálunk
+    $o = preg_replace('/\W/', '', $_REQUEST['o']);
     if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar";
     else $q = "SELECT * FROM Diak WHERE oszt='$o'";
 
