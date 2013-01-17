@@ -92,6 +92,7 @@ if (($user['tip'] == 'diak') && !$_SESSION['admin'] && (!$FA->valid)) timeout();
 
 // Ha jelszót kaptunk, mindenképpen ellenőrizni kell.
 if ( isset($_POST['jelszo']) ) {
+    $_POST['jelszo'] = stripslashes($_POST['jelszo']);
     $jo = false;
     switch ($user['tip']) {
         case 'tanar':
