@@ -227,6 +227,7 @@ function osszesit($USER, $FA, $db){
     }
     $Output .= $SzuloiSor;
 
+    $Output .= "<form class=\"noprint\">\n   <br><input type=\"button\" value=\"Nyomtatás\" onClick=\"window.print()\"\n</form>\n";
     return $Output;
 }
 
