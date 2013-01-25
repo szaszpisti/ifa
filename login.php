@@ -98,7 +98,7 @@ if ( isset($_POST['jelszo']) ) {
         case 'tanar':
             switch ($tanar_auth) {
                 case 'PAM':
-                    $jo = (pam_auth($user['emil'], $_POST['jelszo'], &$error));
+                    $jo = (pam_auth($user['emil'], $_POST['jelszo'], $error));
                     break;
                 case 'DB':
                     $jo = (md5($_POST['jelszo']) == $user['jelszo']);
