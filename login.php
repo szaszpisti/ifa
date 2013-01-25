@@ -86,7 +86,7 @@ function timeout() {
 }
 
 $user = get_user($_REQUEST);
-if (!ADMIN && !$user) redirect('leiras.html');
+if (!ADMIN && !isset($user)) redirect('leiras.html');
 
 if (($user['tip'] == 'diak') && !isset($_SESSION['admin']) && (!$FA->valid)) timeout();
 
