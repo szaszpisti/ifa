@@ -181,13 +181,6 @@ function ulog($uid, $s) {
  * @desc Kiírja a diák összesítő táblázatát.
  */
 function osszesit($USER, $FA, $db){
-    $Output = "\n<table width='100%'>\n"
-        . "<tr><td><h3>Fogadóóra: " . $FA->datum . "<br>\n"
-        . $USER->dnev . " " . $USER->onev . "<br>\n"
-        . "<font size=-1>(Osztályfőnök: " . $USER->ofonev . ")</h3>\n"
-        . "<td align='right' valign='top'><span class='noprint'><a href='fogado.php?".$_SERVER["QUERY_STRING"]."'>Vissza</a></span>\n"
-        . "</table>\n";
-
     $res = $db->prepare(
                   "SELECT MIN(ido) AS eleje, MAX(ido) AS vege"
                 . "  FROM Fogado"
@@ -218,6 +211,7 @@ function osszesit($USER, $FA, $db){
     $res->execute(array(fid, $USER->id));
     $rows = $res->fetchAll(PDO::FETCH_ASSOC);
 
+    $Output = '';
     foreach ($rows as $row) {
         if ($SzuloiEleje < $row['ido']) {
             $Output .= $SzuloiSor;

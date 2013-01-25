@@ -31,7 +31,7 @@ define ('sajat', 'sajat');
 
 $user = new Diak($_SESSION['id']);
 
-Head("Fogadóóra - " . $user->dnev);
+Head("Fogadóóra - " . $user->dnev . " (" . $FA->datum . ")");
 
 $USER_LOG = array();
 
@@ -44,12 +44,33 @@ $Fejlec =
     . "    }\n"
     . "  //--></script>\n\n"
     . "<table width='100%'><tr><td>\n"
-    . "<h3>" . $user->dnev . " " . $user->onev .  " (" . $FA->datum . ")<br>\n"
-    . "<font size=-1>(Osztályfőnök: " . $user->ofonev . ")</font></h3>\n"
-    . "<td align=right valign=top><span class='noprint'>\n"
-    . "  <a href='osszesit.php?tip=diak&amp;id=" . $user->id . "'> Összesítés </a> | \n"
-    . "  <a href='leiras.html'> Leírás </a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='> Kilépés </a>\n</span></table>\n";
+    . "<h3>" . $user->dnev . " " . $user->onev
+    . " <span class=\"kicsi\">(" . $FA->datum . ")</span><br>\n"
+    . "<span class=\"kicsi\">(Osztályfőnök: " . $user->ofonev . ")</span></h3>\n"
+    . "<td align=right valign=top><span class='noprint sans'>\n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . "?tip=diak&amp;id=" . $user->id . "'> táblázat </a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . "?tartalom=osszesit&tip=diak&amp;id=" . $user->id . "'> összesítés </a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . "?tartalom=leiras'> leírás </a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='> kilépés </a>\n</span></table>\n";
+
+// Ha csak az összesítést kell kiírni:
+if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'osszesit') {
+    print $Fejlec;
+    print osszesit($user, $FA, $db);
+    Tail();
+    return 0;
+}
+
+// Ha csak a leírást kell kiírni:
+if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'leiras') {
+    print $Fejlec;
+    print "<hr>\n";
+    $content = file_get_contents ('leiras.html');
+    $tmp = preg_split ('/\n{2,}/', trim($content));
+    print join ("\n\n", ( array_slice($tmp, 1, -1 )) ); # head és tail nélkül a leírás.html tartalma
+    Tail();
+    return 0;
+}
 
 // egy tanár-sor a táblázatban
 function table_row($K, $tid, $t) {

@@ -38,7 +38,8 @@ a.menu:hover {
 .center { text-align: center; text-indent: 0em; }
 .right { text-align: right; text-indent: 0em; }
 .left { text-align: left; text-indent: 0em; }
-.kicsi { font-size: 10pt; }
+.kicsi { font-size: 85%; }
+.sans { font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif; }
 
 /*
 table {
