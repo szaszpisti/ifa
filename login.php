@@ -73,7 +73,7 @@ function login($user, $hiba=NULL) {
 }
 
 function timeout() {
-    global $FA;
+    global $FA, $user;
     header ("Content-Type: text/html; charset=utf-8");
     print "<h3>Nincs bejelentkezési időszak!</h3>\n"
         . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "</h3>"
@@ -88,7 +88,7 @@ function timeout() {
 $user = get_user($_REQUEST);
 if (!ADMIN && !$user) redirect('leiras.html');
 
-if (($user['tip'] == 'diak') && !$_SESSION['admin'] && (!$FA->valid)) timeout();
+if (($user['tip'] == 'diak') && !isset($_SESSION['admin']) && (!$FA->valid)) timeout();
 
 // Ha jelszót kaptunk, mindenképpen ellenőrizni kell.
 if ( isset($_POST['jelszo']) ) {
