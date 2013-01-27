@@ -35,6 +35,7 @@ Head("Fogadóóra - " . $user->dnev . " (" . $FA->datum . ")");
 
 $USER_LOG = array();
 
+$queryString = "?tip=diak&amp;id=" . $user->id;
 $Fejlec = 
       "  <script language=JavaScript type='text/javascript'><!--\n"
     . "    function torol(sor) {\n"
@@ -48,14 +49,15 @@ $Fejlec =
     . " <span class=\"kicsi\">(" . $FA->datum . ")</span><br>\n"
     . "<span class=\"kicsi\">(Osztályfőnök: " . $user->ofonev . ")</span></h3>\n"
     . "<td align=right valign=top><span class='noprint sans'>\n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . "?tip=diak&amp;id=" . $user->id . "'> táblázat </a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . "?tartalom=osszesit&tip=diak&amp;id=" . $user->id . "'> összesítés </a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . "?tartalom=leiras'> leírás </a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='> kilépés </a>\n</span></table>\n";
+    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "'>Táblázat</a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&tartalom=osszesit'>Összesítés</a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&tartalom=leiras'>Leírás</a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n<!--#--></span></td></tr></table>\n";
 
 // Ha csak az összesítést kell kiírni:
 if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'osszesit') {
-    print $Fejlec;
+    # ide berakjuk még a "Nyomtatás" gombot:
+    print preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
     print osszesit($user, $FA, $db);
     Tail();
     return 0;

@@ -94,7 +94,7 @@ Head("Fogadóóra - " . $TANAR->tnev);
 
 echo "\n<table width='100%'><tr>\n"
     . "<td><h3>" . $TANAR->tnev .  " (" . $FA->datum . ")</h3>\n"
-    . "<td align='right'><a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n</table>\n";
+    . "<td align='right' class=\"sans\"><a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n</table>\n";
 
 # A külső táblázat első cellájában az időpont-lista
 $TABLA = "<table border='0'><tr><td>\n";

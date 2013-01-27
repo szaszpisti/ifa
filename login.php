@@ -67,7 +67,7 @@ function login($user, $hiba=NULL) {
         . "  <input type=\"hidden\" name=\"tip\" value=\"" . $user['tip'] . "\">\n"
         . "  <input type=\"submit\" value=\"Belépés\">\n"
         . "</form>\n\n"
-        . "<td align=\"right\" valign=\"top\"><a href=\"leiras.html\"> Leírás </a>\n</table>\n";
+        . "<td align=\"right\" valign=\"top\" class=\"sans\"><a href=\"leiras.html\"> Leírás </a>\n</table>\n";
     tail();
     exit;
 }

@@ -29,7 +29,7 @@ ha van, akkor mindjárt a második oldalra ugrik, egyébként az első az alapé
 
 $Out = "\n<table width=\"100%\"><tr><td>\n"
     . "<b><font color=\"#777777\">" . $_SESSION['nev'] . "</font></b>\n"
-    . "<td align=right valign=top><a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n</table>\n\n"
+    . '<td align="right" valign="top" class="sans"><a href="' . $_SERVER['PHP_SELF'] . "?kilep=\">Kilépés</a>\n</table>\n\n"
     . "<hr>\n\n";
 
 if ($_REQUEST['page'] == 4) {
