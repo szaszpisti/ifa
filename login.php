@@ -49,6 +49,7 @@ function get_user($param) {
 
     $user['nev'] = $user[$tip[0].'nev']; // 'tnev' vagy 'dnev' az oszlop neve
     $user['tip'] = $param['tip'];
+    $user['id'] = $param['id'];
     return ($user);
 }
 
