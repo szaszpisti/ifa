@@ -181,6 +181,7 @@ function ulog($uid, $s) {
  * @desc Kiírja a diák összesítő táblázatát.
  */
 function osszesit($USER, $FA, $db){
+    # a szülői értekezlet eleje és vége
     $res = $db->prepare(
                   "SELECT MIN(ido) AS eleje, MAX(ido) AS vege"
                 . "  FROM Fogado"
@@ -191,12 +192,11 @@ function osszesit($USER, $FA, $db){
     $res->execute(array(fid, $USER->ofo));
     $szuloi = $res->fetch(PDO::FETCH_ASSOC);
 
-    $SzuloiSor  = '';
     $SzuloiEleje  = 0;
-    if ($szuloi['eleje']) {
-        $SzuloiSor = "<br><b>" . FiveToString($szuloi['eleje'])
+    if (isset($szuloi['eleje'])) {
+        $SzuloiSor = "<b>" . FiveToString($szuloi['eleje'])
             . "-" . FiveToString($szuloi['vege']+1)
-            . " -- szülői értekezlet</b>\n";
+            . " &ndash; szülői értekezlet</b>";
         $SzuloiEleje = $szuloi['eleje'];
     }
 
@@ -211,18 +211,17 @@ function osszesit($USER, $FA, $db){
     $res->execute(array(fid, $USER->id));
     $rows = $res->fetchAll(PDO::FETCH_ASSOC);
 
-    $Output = '';
+    $SzuloiKesz = false;
     foreach ($rows as $row) {
-        if ($SzuloiEleje < $row['ido']) {
-            $Output .= $SzuloiSor;
-            $SzuloiSor = "";
+        if (!$SzuloiKesz && $SzuloiEleje < $row['ido']) {
+            $Output[] = $SzuloiSor;
+            $SzuloiKesz = true;
         }
-        $Output .= "<br>" . FiveToString($row['ido']) . " -- " . $row['tnev'] . "\n";
+        $Output[] = FiveToString($row['ido']) . " &ndash; " . $row['tnev'];
     }
-    $Output .= $SzuloiSor;
+#    if (!$SzuloiKesz) { $Output[] = $SzuloiSor; }
 
-    $Output .= "<form class=\"noprint\">\n   <br><input type=\"button\" value=\"Nyomtatás\" onClick=\"window.print()\"\n</form>\n";
-    return $Output;
+    return join ("\n<br>", $Output) . "\n";
 }
 
 /**
