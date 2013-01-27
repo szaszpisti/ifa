@@ -15,25 +15,6 @@ a:hover { background: #cccccc; }
   .noprint { visibility:hidden; }
 }
 
-p.menu {
-    font-size: 12pt;
-    color: #999999;
-    background-color: #00688b;
-    text-indent: 0em; margin: 0px;
-    font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
-    padding: 3px;
-}
-a.menu {
-    color: #cccccc;
-    padding: 2pt 4pt;
-    background: #00688b;
-}
-a.menu:hover {
-    color: white;
-    padding: 2pt 4pt;
-    background: #00688b;
-}
-
 .justify { text-align: justify; text-indent: 0em; }
 .center { text-align: center; text-indent: 0em; }
 .right { text-align: right; text-indent: 0em; }
