@@ -28,11 +28,7 @@ IDO_max:  ezt a páros időpontot már nem kell kiírni
         global $db;
 
         // az utolsó id az éppen aktuális fogadóóra
-        try { $res = $db->query("SELECT * FROM Admin WHERE id=(SELECT MAX(id) FROM Admin)");
-        } catch (PDOException $e) { echo "HELLO"; echo $e->getMessage(); }
-
-        $row = $res->fetch(PDO::FETCH_ASSOC);
-        if (count($row) == 0) { unset ($this); return(0); }
+        $row = $db->query("SELECT * FROM Admin ORDER BY id DESC LIMIT 1;")->fetch(PDO::FETCH_ASSOC);
 
         while(list($k, $v) = each($row)) {
             $this->$k = $v;
