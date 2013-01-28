@@ -224,9 +224,4 @@ function osszesit($USER, $FA, $db){
     return join ("\n<br>", $Output) . "\n";
 }
 
-/**
- * @desc Fájl tömbbe beolvasásához sor-trimmelő (levágja a sorvégi \n-t)
- */
-function file_trim(&$value, $key) { $value = trim($value); }
-
 ?>

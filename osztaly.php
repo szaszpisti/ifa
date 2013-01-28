@@ -17,11 +17,8 @@
 require_once('ifa.inc.php');
 Head('Osztalyok', '', 'osztaly');
 
-// az osztályok azonosítója és megjelenítési módja az OSZTALY fájlban van,
-// soronként id1;nev1;id2;nev2 stb. alakban - ezt dolgozzuk fel itt
-
-$OSZTALY_file = file('OSZTALY');
-@array_walk($OSZTALY_file, 'file_trim');
+//! Az OSZTALY-t beolvassuk soronként
+$OSZTALY_file = file('OSZTALY', FILE_IGNORE_NEW_LINES);
 
 $oMax = 0;
 foreach ($OSZTALY_file as $oszt) {
