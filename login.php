@@ -16,13 +16,12 @@
 
 require_once('ifa.inc.php');
 
-@session_start();
-
-if (isset($_REQUEST['kilep']) ) {
-    session_destroy();
-    redirect('leiras.html');
-}
-
+/**
+ * Átirányítás tetszőleges helyre
+ *
+ * @param string $uri -
+ *    Ide irányít át - ha ez üres, akkor helyben marad.
+ */
 function redirect($uri = '') {
     if ($uri==='') $uri = $_SERVER['REQUEST_URI'];
     header ("Location: $uri");
@@ -32,7 +31,7 @@ function redirect($uri = '') {
 // paraméterként pl. a _REQUEST vagy a _SESSION tömböt várja
 function get_user($param) {
     global $db;
-    if ( !isset($param['tip']) || !isset($param['id']) ) return false;           // valami nincs megadva
+    if ( !isset($param['tip']) || !isset($param['id']) ) return false;  // valami nincs megadva
     $tip = $param['tip'];
     $id = $param['id'];
     if (!preg_match('/^[0-9]{1,10}$/', $id)) return false;              // nem jó az id
@@ -53,12 +52,26 @@ function get_user($param) {
     return ($user);
 }
 
+/**
+ * Kirakja a bejelentkező (jelszókérő) ablakot.
+ *
+ * @param array $user - Az *id*, amihez kérjük a jelszót.
+ * @param string $hiba - Ha van kiírandó hiba, itt lehet megadni.
+ */
 function login($user, $hiba=NULL) {
+    global $FA;
     session_destroy();
 
     head("Fogadóóra - " . $user['nev'], ' onLoad="document.login.jelszo.focus()"');
 
     if (isset($hiba)) hiba($hiba);
+
+    if ($user['tip'] == 'diak' && !$FA->valid) {
+        print "<h3>Nincs bejelentkezési időszak!\n"
+            . "<br>Fogadóóra időpontja: " . $FA->datum_str . "\n"
+            . "<br><span class=\"kicsi\">" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
+            . $FA->valid_veg_str . "</b> &nbsp; között lehet feliratkozni.</span>\n<hr>\n";
+    }
 
     print "<table width=\"100%\"><tr><td>\n";
     print "\n<h3>" . $user['nev'] . ($user['tip']=='diak'?' ('.$user['onev'].')':'') . "</h3>\n"
@@ -73,23 +86,19 @@ function login($user, $hiba=NULL) {
     exit;
 }
 
-function timeout() {
-    global $FA, $user;
-    header ("Content-Type: text/html; charset=utf-8");
-    print "<h3>Nincs bejelentkezési időszak!</h3>\n"
-        . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "</h3>"
-        . "<b>" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
-        . $FA->valid_veg_str . "</b> &nbsp; között lehet bejelentkezni.\n";
-    tail();
-    Ulog ($user['tip']." ".$user['id'], "Nincs bejelentkezési időszak!");
-    @session_destroy();
-    exit;
+@session_start();
+
+// Ha kilépett, a leírást mutatjuk.
+if (isset($_REQUEST['kilep']) ) {
+    session_destroy();
+    redirect('leiras.html');
 }
 
+//! @brief valami
 $user = get_user($_REQUEST);
-if (!ADMIN && !isset($user)) redirect('leiras.html');
 
-if (($user['tip'] == 'diak') && !isset($_SESSION['admin']) && (!$FA->valid)) timeout();
+// Csak az admin teheti meg, hogy '$user' nélkül lépjen be
+if (!ADMIN && !isset($user)) redirect('leiras.html');
 
 // Ha jelszót kaptunk, mindenképpen ellenőrizni kell.
 if ( isset($_POST['jelszo']) ) {

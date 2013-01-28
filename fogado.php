@@ -54,16 +54,7 @@ $Fejlec =
     . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&tartalom=leiras'>Leírás</a> | \n"
     . "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n<!--#--></span></td></tr></table>\n";
 
-// Ha csak az összesítést kell kiírni:
-if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'osszesit') {
-    # ide berakjuk még a "Nyomtatás" gombot:
-    print preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
-    print osszesit($user, $FA, $db);
-    Tail();
-    return 0;
-}
-
-// Ha csak a leírást kell kiírni:
+// Ha a "leírást" kell kitenni:
 if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'leiras') {
     print $Fejlec;
     print "<hr>\n";
@@ -71,6 +62,16 @@ if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'leiras') {
     $tmp = preg_split ('/\n{2,}/', trim($content));
     print join ("\n\n", ( array_slice($tmp, 1, -1 )) ); # head és tail nélkül a leírás.html tartalma
     Tail();
+    return 0;
+}
+
+// Ha az összesítést kell kiírni (akkor is, ha nincs bejelentkezési idő):
+if ((!ADMIN && !$FA->valid) || (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'osszesit')) {
+    # ide berakjuk még a "Nyomtatás" gombot:
+    print preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
+    print osszesit($user, $FA, $db);
+    Tail();
+    if (!$FA->valid) @session_destroy();
     return 0;
 }
 
