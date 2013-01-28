@@ -31,11 +31,7 @@ if(isset($_REQUEST['error'])) {
     }
 }
 
-/*
-Ha oldalszám nélkül hívjuk, akkor megnézi, hogy van-e időben következő fogadóóra:
-ha van, akkor mindjárt a második oldalra ugrik, egyébként az első az alapértelmezett.
-*/
-
+/** $Out - ebbe gyűjtjük a kimenetet */
 $Out = "\n<table width=\"100%\"><tr><td>\n"
     . "<b><font color=\"#777777\">" . $_SESSION['nev'] . "</font></b>\n"
     . '<td align="right" valign="top" class="sans"><a href="' . $_SERVER['PHP_SELF'] . "?kilep=\">Kilépés</a>\n</table>\n\n"
@@ -131,7 +127,7 @@ Vege;
 
     case 2:  // 2. ADMIN OLDAL
 
-        /*
+        /**
         Ellenőrzések:
            ha nincs dátum: nem tudunk mit csinálni...
            ha van: ha már létezik az admin táblában, és nincs még fogadó bejegyzés, akkor mehet tovább
@@ -167,10 +163,10 @@ Vege;
 
         }
         elseif ( count($rows) === 1 ) {
-            $res = $db->prepare("SELECT count(*) AS num FROM Fogado WHERE fid=?");
+
+            $res = $db->prepare("SELECT COUNT(*) FROM Fogado WHERE fid=?");
             $res->execute(array($rows[0]['id']));
-            $row = $res->fetch(PDO::FETCH_ASSOC);
-            if ($row['num'] > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
+            if ($res->fetchColumn() > 0) { hiba ("E napon már vannak bejegyzések"); return 1; }
         }
         else {
             hiba ("HAJAJ! Nagy GÁZ van... (több egyforma dátum?)");
@@ -240,26 +236,13 @@ Vege;
         // ha nem tudjuk, melyik fogadó-azonosítóhoz kell bejegyzéseket csinálni
         if (!isset($_REQUEST['fid'])) { hiba ("Nincs fogadó-azonosító"); return 1; }
 
-        // csak akkor tudunk továbblépni, ha 1! bejegyzés van az adott napon
-#        $num =& $db->getOne("SELECT count(*) AS num FROM Admin WHERE id=" . $_REQUEST['fid'] );
-#        if (DB::isError($num)) { die($num->getMessage()); }
-#        if ( $num != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
-
-        $res = $db->prepare("SELECT count(*) AS num FROM Admin WHERE id=?");
+        $res = $db->prepare("SELECT COUNT(*) FROM Admin WHERE id=?");
         $res->execute(array($_REQUEST['fid']));
-        $row = $res->fetch(PDO::FETCH_ASSOC);
-        if ( $row['num'] != 1 ) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
+        if ($res->fetchColumn() != 1) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
 
-        // ha ilyen id van már bejegyezve az időpontoknál, akkor már jártunk itt -> hiba
-#        $num =& $db->getOne("SELECT count(*) AS num FROM Fogado WHERE fid=" . $_REQUEST['fid'] );
-#        if (DB::isError($num)) { die($num->getMessage()); }
-#        if ( $num > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
-
-        $res = $db->prepare("SELECT count(*) AS num FROM Fogado WHERE fid=?");
+        $res = $db->prepare("SELECT COUNT(*) FROM Fogado WHERE fid=?");
         $res->execute(array($_REQUEST['fid']));
-        $row = $res->fetch(PDO::FETCH_ASSOC);
-        if ( $row['num'] > 0 ) { hiba ("E napon már vannak bejegyzések"); return 1; }
-
+        if ($res->fetchColumn() > 0) { hiba ("E napon már vannak bejegyzések"); return 1; }
 
         // A kapott űrlap-változókat rendezzük használható tömbökbe
         //    $JelenVan['id'] (id, kezd, veg, tartam)
