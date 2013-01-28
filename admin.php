@@ -21,11 +21,20 @@ if (!isset($_REQUEST['page']) || !in_array($_REQUEST['page'], array(0, 1, 2, 3, 
     $_REQUEST['page'] = 0;
 }
 
+Head("Fogadó admin - " . $_REQUEST['page'] . ". oldal");
+
+// Ha valami hiba történt, visszadob a 0. oldalra egy hibakóddal
+if(isset($_REQUEST['error'])) {
+    switch ($_REQUEST['error']) {
+        case "1": hiba("Nem sikerült regisztrálni a fogadóórát - nézd meg a webszerver error.log-ját!");
+            break;
+    }
+}
+
 /*
 Ha oldalszám nélkül hívjuk, akkor megnézi, hogy van-e időben következő fogadóóra:
 ha van, akkor mindjárt a második oldalra ugrik, egyébként az első az alapértelmezett.
 */
-
 
 $Out = "\n<table width=\"100%\"><tr><td>\n"
     . "<b><font color=\"#777777\">" . $_SESSION['nev'] . "</font></b>\n"
@@ -138,6 +147,7 @@ Vege;
         $rows = $res->fetchAll(PDO::FETCH_ASSOC);
 
         if ( count($rows) === 0 ) { // nincs még ilyen nap, létre lehet hozni
+
             $FogadoIdo = array (
                 $_REQUEST['kora'] + $_REQUEST['kperc'],
                 $_REQUEST['vora'] + $_REQUEST['vperc']
@@ -147,16 +157,12 @@ Vege;
             if (!$_REQUEST['valid_kezd']) { hiba ("Érvényesség kezdete nincs megadva"); return 1; }
             if (!$_REQUEST['valid_veg']) { hiba ("Érvényesség vége nincs megadva"); return 1; }
 
-            try {
-                $res = $db->prepare('INSERT INTO Admin (datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES (?, ?, ?, ?, ?, ?)');
-                $res->execute(array(
-                    $_REQUEST['datum'], $FogadoIdo[0], $FogadoIdo[1], $_REQUEST['tartam'],
-                    $_REQUEST['valid_kezd'], $_REQUEST['valid_veg']));
-
-                Ulog(0, "RENDBEN: ".$_REQUEST['datum']);
-            } catch (PDOException $e) {
-                hiba ("Nem sikerült regisztrálni a fogadóórát");
-                throw new pdoDbException($e);
+            $res = $db->prepare('INSERT INTO Admin (datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES (?, ?, ?, ?, ?, ?)');
+            $ret = $res->execute(array(
+                $_REQUEST['datum'], $FogadoIdo[0], $FogadoIdo[1], $_REQUEST['tartam'],
+                $_REQUEST['valid_kezd'], $_REQUEST['valid_veg']));
+            if (!$ret) {
+                redirect($_SERVER['REQUEST_URL'] . "?page=0&error=1");
             }
 
         }
@@ -258,7 +264,6 @@ Vege;
         // A kapott űrlap-változókat rendezzük használható tömbökbe
         //    $JelenVan['id'] (id, kezd, veg, tartam)
         //    $Szuloi['id'] (id, kezd, veg)
-
         reset($_REQUEST);
         while (list($k, $v) = each ($_REQUEST)) {
             if ( ereg ("^a([0-9]+)$", $k, $match) ) {
@@ -326,7 +331,6 @@ Vege;
         break;
 }
 
-Head("Fogadó admin - " . $_REQUEST['page'] . ". oldal");
 print $Out;
 Tail();
 ?>
