@@ -103,36 +103,38 @@ function tanar_ki($tanar) {
     $K[0] = array(array()); // páros időket tesszük ebbe
     $K[1] = array(array()); // páratlanokat
 
-    $pred = null; # az előző cella értéke
+    $ElozoCellaSzin = null; # az előző cella értéke
+    // $i-vel megyünk végig az időpontokon
     for ($i=$FA->IDO_min; $i<$FA->IDO_max; $i++) {
+        // ha az aktuális tanárnak nincsenek páratlan időpontjai, és éppen ott tartunk, akkor mehetünk tovább
         if (!isset($tanar['paratlan']) && $i%2) { continue; }
 
-        if (!isset($tanar[$i])) { $d = foglalt; }
+        if (!isset($tanar[$i])) { $CellaSzin = foglalt; }
         else switch ($tanar[$i]) {
             case -2:
-                if ( ($user->ofo == $tanar['id']) || ADMIN ) { $d = szuloi; }
-                else { $d = foglalt; }
+                if ( ($user->ofo == $tanar['id']) || ADMIN ) { $CellaSzin = szuloi; }
+                else { $CellaSzin = foglalt; }
                 break;
             case -1:  // az előző folytatása
-                if ( $pred == szabad ) { $d = szabad2; }
-                if ( $pred == sajat ) { $d = sajat2; }
+                if ( $ElozoCellaSzin == szabad ) { $CellaSzin = szabad2; }
+                if ( $ElozoCellaSzin == sajat ) { $CellaSzin = sajat2; }
                 break;
             case 0:
-                $d = szabad; break;
+                $CellaSzin = szabad; break;
             case $user->id:
-                $d = sajat;
+                $CellaSzin = sajat;
                 break;
             default:
-                $d = foglalt; break;
+                $CellaSzin = foglalt; break;
         }
-        if ( ( $d != $pred && $d != szabad2 && $d != sajat2 ) || $d == szabad ) {
-            array_push ( $K[$i%2], array($d) );
+        if ( ( $CellaSzin != $ElozoCellaSzin && $CellaSzin != szabad2 && $CellaSzin != sajat2 ) || $CellaSzin == szabad ) {
+            array_push ( $K[$i%2], array($CellaSzin) );
             array_push ( $K[1-$i%2], array() );
         }
         else {
-            array_push ( $K[$i%2][count($K[$i%2])-1], $d );
+            array_push ( $K[$i%2][count($K[$i%2])-1], $CellaSzin );
         }
-        $pred = $d;
+        $ElozoCellaSzin = $CellaSzin;
     }
 
     $tmp = "\n<tr><th align='left' nowrap" . (isset($tanar['paratlan'])?" rowspan='2' valign='top'":"") . ">&nbsp;"
@@ -207,21 +209,21 @@ function ValidateRadio ( $Teacher, $Time ) {
     global $FOGADO, $user;
     $ret = array ('valid' => true, 'value' => NULL);
     if ( $FOGADO[$Teacher][$Time] != 0 ) {
-        return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " időpontja már foglalt, ide nem iratkozhat fel!");
+        return array(false, '<b>' . $FOGADO[$Teacher]['nev'] . " " . FiveToString($Time) . " időpontja már foglalt, ide nem iratkozhat fel!</b>");
     }
 
     foreach ( $FOGADO as $tan ) {
         if ( isset($tan[$Time]) &&  $tan[$Time] == $user->id ) {
-            return array(false, "Önnek már foglalt a " . FiveToString($Time) . " időpontja (" . $tan['nev'] . ") - előbb arról iratkozzon le!");
+            return array(false, "<b>Önnek már foglalt a " . FiveToString($Time) . " időpontja (" . $tan['nev'] . ") - előbb arról iratkozzon le!</b>");
         }
     }
     foreach ( array_keys($FOGADO[$Teacher]) as $k ) {
         if ( $FOGADO[$Teacher][$k] == $user->id ) {
-            return array(false, $FOGADO[$Teacher]['nev'] . " " . FiveToString($k) . " időpontjára már feliratkozott - ha változtatni akar, előbb azt törölje!");
+            return array(false, '<b>' . $FOGADO[$Teacher]['nev'] . " " . FiveToString($k) . " időpontjára már feliratkozott - ha változtatni akar, előbb azt törölje!</b>");
         }
     }
     if ( isset($FOGADO[$user->ofo][$Time]) &&  $FOGADO[$user->ofo][$Time] == -2 ) {
-        return array(true, "Önnek szülői értekezlete van ebben az időpontban (" . FiveToString($Time) . ")!");
+        return array(true, "<b>Önnek szülői értekezlete van ebben az időpontban (" . FiveToString($Time) . ")!</b>");
     }
     return array(true, NULL);
 }
@@ -240,7 +242,7 @@ if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
                 $q = "UPDATE Fogado SET diak=0 WHERE fid=" . fid . " AND tanar=" . $tanar['id'] . " AND ido=$Time";
                 if ( $db->query($q) ) {
                     $FOGADO[$tanar['id']][$Time] = "0";
-                    $USER_LOG[] = "RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - törölve.";
+                    $USER_LOG[] = "--- RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - törölve.";
                     Ulog($user->id, $q);
                 }
                 else { Ulog($user->id, "Légy került a levesbe: $q!"); }
@@ -268,7 +270,7 @@ while (list($k, $v) = each($_POST)) {
             $q = "UPDATE Fogado SET diak=" . $user->id . " WHERE fid=" . fid . " AND tanar=$Teacher AND ido=$Time";
             if ( $db->query($q) ) {
                 $FOGADO[$Teacher][$Time] = $user->id;
-                $USER_LOG[] = "RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . FiveToString($Time) . " - bejegyezve.";
+                $USER_LOG[] = "--- RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . FiveToString($Time) . " - bejegyezve.";
                 Ulog($user->id, $q);
             }
             else { Ulog($user->id, "Légy került a levesbe: $q!"); }
@@ -296,9 +298,9 @@ print $Fejlec;
 
 if ($USER_LOG) {
     print "<hr>\n";
-    print "<table border='0' width='100%'><tr><td bgcolor='#e8e8e8'>\n";
-    foreach ($USER_LOG as $log) print "<font size='-1'><b>$log</b></font><br>\n";
-    print "</table>\n";
+    print "<div class=\"userlog\">\n";
+    foreach ($USER_LOG as $log) print "$log<br>\n";
+    print "</div>\n";
 }
 
 print "\n<form name='tabla' method='post'><table border='1'>"

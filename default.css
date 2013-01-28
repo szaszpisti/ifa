@@ -49,4 +49,7 @@ div.kiemelt {
     margin: .5em 0;
     background: #ddd;
 }
-
+div.userlog {
+    font-size: 90%;
+    background: #e8e8e8;
+}
