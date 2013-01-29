@@ -14,6 +14,12 @@
  *   2 of the License, or (at your option) any later version.
  */
 
+/**
+ * @file tanar.class.php
+ *
+ * Tanár osztály
+ */
+
 require_once('login.php');
 require_once('ifa.inc.php');
 
@@ -76,12 +82,15 @@ class Tanar {
 
         if (!isset($this->fogado_ido)) { return; }
 
+        // ODD: ido1 | ido2 | ido3 ... ha volt benne páratlan, végül páratlan lesz
         foreach (array_keys($this->fogado_ido) as $ido) {
             if ($this->fogado_ido[$ido]['diak'] >= 0) { // ha fogad ebben az időben
                 $this->ODD |= $ido;
             }
         }
+        // az ODD, az "összegzett" idők paritása kell nekünk
         $this->ODD &= 1;
+
         if ($this->fogad) {
             $this->IDO_min = min(array_keys($this->fogado_ido));
             $this->IDO_max = max(array_keys($this->fogado_ido)) + 1;

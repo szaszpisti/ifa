@@ -15,6 +15,8 @@
  */
 
 /**
+ * @file
+ *
  * Általános függvények: adatbázis kapcsolódás, fej- és lábléc, logolás,
  * időpont-átszámító, az űrlapokhoz konstans vezérlőelemek stb.
  */
@@ -36,6 +38,7 @@ try {
 
 // először megkeressük az aktuális időpontot
 require_once('fogadoora.class.php');
+//! Az aktuális fogadóóra
 $FA = new Fogadoora();
 
 // Ha még nincs semmi bejegyezve, csak az admin tud újat létrehozni
@@ -47,7 +50,8 @@ if (!isset($FA)) require_once('login.php');
 define('fid', $FA->id);
 
 /**
- * @desc A paraméterként kapott hibaszöveget kiírja, majd logolja
+ * A paraméterként kapott hibaszöveget kiírja, majd logolja
+ *
  * @param string $err A kiírandó hibaüzenet
  * @param boot $utf Kell-e utf-8 headert küldeni?                                                                               
  */
@@ -57,33 +61,37 @@ function hiba($err, $utf=false) {
     Ulog (0, $err);
 }
 
-// az ini idők átszámolása
+//! az ini fájlban található default fogadóidők átszámolása
 $FogadoIdo = array (
     TimeToFive($Fogado_tartam[0], $Fogado_tartam[1]),
     TimeToFive($Fogado_tartam[2], $Fogado_tartam[3])
 );
 
+//! az ini fájlban található default szülői értekezlet idők átszámolása
 $SzuloiIdo = array (
     TimeToFive($Szuloi_tartam[0], $Szuloi_tartam[1]),
     TimeToFive($Szuloi_tartam[2], $Szuloi_tartam[3])
 );
 
 /**
- * @desc Idő átszámítása 5 perces sorszámúról HH:MM formátumra
+ * Idő átszámítása 5 perces sorszámúról HH:MM formátumra
+ *
  * @param int $ido Az átszámítandó idő (5 perces)
  * @return string
  */
 function FiveToString($ido) { return sprintf("%02d:%02d", floor($ido/12), ($ido%12)*5); } // volt: tim
 
 /**
- * @desc Idő átszámítása 5 perces sorszámúról (óra, perc) formátumú tömbbé.
+ * Idő átszámítása 5 perces sorszámúról (óra, perc) formátumú tömbbé.
+ *
  * @param int $ido Az átszámítandó idő (5 perces)
  * @return array
  */
 function FiveToTime($ido) { return array ('ora' => floor($ido/12), 'perc' => ($ido%12)*5); }
 
 /**
- * @desc (óra, perc) formájú tömb átszámítása 5 perces sorszámúra.
+ * (óra, perc) formájú tömb átszámítása 5 perces sorszámúra.
+ *
  * @return int
  * @param int $ora Az idő órája
  * @param int $perc Az idő perce
@@ -122,7 +130,8 @@ function SelectIdo($name_ora, $name_perc, $ido){
 }
 
 /**
- * @desc Az időtartam választáshoz a listbox elkészítése, visszaadja HTML stringben.
+ * Az időtartam választáshoz a listbox elkészítése, visszaadja HTML stringben.
+ *
  * @return string
  * @param string $name a HTML tag "name" értéke
  */
@@ -134,7 +143,8 @@ function SelectTartam($name) {
 
 
 /**
- * @desc Elkészíti a HTML fejlécet
+ * Elkészíti a HTML fejlécet
+ *
  * @param string $cimsor A TITLE tagben megjelenő szöveg
  * @param string $onload A BODY tag kiegészítői - ha kell
  * @param string $css A használandó stíluslap neve kiterjesztés nélkül
@@ -159,7 +169,8 @@ print "\n\n<body$onload>\n";
 }
 
 /**
- * @desc Kiírja a HTML láblécet.
+ * Kiírja a HTML láblécet.
+ *
  */
 function Tail() {
     print "\n\n<p><hr><img src=\"dugo.png\" align=\"top\" alt=\"dugo@szepi_PONT_hu\">\n";
@@ -167,7 +178,8 @@ function Tail() {
 }
 
 /**
- * @desc Az Ulog táblába beírja a kapott szöveget
+ * Az Ulog táblába beírja a kapott szöveget
+ *
  * @param int $uid A módosítást végző felhasználó-azonosító (ADMIN-nál 0)
  * @param string $s a bejegyzendő szöveg
  */
@@ -178,7 +190,13 @@ function ulog($uid, $s) {
 }
 
 /**
- * @desc Kiírja a diák összesítő táblázatát.
+ * Kiírja a diák összesítő táblázatát.
+ *
+ * @param user $USER - a felhasználó adatai
+ * @param FA $FA - az aktuális fogadóóra
+ * @param db $db - az adatbázis-leíró
+ *
+ * @return string - az összeállított HTML táblázat
  */
 function osszesit($USER, $FA, $db){
     # a szülői értekezlet eleje és vége
@@ -219,7 +237,7 @@ function osszesit($USER, $FA, $db){
         }
         $Output[] = FiveToString($row['ido']) . " &ndash; " . $row['tnev'];
     }
-#    if (!$SzuloiKesz) { $Output[] = $SzuloiSor; }
+    if (!$SzuloiKesz) { $Output[] = $SzuloiSor; }
 
     return join ("\n<br>", $Output) . "\n";
 }

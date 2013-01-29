@@ -14,6 +14,12 @@
  *   2 of the License, or (at your option) any later version.
  */
 
+/**
+ * @file diak.class.php
+ *
+ * Diák osztály
+ */
+
 require_once('login.php');
 require_once('ifa.inc.php');
 

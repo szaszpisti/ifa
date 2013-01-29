@@ -14,12 +14,21 @@
  *   2 of the License, or (at your option) any later version.
  */
 
+/**
+ * @file
+ * Kiírja a bal menüt: az osztályokat, és ha kell, az osztály ill. tanári névsort.
+ *
+ * Az osztályok azonosítója és megjelenítési módja az OSZTALY fájlban van,
+ * soronként id1;nev1;id2;nev2 stb. alakban - ezt dolgozzuk fel itt
+ */
+
 require_once('ifa.inc.php');
 Head('Osztalyok', '', 'osztaly');
 
 //! Az OSZTALY-t beolvassuk soronként
 $OSZTALY_file = file('OSZTALY', FILE_IGNORE_NEW_LINES);
 
+//! a soronkénti osztályszámok maximuma
 $oMax = 0;
 foreach ($OSZTALY_file as $oszt) {
     // $O = array('id1', 'nev1', 'id2', 'nev2'), vagyis kétszer hosszabb
@@ -33,6 +42,7 @@ $oMax /= 2; // dupláját számoltuk
 
 echo "\n<p><a href=\"admin.php?tip=admin&amp;id=0\" target=duma>ADMIN</a><br>\n";
 
+//! kiírjuk egyesével az osztályokat
 foreach ($OSZTALY as $oszt) {
     for ($i=0; $i<sizeof($oszt)/2; $i++) {
         echo "<span><a href=\"?o=" . $oszt[2*$i] . "\">" . $oszt[2*$i+1] . "</a></span>";

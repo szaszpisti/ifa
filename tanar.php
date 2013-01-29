@@ -14,14 +14,22 @@
  *   2 of the License, or (at your option) any later version.
  */
 
+/**
+ * @file tanar.php
+ *
+ * Az admin tanár-táblája
+ */
+
 require_once('login.php');
 require_once('ifa.inc.php');
 require_once('tanar.class.php');
 
+/** Az aktuális tanár objektum */
 $TANAR = new Tanar($_SESSION['id']);
 
 if (isset($_REQUEST['mod'])) switch ($_REQUEST['mod']) {
-    # az egyes időpontok módosítása
+
+    # a tanár fogadó-időpontjainak módosítása
     case 1:
         reset($_POST);
         $db->beginTransaction();

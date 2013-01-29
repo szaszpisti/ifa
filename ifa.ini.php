@@ -1,8 +1,24 @@
 <?php
-# [ifa.ini.php]
-# Az állományban beállítható változók
+/*
+ *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
+ *   This file is part of the IFA suite,
+ *   Copyright 2004-2005 Szász Imre.
+ *
+ *   Ez egy szabad szoftver; terjeszthető illetve módosítható a GNU
+ *   Általános Közreadási Feltételek dokumentumában leírtak -- 2. vagy
+ *   későbbi verzió -- szerint, melyet a Szabad Szoftver Alapítvány ad ki.
+ *
+ *   This program is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU General Public License
+ *   as published by the Free Software Foundation; either version
+ *   2 of the License, or (at your option) any later version.
+ */
 
-#
+/**
+ * Globális változók
+ */
+
+/**
 # $dsn:
 #
 #   Az fogadóóra adatbázisának adatforrás neve.
@@ -26,6 +42,7 @@
 #   );
 #
 # FIGYELEM! Ne felejtsd ki a PERL_DSN-t!
+*/
 
 // $pdo = new \PDO("mysql:host={$host};dbname={$db_name}", $username, $password);
 $pgsql_dsn = 'pgsql:host=localhost;dbname=fogado;user=fadmin;password=$1$JV6c.fJ6$PZLyMROI/Pct3ywWyNhgQ.';

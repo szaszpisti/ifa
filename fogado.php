@@ -14,20 +14,32 @@
  *   2 of the License, or (at your option) any later version.
  */
 
+/**
+ * @file fogado.php
+ * Egy diák számára kiírja a fogadóóra jelentkezési táblázatot
+ * vagy az összesítést.
+ */
+
 require_once('login.php');
 require_once('ifa.inc.php');
 require_once('diak.class.php');
 
+/** @brief Már foglalt időpont */
 define ('foglalt', 'foglalt');
-define ('szabad2', 'szabad2');
+/** @brief A blokkban az első szabad időpont */
 define ('szabad', 'szabad');
+/** @brief Ha a megelőző időpont szabad volt */
+define ('szabad2', 'szabad2');
+/** @brief Szülői értekezlet */
 define ('szuloi', 'szuloi');
+/* @brief A blokkban az első saját időpont */
+define ('sajat', 'sajat'); //!<@brief A blokkban az első saját időpont
+/** @brief Ha a megelőző időpont saját volt */
 define ('sajat2', 'sajat2');
-define ('sajat', 'sajat');
 
-/**
-* Egy diák számára kiírja a fogadóóra táblázatot az összes tanárral
-*/
+/*
+ * Egy diák számára kiírja a fogadóóra táblázatot az összes tanárral
+ */
 
 $user = new Diak($_SESSION['id']);
 
@@ -94,6 +106,11 @@ function table_row($K, $tid, $t) {
     return $tmp;
 }
 
+/**
+ * Egy tanár-sor kiírása
+ *
+ * @param tanar $tanar - az ő sorát írjuk ki
+ */
 function tanar_ki($tanar) {
     global $FA, $user, $K;
     // TANAR: [0]['diak']=25, [1]['diak']=-1, ...
@@ -201,9 +218,18 @@ foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $sor) {
     $FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
 }
 
-// visszatérés: array (bool b, string s)
-// b: true ha végre kell hajtani a változtatást
-// s: a logba írandó üzenet, ha üres, akkor nem kell írni
+/**
+ * Minden időpontfoglalásra megnézzük, hogy az működhet-e?
+ * - ha a tanár foglalt, akkor nem iratkozhat fel,
+ * - ha a szülő foglalt, akkor csak figyelmeztet (jöhetnek többen is)
+ *
+ * @param tanar $Teacher
+ * @param ido $Time
+ *
+ * @return array (bool b, string s)
+ * - b: true ha végre kell hajtani a változtatást
+ * - s: a logba írandó üzenet, ha üres, akkor nem kell írni
+*/
 function ValidateRadio ( $Teacher, $Time ) {
 // (ezeket jó lenne triggerként berakni a tábla-definícióba...)
     global $FOGADO, $user;

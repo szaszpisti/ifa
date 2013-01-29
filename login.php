@@ -14,6 +14,22 @@
  *   2 of the License, or (at your option) any later version.
  */
 
+/**
+ * @file login.php
+ *
+ * Bejelentkezés
+ *
+ * A bejelentkezéseket, identitásokat ellenőrző függvények,
+ * minden oldalt csak ezen keresztül lehet elérni.
+ */
+
+/**
+ * Bejelentkezés
+ *
+ * A bejelentkezéseket, identitásokat ellenőrző függvények,
+ * minden oldalt csak ezen keresztül lehet elérni.
+ */
+
 require_once('ifa.inc.php');
 
 /**
@@ -27,8 +43,16 @@ function redirect($uri = '') {
     header ("Location: $uri");
 }
 
-// ellenőrzi, hogy adott típus, id esetén létezik-e az userid
-// paraméterként pl. a _REQUEST vagy a _SESSION tömböt várja
+/**
+ * Ellenőrzi, hogy adott típus, id esetén létezik-e az userid
+ *
+ * @param array $param -
+ *    paraméterként pl. a _REQUEST vagy a _SESSION tömböt várja, amiben van 'tip' és 'id'
+ *
+ * @return 
+ *   - FALSE - ha nem talált megfelelő usert
+ *   - különben: ('nev': nev, 'tip': tip, 'id': id)
+ */
 function get_user($param) {
     global $db;
     if ( !isset($param['tip']) || !isset($param['id']) ) return false;  // valami nincs megadva

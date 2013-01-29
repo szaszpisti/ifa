@@ -14,25 +14,39 @@
  *   2 of the License, or (at your option) any later version.
  */
 
+/**
+ * @file fogadoora.class.php
+ *
+ * Fogadóóra osztály
+ */
+
 require_once('ifa.inc.php');
 
+/**
+ * @class Fogadoora
+ *
+ * Az időponttal kapcsolatos változókat tartalmazza, *dátum* és *string* formában is
+ */
 class Fogadoora {
 
-/*
-valid: Ha bejelentkezési időszak van -- különben csak az admin éri el
-IDO_min:  a kiírást ennél a páros időpontnál kell kezdeni
-IDO_max:  ezt a páros időpontot már nem kell kiírni
-*/
-
+    /**
+     * - id, datum, kezd, veg, tartam, valid_kezd, valid_veg - az adatbázisból
+     * - valid    Ha bejelentkezési időszak van -- különben csak az admin éri el
+     * - IDO_min  a kiírást ennél a páros időpontnál kell kezdeni
+     * - IDO_max  ezt a páros időpontot már nem kell kiírni
+     * - datum_str, valid_kezd_str, valid_veg_str: az idők stringben
+     */
     function Fogadoora() {
         global $db;
 
-        // az utolsó id az éppen aktuális fogadóóra
+        // beolvassuk az legnagyobb id sorát, az éppen aktuális fogadóórát
         $row = $db->query("SELECT * FROM Admin ORDER BY id DESC LIMIT 1;")->fetch(PDO::FETCH_ASSOC);
 
+        // az adatbázis sor minden mezőjét beemeljük
         while(list($k, $v) = each($row)) {
             $this->$k = $v;
         }
+        // magyarul legyen a dátumszöveg
         setlocale(LC_TIME, 'hu_HU.UTF-8');
         $this->datum_str = strftime("%Y. %B %e., %A", strtotime($this->datum));
         $this->valid_kezd_str = strftime("%Y. %B %e., %A %H:%M", strtotime($this->valid_kezd));
@@ -40,8 +54,7 @@ IDO_max:  ezt a páros időpontot már nem kell kiírni
 
 
         $MaiDatum = date("Y-m-d H:i:s");
-        $this->valid = ( ($this->valid_kezd <= $MaiDatum)
-                    && ($MaiDatum <= $this->valid_veg) );
+        $this->valid = ( ($this->valid_kezd <= $MaiDatum) && ($MaiDatum <= $this->valid_veg) );
 
         try { $res = $db->query("SELECT min(ido) AS min, max(ido) AS max FROM Fogado WHERE fid=" . $this->id);
         } catch (PDOException $e) { echo $e->getMessage(); }

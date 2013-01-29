@@ -14,6 +14,15 @@
  *   2 of the License, or (at your option) any later version.
  */
 
+/**
+ * @file admin.php
+ *
+ * Fogadóóra bejegyzése és letöltése
+ *
+ * Ha oldalszám nélkül hívjuk, akkor megnézi, hogy van-e időben következő fogadóóra:
+ * ha van, akkor mindjárt a második oldalra ugrik, egyébként az első oldal az alapértelmezett.
+ */
+
 require_once('login.php');
 require_once('ifa.inc.php');
 
