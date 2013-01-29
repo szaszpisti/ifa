@@ -100,8 +100,12 @@ $TANAR = new Tanar($_REQUEST['id']); # újra beolvassuk az adatbázisból
 
 Head("Fogadóóra - " . $TANAR->tnev);
 
+$res = $db->prepare("SELECT ' &ndash; ' || onev AS onev FROM Tanar, Osztaly WHERE Tanar.id=? AND Tanar.id=Osztaly.ofo");
+$res->execute(array($TANAR->id));
+$onev = $res->fetchColumn();
+
 echo "\n<table width='100%'><tr>\n"
-    . "<td><h3>" . $TANAR->tnev .  " (" . $FA->datum . ")</h3>\n"
+    . "<td><h3>" . $TANAR->tnev .  " (" . $FA->datum . ")$onev</h3>\n"
     . "<td align='right' class=\"sans\"><a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n</table>\n";
 
 # A külső táblázat első cellájában az időpont-lista
