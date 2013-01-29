@@ -113,7 +113,7 @@ $TABLA = "<table border='0'><tr><td>\n";
 
 if (ADMIN) {
     if ($TANAR->fogad) {
-        $TABLA .= "<form method='post' name='tabla'>\n<table border='1'>\n"
+        $TABLA .= "<form method='post' name='tabla'>\n<table border='1' id=\"tanar\">\n"
             . "<tr><th><th>A<th>B<th>C<th>D<th>E\n"
             . "    <td colspan='2' align='right'><input type='hidden' name='mod' value='1'>\n"
             . "       <input type='reset' value='RESET'>\n"
@@ -123,10 +123,10 @@ if (ADMIN) {
             if (array_key_exists($ido, $TANAR->fogado_ido)) $diak = $TANAR->fogado_ido[$ido]['diak'];
             else $diak = NULL;
             $TABLA .= "<td>" . FiveToString($ido);
-            $TABLA .= "  <td class='foglalt'><input type='radio' name='r$ido' value='x'" . (!isset($diak)?" checked":"") . ">\n";
-            $TABLA .= "  <td class='szabad'><input type='radio' name='r$ido' value='0'" . ($diak=="0"?" checked":"") . ">\n";
-            $TABLA .= "  <td class='szabad'><input type='radio' name='r$ido' value='-1'" . ($diak=="-1"?" checked":"") . ">\n";
-            $TABLA .= "  <td class='szuloi'><input type='radio' name='r$ido' value='-2'" . ($diak=="-2"?" checked":"") . ">\n";
+            $TABLA .= "  <td><input type='radio' name='r$ido' value='x'" . (!isset($diak)?" checked":"") . ">\n";
+            $TABLA .= "  <td><input type='radio' name='r$ido' value='0'" . ($diak=="0"?" checked":"") . ">\n";
+            $TABLA .= "  <td><input type='radio' name='r$ido' value='-1'" . ($diak=="-1"?" checked":"") . ">\n";
+            $TABLA .= "  <td><input type='radio' name='r$ido' value='-2'" . ($diak=="-2"?" checked":"") . ">\n";
             if ($diak>0) {
                 $TABLA .= "  <td class='sajat'><input type='radio' name=r$ido value='$diak' checked><td><a class='diak' href='fogado.php?"
                     . "tip=diak&amp;id=" . $diak . "'>" . $TANAR->fogado_ido[$ido]['dnev'] . "</a>\n";

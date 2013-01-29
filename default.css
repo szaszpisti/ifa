@@ -12,7 +12,7 @@ a { text-decoration: none; color: maroon; }
 a:hover { background: #cccccc; }
 
 @media print {
-  .noprint { visibility:hidden; }
+  .noprint { visibility: hidden; }
 }
 
 .justify { text-align: justify; text-indent: 0em; }
@@ -30,9 +30,18 @@ table {
 th { text-align: left; border: inset .5pt; }
 td { text-align: left; border: inset .5pt; }
 */
-td.sajat { background-color: red; }
-td.foglalt { background-color: #D0E0E0; }
+td.foglalt { background-color: #d0e0e0; }
 td.szuloi { background-color: yellow; }
+td.sajat { background-color: red !important; }
+
+#tanar tr:nth-child(odd)    { background-color: #eee; }
+#tanar tr:nth-child(even)   { background-color: white; }
+#tanar tr:first-child, tr:last-child { background-color: white; }
+
+#tanar td+td { background-color: #d0e0e0; }             /* 2. oszlop */
+#tanar td+td+td { background-color: inherit; }          /* 3-4. oszlop */
+#tanar td+td+td+td+td { background-color: yellow; }     /* 5. oszlop */
+#tanar td+td+td+td+td+td { background-color: inherit; } /* 6-7. oszlop */
 
 /* Itt jönnek az admin.php stílusai */
 
@@ -53,3 +62,4 @@ div.userlog {
     font-size: 90%;
     background: #e8e8e8;
 }
+
