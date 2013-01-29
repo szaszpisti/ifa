@@ -185,11 +185,11 @@ if (ADMIN) {
     }
 
 } else {
-    // Hogy a kezdő mindenképpen páros legyen:
     if (isset($TANAR->IDO_min)) {
-        $elso = floor((($TANAR->IDO_min)+1)/2)*2;
+#        $elso = floor((($TANAR->IDO_min)+1)/2)*2;
         $elozo = 0;
-        for ($ido = $elso; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
+        // ha van páratlan, akkor csak egyesével lépkedünk, egyébként kettesével
+        for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
             $ora = floor($ido/12);
             if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan='3'><hr>\n"; }
             $TABLA .= ($ido%2?"<tr class='paratlan'>":"<tr>");
