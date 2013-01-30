@@ -113,7 +113,7 @@ $TABLA = "<table border='0'><tr><td>\n";
 
 if (ADMIN) {
     if ($TANAR->fogad) {
-        $TABLA .= "<form method='post' name='tabla'>\n<table border='1' id=\"tanar\">\n"
+        $TABLA .= "<form method='post' name='tabla' action=''>\n<table border='1' id=\"tanar\">\n"
             . "<tr><th><th>A<th>B<th>C<th>D<th>E\n"
             . "    <td colspan='2' align='right'><input type='hidden' name='mod' value='1'>\n"
             . "       <input type='reset' value='RESET'>\n"
@@ -168,7 +168,7 @@ if (ADMIN) {
         . "  }\n"
         . "}\n"
         . "//--></script>\n"
-        . "<form method='post'>\n"
+        . "<form method='post' action=''>\n"
         . "  <input type='hidden' name='mod' value='2'>\n";
 
     if ($TANAR->fogad) {

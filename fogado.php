@@ -62,8 +62,8 @@ $Fejlec =
     . "<span class=\"kicsi\">(Osztályfőnök: " . $user->ofonev . ")</span></h3>\n"
     . "<td align=right valign=top><span class='noprint sans'>\n"
     . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "'>Táblázat</a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&tartalom=osszesit'>Összesítés</a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&tartalom=leiras'>Leírás</a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&amp;tartalom=osszesit'>Összesítés</a> | \n"
+    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&amp;tartalom=leiras'>Leírás</a> | \n"
     . "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n<!--#--></span></td></tr></table>\n";
 
 // Ha a "leírást" kell kitenni:
@@ -329,7 +329,7 @@ if ($USER_LOG) {
     print "</div>\n";
 }
 
-print "\n<form name='tabla' method='post'><table border='1'>"
+print "\n<form name='tabla' method='post' action=''><table border='1'>"
     . "<tr><td colspan='" . (($FA->IDO_max-$FA->IDO_min)/2+2) . "' align='right' class='right'>\n"
     . "  <input type='submit' value=' Mehet '>\n"
     . $TablaOutput
