@@ -104,14 +104,14 @@ $res = $db->prepare("SELECT ' &ndash; ' || onev AS onev FROM Tanar, Osztaly WHER
 $res->execute(array($TANAR->id));
 $onev = $res->fetchColumn();
 
-echo "\n<table width='100%'><tr>\n"
-    . "<td><h3>" . $TANAR->tnev .  " (" . $FA->datum . ")$onev</h3>\n"
-    . "<td align='right' class=\"sans\"><a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n</table>\n";
-
-# A külső táblázat első cellájában az időpont-lista
-$TABLA = "<table border='0'><tr><td>\n";
+$Fejlec = "\n<table width='100%'><tr>\n"
+    . "<td><h3>" . $TANAR->tnev .  " (" . $FA->datum . ")$onev</h3></td>\n"
+    . "<td align='right'><span class='noprint sans'>\n"
+    . "<a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n<!--#--></span></td></tr></table>\n";
 
 if (ADMIN) {
+    # A külső táblázat első cellájában az időpont-lista
+    $TABLA = "<table border='0'><tr><td>\n";
     if ($TANAR->fogad) {
         $TABLA .= "<form method='post' name='tabla' action=''>\n<table border='1' id=\"tanar\">\n"
             . "<tr><th><th>A<th>B<th>C<th>D<th>E\n"
@@ -196,26 +196,35 @@ if (ADMIN) {
             . "</table>\n";
     }
 
-} else {
+} else { // nem admin, hanem tanár -> a listát írjuk ki
+    $TABLA = "<table id=\"lista\">\n";
+    # Ha egyáltalán itt van...
     if (isset($TANAR->IDO_min)) {
-#        $elso = floor((($TANAR->IDO_min)+1)/2)*2;
-        $elozo = 0;
-        // ha van páratlan, akkor csak egyesével lépkedünk, egyébként kettesével
+        $elozoOra = 0;
+        # ha van páratlan, akkor csak egyesével lépkedünk, egyébként kettesével
         for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido+=(2-$TANAR->ODD)) {
+            # minden óra után rakunk egy vonalat
             $ora = floor($ido/12);
-            if ($ora != $elozo) { $elozo = $ora; $TABLA .= "<tr><td colspan='3'><hr>\n"; }
-            $TABLA .= ($ido%2?"<tr class='paratlan'>":"<tr>");
+            if ($ora != $elozoOra) {
+                $elozoOra = $ora;
+                $TABLA .= '<tr class="borderTop">';
+            }
+            else {
+                $TABLA .= '<tr>';
+            }
+            # ha ebben az időpontban van foglalás, akkor kiírjuk
             if (isset($TANAR->fogado_ido[$ido]['diak'])) $diak = $TANAR->fogado_ido[$ido]['diak'];
             else $diak = 0;
-            $TABLA .= "<td" . ($diak=="-2"?" class=szuloi":"") . ">" . FiveToString($ido)
-                . "<td> -- <td>" . ($diak>0?$TANAR->fogado_ido[$ido]['dnev']:"&nbsp;") . "\n";
+            $TABLA .= '<td' . ($diak=='-2'?' class="szuloi"':'') . '>' . FiveToString($ido)
+                . '<td> &ndash; </td><td>' . ($diak>0?$TANAR->fogado_ido[$ido]['dnev']:'&nbsp;') . "</td></tr>\n";
         }
+        $Fejlec = preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
     }
     $TABLA .= "</table>\n";
 
 }
 
-print $TABLA;
+print $Fejlec . $TABLA;
 
 Tail();
 

@@ -30,6 +30,12 @@ table {
 th { text-align: left; border: inset .5pt; }
 td { text-align: left; border: inset .5pt; }
 */
+#lista { border-collapse: collapse; }
+#lista tr:nth-child(odd)    { background-color: white; }
+#lista tr:nth-child(even)   { background-color: #eee; }
+#lista td { padding: .15em; }
+#lista tr.borderTop td { border-top: 1px solid black; padding-top: .3em; }
+
 td.foglalt { background-color: #d0e0e0; }
 td.szuloi { background-color: yellow; }
 td.sajat { background-color: red !important; }
