@@ -168,7 +168,7 @@ if ( isset($_POST['jelszo']) ) {
         $_SESSION['nev']   = $user['nev'];
         ulog ($user['id'], $user['nev'] . " bejelentkezett.");
     }
-    else { login ($user, "Érvénytelen bejelentkezés (".($user['tip'].", ".$user['id']).")!"); }
+    else { login ($user, "Érvénytelen bejelentkezés!"); }
 }
 
 if ($user) {
