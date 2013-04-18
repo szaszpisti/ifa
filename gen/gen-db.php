@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+// A script könyvtára; itt kell keresni a schema.sql-t.
+$BASE = dirname(__FILE__);
 $IFA_db = 'ifa.db';
 
 if ($argc != 2) {
@@ -41,7 +43,7 @@ function insert($value, $key) {
 }
 
 try {
-    $schema = file_get_contents('schema.sql');
+    $schema = file_get_contents($BASE . '/schema.sql');
     $db->exec($schema);
 
     $db->exec('INSERT INTO Admin VALUES (0, "2000-01-01", 192, 228, 2, "2000-01-01 08:00", "3000-01-01 12:00");' );
