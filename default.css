@@ -22,14 +22,6 @@ a:hover { background: #cccccc; }
 .kicsi { font-size: 85%; }
 .sans { font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif; }
 
-/*
-table {
-    border-spacing: 1px;
-    border: outset .5pt;
-}
-th { text-align: left; border: inset .5pt; }
-td { text-align: left; border: inset .5pt; }
-*/
 #lista { border-collapse: collapse; }
 #lista tr:nth-child(odd)    { background-color: white; }
 #lista tr:nth-child(even)   { background-color: #eee; }
@@ -49,7 +41,7 @@ td.sajat { background-color: red !important; }
 #tanar td+td+td+td+td { background-color: yellow; }     /* 5. oszlop */
 #tanar td+td+td+td+td+td { background-color: inherit; } /* 6-7. oszlop */
 
-/* Itt jönnek az admin.php stílusai */
+/* az admin.php stÃ­lusai */
 
 table.tanar {
     border-spacing: 0px;
