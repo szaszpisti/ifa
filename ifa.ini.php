@@ -46,7 +46,7 @@
 
 // $pdo = new \PDO("mysql:host={$host};dbname={$db_name}", $username, $password);
 $pgsql_dsn = 'pgsql:host=localhost;dbname=fogado;user=fadmin;password=$1$JV6c.fJ6$PZLyMROI/Pct3ywWyNhgQ.';
-$sqlite_dsn = 'sqlite:ifa.db';
+$sqlite_dsn = 'sqlite:db/ifa.db';
 
 # $dsn = $pgsql_dsn;
 $dsn = $sqlite_dsn;
@@ -66,7 +66,7 @@ $dsn = $sqlite_dsn;
 
 /*
 # PERL_DSN = "DBI:Pg:dbname=fog"
-PERL_DSN = "DBI:SQLite:dbname=ifa.db"
+PERL_DSN = "DBI:SQLite:dbname=db/ifa.db"
 */
 
 #
