@@ -138,7 +138,7 @@ if ( isset($_POST['jelszo']) ) {
                     $jo = (md5($_POST['jelszo']) == $user['jelszo']);
                     break;
                 case 'LDAP':
-                    if($connect = ldap_connect($ldap['host'])) {
+                    if ((strlen(trim($_POST['jelszo'])) != 0) && $connect = ldap_connect($ldap['host'])) {
                         ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, $ldap['version']);
                         $filter = "(uid=".$user['emil'].")";
                         $result = ldap_search($connect, $ldap['base'], $filter);
