@@ -3,7 +3,7 @@
 # Összehasonlítja az iskolai adatbázis aktuális névsorát
 # az ifa.db névsorával.
 
-trap "rm -f -- '$TMP'" EXIT
+trap 'rm -rf -- "$TMP"' EXIT
 
 BASE=/var/ifa
 DB=$BASE/$(sed -n '/^\$sqlite_dsn/'"s/^.*sqlite:\(.*\)'.*$/\1/p" $BASE/ifa.ini.php)
