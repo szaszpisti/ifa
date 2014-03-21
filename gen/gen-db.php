@@ -59,6 +59,6 @@ array_walk($ins, 'insert');
 $db->commit();
 
 chmod ($IFA_db, 0660);
-// chgrp ($IFA_db, 'www-data');
+chgrp ($IFA_db, 'www-data');
 
 ?>
