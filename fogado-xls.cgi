@@ -173,6 +173,7 @@ for (my $i = 1; $i <= $darab; $i++) {
         $book[$i]->write ($egyeniSor, 0, fiveToString($ido));
         $book[$i]->write ($egyeniSor, 1, $tabla[$id][$ido]);
     }
+    $book[$i]->set_row(1, 23);
 }
 
 sub fiveToString {
