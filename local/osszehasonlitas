@@ -12,6 +12,7 @@ TMP=$( mktemp -d )
 cd $TMP
 
 $BASE/local/local.gen
+cp $BASE/local/admin.password .
 $BASE/gen/gen-db.php local.sql
 
 echo .dump | sqlite3 ifa.db | sort > dump-db

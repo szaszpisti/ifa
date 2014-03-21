@@ -44,6 +44,8 @@ function insert($value, $key) {
 
 try {
     $schema = file_get_contents($BASE . '/schema.sql');
+    $adminpw = file_get_contents('admin.password');
+    $schema = str_replace('#ADMINPW#', trim($adminpw), $schema);
     $db->exec($schema);
 
     $db->exec('INSERT INTO Admin VALUES (0, "2000-01-01", 192, 228, 2, "2000-01-01 08:00", "3000-01-01 12:00");' );
