@@ -1,6 +1,7 @@
 *~
 *.swp
 *.db*
+admin.password
 tmp
 ChangeLog
 cl
