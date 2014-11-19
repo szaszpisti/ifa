@@ -123,10 +123,10 @@ if (ADMIN) {
             if (array_key_exists($ido, $TANAR->fogado_ido)) $diak = $TANAR->fogado_ido[$ido]['diak'];
             else $diak = NULL;
             $TABLA .= "<td>" . FiveToString($ido);
-            $TABLA .= "  <td><input type='radio' name='r$ido' value='x'" . (!isset($diak)?" checked":"") . ">\n";
-            $TABLA .= "  <td><input type='radio' name='r$ido' value='0'" . ($diak=="0"?" checked":"") . ">\n";
-            $TABLA .= "  <td><input type='radio' name='r$ido' value='-1'" . ($diak=="-1"?" checked":"") . ">\n";
-            $TABLA .= "  <td><input type='radio' name='r$ido' value='-2'" . ($diak=="-2"?" checked":"") . ">\n";
+            $TABLA .= "  <td class='nincs'><input type='radio' name='r$ido' value='x'" . (!isset($diak)?" checked":"") . ">\n";
+            $TABLA .= "  <td class='idoKezd'><input type='radio' name='r$ido' value='0'" . ($diak=="0"?" checked":"") . ">\n";
+            $TABLA .= "  <td class='idoFolytat'><input type='radio' name='r$ido' value='-1'" . ($diak=="-1"?" checked":"") . ">\n";
+            $TABLA .= "  <td class='szuloi'><input type='radio' name='r$ido' value='-2'" . ($diak=="-2"?" checked":"") . ">\n";
             if ($diak>0) {
                 $TABLA .= "  <td class='sajat'><input type='radio' name=r$ido value='$diak' checked><td><a class='diak' href='fogado.php?"
                     . "tip=diak&amp;id=" . $diak . "'>" . $TANAR->fogado_ido[$ido]['dnev'] . "</a>\n";
@@ -145,11 +145,11 @@ if (ADMIN) {
     }
 
     $TABLA .= "<br><b>Jelmagyarázat:</b><ul>\n"
-        . "   <li>A: nincs itt<br>\n"
-        . "   <li>B: fogadó időpont kezdete<br>\n"
-        . "   <li>C: - időpont folytatása<br>\n"
-        . "   <li>D: szülői értekezlet<br>\n"
-        . "   <li>E: már bejelentkezett diák\n"
+        . "   <li><span class='nincs'     >A</span>: nincs itt<br>\n"
+        . "   <li><span class='idoKezd'   >B</span>: fogadó időpont kezdete<br>\n"
+        . "   <li><span class='idoFolytat'>C</span>: - időpont folytatása<br>\n"
+        . "   <li><span class='szuloi'    >D</span>: szülői értekezlet<br>\n"
+        . "   <li><span class='foglalt'   >E</span>: már bejelentkezett diák\n"
         . "</ul>\n"
         . "<script language=JavaScript type='text/javascript'><!--\n"
         . "function fivedel() {\n"

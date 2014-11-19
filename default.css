@@ -36,10 +36,11 @@ td.sajat { background-color: red !important; }
 #tanar tr:nth-child(even)   { background-color: white; }
 #tanar tr:first-child, tr:last-child { background-color: white; }
 
-#tanar td+td { background-color: #d0e0e0; }             /* 2. oszlop */
-#tanar td+td+td { background-color: inherit; }          /* 3-4. oszlop */
-#tanar td+td+td+td+td { background-color: yellow; }     /* 5. oszlop */
-#tanar td+td+td+td+td+td { background-color: inherit; } /* 6-7. oszlop */
+.nincs { background: #d0e0e0; }
+.idoKezd, .idoFolytat { background: inherit; }
+.szuloi { background: yellow; }
+.foglalt { background: red; }
+span.nincs, span.idoKezd, span.idoFolytat, span.szuloi, span.foglalt { padding-left: 4px; padding-right: 4px; } 
 
 /* az admin.php stílusai */
 
@@ -60,4 +61,3 @@ div.userlog {
     font-size: 90%;
     background: #e8e8e8;
 }
-
