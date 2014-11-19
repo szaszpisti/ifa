@@ -211,6 +211,7 @@ function osszesit($USER, $FA, $db){
     $szuloi = $res->fetch(PDO::FETCH_ASSOC);
 
     $SzuloiEleje  = 0;
+    $SzuloiSor = '';
     if (isset($szuloi['eleje'])) {
         $SzuloiSor = "<b>" . FiveToString($szuloi['eleje'])
             . "-" . FiveToString($szuloi['vege']+1)
