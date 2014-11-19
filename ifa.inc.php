@@ -24,6 +24,7 @@
 require_once('ifa.ini.php');
 
 session_start();
+// Ha "admin", azt a session-ban tároltuk, itt visszaolvassuk.
 if (isset($_SESSION['admin'])) { define ('ADMIN', true); }
 else { define('ADMIN', false); }
 
@@ -32,7 +33,6 @@ set_include_path(get_include_path() . ':./classes');
 try {
     $db = new PDO($dsn);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-#   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
     $db->exec('PRAGMA foreign_keys = true;');
 } catch (PDOException $e) { hiba($e->getMessage()); }
 
