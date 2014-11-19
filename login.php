@@ -91,8 +91,8 @@ function login($user, $hiba=NULL) {
     if (isset($hiba)) hiba($hiba);
 
     if ($user['tip'] == 'diak' && !$FA->valid) {
-        print "<h3>Nincs bejelentkezési időszak!\n"
-            . "<br>Fogadóóra időpontja: " . $FA->datum_str . "\n"
+        print "<h2 style='color: red;'>Nincs bejelentkezési időszak!</h2>\n"
+            . "<h3>Fogadóóra időpontja: " . $FA->datum_str . "\n"
             . "<br><span class=\"kicsi\">" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
             . $FA->valid_veg_str . "</b> &nbsp; között lehet feliratkozni.</span>\n<hr>\n";
     }
