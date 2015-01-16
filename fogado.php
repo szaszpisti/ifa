@@ -305,11 +305,21 @@ while (list($k, $v) = each($_POST)) {
 }
 $db->commit();
 
+# Egy saján összehasonlítást készítünk, ezzel fogjuk a $FOGADO-t a nevek szerint rendezni
+# Kell hozzá a php5-intl csomag
+$coll = collator_create( 'hu_HU.UTF-8' );
+function myCmp($a, $b){
+    global $coll;
+    return collator_compare( $coll, $a['nev'], $b['nev'] );
+}
+
 # 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
 $szamlalo = 0;
 # $TablaOutput .= $TablazatIdosor;
 $TablaOutput = '';
+
 if (count($FOGADO) > 0) {
+    uasort($FOGADO, "myCmp");
     foreach ( $FOGADO as $tanar ) {
         if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;
         $TablaOutput .= tanar_ki($tanar);
