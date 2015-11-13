@@ -12,7 +12,9 @@
 #   modify it under the terms of the GNU General Public License
 #   as published by the Free Software Foundation; either version
 #   2 of the License, or (at your option) any later version.
-#
+
+# http://search.cpan.org/dist/Spreadsheet-WriteExcel/lib/Spreadsheet/WriteExcel.pm
+# http://search.cpan.org/dist/Spreadsheet-WriteExcel/lib/Spreadsheet/WriteExcel/Examples.pm
 
 use strict;
 use DBI;
@@ -92,7 +94,7 @@ while (my $t = $minmaxPerUser->fetchrow_hashref) {
 my $q = "SELECT * FROM Fogado AS F"
         . " LEFT OUTER JOIN"
         . "   ( SELECT * FROM Diak UNION"
-        . "     SELECT -2 AS id, NULL AS jelszo, 'Szülői' AS dnev, NULL AS oszt,"
+        . "     SELECT -2 AS id, NULL AS jelszo, 'Szuloi ertekezlet' AS dnev, NULL AS oszt,"
         . "            NULL AS onev, NULL AS ofo, NULL AS ofonev ) AS D"
         . "   ON (F.diak=D.id)"
         . " WHERE F.fid=" . $fid . " AND (F.diak>0 OR F.diak=-2) ORDER BY ido";
@@ -116,12 +118,22 @@ my @book;
 
 my $formatOsszDiak = $workBook->add_format(text_wrap => 1);
 my $formatTanarNev = $workBook->add_format(bold => 1, size => 18);
+my $formatListaDiak = $workBook->add_format(bottom => 1);
+my $formatListaTanar = $workBook->add_format(bold => 1, size => 16, top => 2, bottom => 1, text_wrap => 1, valign  => 'top');
 
 my $osszesitoNev = 'Osszesitett';
+my $listaNev = 'Lista';
 
 $book[0] = $workBook->add_worksheet($osszesitoNev);
-
 $book[0]->set_column('A:A', 25);
+
+$book[1] = $workBook->add_worksheet($listaNev);
+$book[1]->set_margins_TB(.2);
+$book[1]->set_margins_LR(.5);
+$book[1]->hide_gridlines(1); # nyomtatásban ne legyenek rácsok
+$book[1]->fit_to_pages(1);
+$book[1]->print_area('A:E');
+$book[1]->set_column('C:C', 15);
 
 # A fogadóóra dátumát beírjuk a sarokba
 $book[0]->write (0, 0, $fogadoDate);
@@ -133,11 +145,16 @@ for (my $ido = $IDO_min; $ido <= $IDO_max; $ido += 2) {
     $oszlop++;
 }
 
+$book[1]->set_column('B:B', 40);
+$book[1]->set_column('E:E', 40);
+
+my $diak = '';
 my $osszesitoSor = 2;
+my $listaSor = 1;
 my $tLink;
-for (my $i = 1; $i <= $darab; $i++) {
+for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tanári lapok
     $osszesitoSor++;
-    my $id = $nevsor[$i];
+    my $id = $nevsor[$i-1];
 
     # $tLink: a tanári lap neve: 'Monoton Manó' -> 'Monoton M'
     ($tLink = $tanar[$id]) =~ s{^(.{30}).*$}{$1};
@@ -167,13 +184,34 @@ for (my $i = 1; $i <= $darab; $i++) {
     # Itt jönnek a tanári listák külön lapokra
     $book[$i] = $workBook->add_worksheet($tLink);
     $book[$i]->write(1, 0, "internal:'$osszesitoNev'!A1", $tanar[$id], $formatTanarNev);
+
+	 # A Listába is betesszük a tanárt
+	 $book[1]->set_row($listaSor, 33);
+	 $book[1]->merge_range('A'.($listaSor+1).':B'.($listaSor+1), $tanar[$id], $formatListaTanar);
+	 $book[1]->merge_range('D'.($listaSor+1).':E'.($listaSor+1), $tanar[$id], $formatListaTanar);
+    $listaSor += 1;
+
     my $egyeniSor = 3; # hanyadik sorba kell kiírni?
+	 my $elsoSzuloi = 1;
     for (my $ido = $minPerUser[$id]; $ido <= $maxPerUser[$id]; $ido += $paratlan[$id]?1:2) {
         $egyeniSor++;
+		  $diak = $tabla[$id][$ido]; # diák neve vagy "Szuloi ertekezlet"
+
         $book[$i]->write ($egyeniSor, 0, fiveToString($ido));
-        $book[$i]->write ($egyeniSor, 1, $tabla[$id][$ido]);
+        $book[$i]->write ($egyeniSor, 1, $diak);
+
+		  if ($diak ne '' && ($diak !~ /Szuloi/ || $elsoSzuloi)){
+            if ($diak =~ /Szuloi/) { $elsoSzuloi = 0; } # Csak az első szülőit jelenítse meg
+            $book[1]->write($listaSor, 0, fiveToString($ido), $formatListaDiak);
+            $book[1]->write($listaSor, 1, $diak, $formatListaDiak);
+            $book[1]->write($listaSor, 3, fiveToString($ido), $formatListaDiak);
+            $book[1]->write($listaSor, 4, $diak, $formatListaDiak);
+            $listaSor += 1;
+        }
     }
     $book[$i]->set_row(1, 23);
+	 $book[1]->set_row($listaSor, 40);
+    $listaSor += 1;
 }
 
 sub fiveToString {
@@ -182,5 +220,5 @@ sub fiveToString {
 }
 
 $book[0]->set_row($_, 12) for (3..60);
-# $book[0]->activate();
+$book[1]->activate();
 
