@@ -16,6 +16,7 @@
 # http://search.cpan.org/dist/Spreadsheet-WriteExcel/lib/Spreadsheet/WriteExcel.pm
 # http://search.cpan.org/dist/Spreadsheet-WriteExcel/lib/Spreadsheet/WriteExcel/Examples.pm
 
+# aptitude install libspreadsheet-writeexcel-perl libtext-unaccent-perl libdbd-sqlite3-perl
 use strict;
 use DBI;
 use Spreadsheet::WriteExcel;
@@ -185,22 +186,22 @@ for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tan�
     $book[$i] = $workBook->add_worksheet($tLink);
     $book[$i]->write(1, 0, "internal:'$osszesitoNev'!A1", $tanar[$id], $formatTanarNev);
 
-	 # A Listába is betesszük a tanárt
-	 $book[1]->set_row($listaSor, 33);
-	 $book[1]->merge_range('A'.($listaSor+1).':B'.($listaSor+1), $tanar[$id], $formatListaTanar);
-	 $book[1]->merge_range('D'.($listaSor+1).':E'.($listaSor+1), $tanar[$id], $formatListaTanar);
+    # A Listába is betesszük a tanárt
+    $book[1]->set_row($listaSor, 33);
+    $book[1]->merge_range('A'.($listaSor+1).':B'.($listaSor+1), $tanar[$id], $formatListaTanar);
+    $book[1]->merge_range('D'.($listaSor+1).':E'.($listaSor+1), $tanar[$id], $formatListaTanar);
     $listaSor += 1;
 
     my $egyeniSor = 3; # hanyadik sorba kell kiírni?
-	 my $elsoSzuloi = 1;
+    my $elsoSzuloi = 1;
     for (my $ido = $minPerUser[$id]; $ido <= $maxPerUser[$id]; $ido += $paratlan[$id]?1:2) {
         $egyeniSor++;
-		  $diak = $tabla[$id][$ido]; # diák neve vagy "Szuloi ertekezlet"
+        $diak = $tabla[$id][$ido]; # diák neve vagy "Szuloi ertekezlet"
 
         $book[$i]->write ($egyeniSor, 0, fiveToString($ido));
         $book[$i]->write ($egyeniSor, 1, $diak);
 
-		  if ($diak ne '' && ($diak !~ /Szuloi/ || $elsoSzuloi)){
+        if ($diak ne '' && ($diak !~ /Szuloi/ || $elsoSzuloi)){
             if ($diak =~ /Szuloi/) { $elsoSzuloi = 0; } # Csak az első szülőit jelenítse meg
             $book[1]->write($listaSor, 0, fiveToString($ido), $formatListaDiak);
             $book[1]->write($listaSor, 1, $diak, $formatListaDiak);
@@ -210,7 +211,7 @@ for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tan�
         }
     }
     $book[$i]->set_row(1, 23);
-	 $book[1]->set_row($listaSor, 40);
+    $book[1]->set_row($listaSor, 40);
     $listaSor += 1;
 }
 
