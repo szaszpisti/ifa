@@ -206,10 +206,10 @@ for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tan�
             if ($diak =~ /Szuloi/) { # Csak az első szülőit jelenítse meg
                 $elsoSzuloi = 0;
                 $format = $formatListaSzuloi;
-                $diak = '   Szuloi';
+                $diak = '   Szülői értekezlet';
             }
             $book[1]->write($listaSor, 0, fiveToString($ido), $format);
-            $book[1]->write($listaSor, 1, $diak, $format);
+            $book[1]->write_utf16be_string($listaSor, 1, $diak, $format);
             $book[1]->write($listaSor, 3, fiveToString($ido), $format);
             $book[1]->write($listaSor, 4, $diak, $format);
             $listaSor += 1;
