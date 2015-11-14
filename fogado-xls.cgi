@@ -27,7 +27,7 @@ use Text::Unaccent;
 
 
 # use diagnostics;
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 if (DEBUG) { use Data::Dumper; } # érdekes, ezt mindig betölti...
 
 # print Dumper DEBUG;
@@ -120,6 +120,7 @@ my @book;
 my $formatOsszDiak = $workBook->add_format(text_wrap => 1);
 my $formatTanarNev = $workBook->add_format(bold => 1, size => 18);
 my $formatListaDiak = $workBook->add_format(bottom => 1);
+my $formatListaSzuloi = $workBook->add_format(bottom => 1, italic => 1);
 my $formatListaTanar = $workBook->add_format(bold => 1, size => 16, top => 2, bottom => 1, text_wrap => 1, valign  => 'top');
 
 my $osszesitoNev = 'Osszesitett';
@@ -149,21 +150,20 @@ for (my $ido = $IDO_min; $ido <= $IDO_max; $ido += 2) {
 $book[1]->set_column('B:B', 40);
 $book[1]->set_column('E:E', 40);
 
-my $diak = '';
+my ($format, $diak, $tanarLink);
 my $osszesitoSor = 2;
 my $listaSor = 1;
-my $tLink;
 for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tanári lapok
     $osszesitoSor++;
     my $id = $nevsor[$i-1];
 
-    # $tLink: a tanári lap neve: 'Monoton Manó' -> 'Monoton M'
-    ($tLink = $tanar[$id]) =~ s{^(.{30}).*$}{$1};
-    $tLink = unac_string ('iso-8859-2', $tLink);
+    # $tanarLink: a tanári lap neve: 'Monoton Manó' -> 'Monoton M'
+    ($tanarLink = $tanar[$id]) =~ s{^(.{30}).*$}{$1};
+    $tanarLink = unac_string ('iso-8859-2', $tanarLink);
 
     # Az összesített lista sorai
     # Tanárnév hivatkozásként a saját munkalapra
-    $book[0]->write($osszesitoSor, 0, "internal:'$tLink'!A1", $tanar[$id]);
+    $book[0]->write($osszesitoSor, 0, "internal:'$tanarLink'!A1", $tanar[$id]);
 
     # a páros sorok
     my $osszesitoOszlop = 0;
@@ -183,7 +183,7 @@ for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tan�
     }
 
     # Itt jönnek a tanári listák külön lapokra
-    $book[$i] = $workBook->add_worksheet($tLink);
+    $book[$i] = $workBook->add_worksheet($tanarLink);
     $book[$i]->write(1, 0, "internal:'$osszesitoNev'!A1", $tanar[$id], $formatTanarNev);
 
     # A Listába is betesszük a tanárt
@@ -196,17 +196,22 @@ for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tan�
     my $elsoSzuloi = 1;
     for (my $ido = $minPerUser[$id]; $ido <= $maxPerUser[$id]; $ido += $paratlan[$id]?1:2) {
         $egyeniSor++;
+        $format = $formatListaDiak;
         $diak = $tabla[$id][$ido]; # diák neve vagy "Szuloi ertekezlet"
 
         $book[$i]->write ($egyeniSor, 0, fiveToString($ido));
         $book[$i]->write ($egyeniSor, 1, $diak);
 
         if ($diak ne '' && ($diak !~ /Szuloi/ || $elsoSzuloi)){
-            if ($diak =~ /Szuloi/) { $elsoSzuloi = 0; } # Csak az első szülőit jelenítse meg
-            $book[1]->write($listaSor, 0, fiveToString($ido), $formatListaDiak);
-            $book[1]->write($listaSor, 1, $diak, $formatListaDiak);
-            $book[1]->write($listaSor, 3, fiveToString($ido), $formatListaDiak);
-            $book[1]->write($listaSor, 4, $diak, $formatListaDiak);
+            if ($diak =~ /Szuloi/) { # Csak az első szülőit jelenítse meg
+                $elsoSzuloi = 0;
+                $format = $formatListaSzuloi;
+                $diak = '   Szuloi';
+            }
+            $book[1]->write($listaSor, 0, fiveToString($ido), $format);
+            $book[1]->write($listaSor, 1, $diak, $format);
+            $book[1]->write($listaSor, 3, fiveToString($ido), $format);
+            $book[1]->write($listaSor, 4, $diak, $format);
             $listaSor += 1;
         }
     }
