@@ -158,7 +158,7 @@ for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tan�
 
     # $tanarLink: a tanári lap neve: 'Monoton Manó' -> 'Monoton M'
     ($tanarLink = $tanar[$id]) =~ s{^(.{30}).*$}{$1};
-    $tanarLink = unac_string ('iso-8859-2', $tanarLink);
+    $tanarLink = unac_string ('utf8', $tanarLink);
 
     # Az összesített lista sorai
     # Tanárnév hivatkozásként a saját munkalapra
