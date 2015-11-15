@@ -94,7 +94,7 @@ while (my $t = $minmaxPerUser->fetchrow_hashref) {
 my $q = "SELECT * FROM Fogado AS F"
         . " LEFT OUTER JOIN"
         . "   ( SELECT * FROM Diak UNION"
-        . "     SELECT -2 AS id, NULL AS jelszo, 'x' AS dnev, NULL AS oszt,"
+        . "     SELECT -2 AS id, NULL AS jelszo, 'Szülői értekezlet' AS dnev, NULL AS oszt,"
         . "            NULL AS onev, NULL AS ofo, NULL AS ofonev ) AS D"
         . "   ON (F.diak=D.id)"
         . " WHERE F.fid=" . $fid . " AND (F.diak>0 OR F.diak=-2) ORDER BY ido";
@@ -201,11 +201,10 @@ for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tan�
         $book[$i]->write ($egyeniSor, 0, fiveToString($ido));
         $book[$i]->write ($egyeniSor, 1, $diak);
 
-        if ($diak ne '' && ($diak !~ /\bx\b/ || $elsoSzuloi)){ # diák, vagy szülői esetén az első
-            if ($diak =~ /\bx\b/) { # Csak az első szülőit jelenítse meg
+        if ($diak ne '' && ($diak !~ /Szülői értekezlet/ || $elsoSzuloi)){ # diák, vagy szülői esetén az első
+            if ($diak =~ /Szülői értekezlet/) { # Csak az első szülőit jelenítse meg
                 $elsoSzuloi = 0;
                 $format = $formatListaSzuloi;
-                $diak = 'Szülői értekezlet';
             }
             $book[1]->write($listaSor, 0, fiveToString($ido), $formatListaDiak);
             $book[1]->write($listaSor, 1, $diak, $format);
