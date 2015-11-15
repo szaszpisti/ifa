@@ -22,12 +22,13 @@ use DBI;
 use Spreadsheet::WriteExcel;
 use POSIX qw(strftime);
 use constant true => 1;
-use Encode 'from_to';
+use Encode 'decode';
 use Text::Unaccent;
+use utf8;
 
 
 # use diagnostics;
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 if (DEBUG) { use Data::Dumper; } # érdekes, ezt mindig betölti...
 
 # print Dumper DEBUG;
@@ -51,7 +52,6 @@ my $fogadoEntry = $FA->fetchrow_hashref;
 my $fid = $fogadoEntry->{id} or die "Nincs fid!\n";
 
 (my $fogadoDate = $fogadoEntry->{datum}) =~ s{-}{.}g;
-# my $filename = "fogado-$fogadoDate.xls";
 my $filename = strftime ("fogado-%Y.%m.%d-%H%M%S.xls", localtime);
 
 if (!DEBUG) {
@@ -70,8 +70,7 @@ my (@nevsor, @tanar);
 while (my $sor = $tanarLista->fetchrow_hashref) {
     $darab++;
     $nevsor[$darab] = $sor->{tanar};
-    from_to($sor->{tnev}, "utf-8", "iso-8859-2");
-    $tanar[$sor->{tanar}] = $sor->{tnev};
+    $tanar[$sor->{tanar}] = decode('utf8', $sor->{tnev});
 }
 
 my $minmaxGlobal = $db_fogado->prepare("SELECT MIN(ido) AS min, MAX(ido) AS max "
@@ -95,7 +94,7 @@ while (my $t = $minmaxPerUser->fetchrow_hashref) {
 my $q = "SELECT * FROM Fogado AS F"
         . " LEFT OUTER JOIN"
         . "   ( SELECT * FROM Diak UNION"
-        . "     SELECT -2 AS id, NULL AS jelszo, 'Szuloi ertekezlet' AS dnev, NULL AS oszt,"
+        . "     SELECT -2 AS id, NULL AS jelszo, 'x' AS dnev, NULL AS oszt,"
         . "            NULL AS onev, NULL AS ofo, NULL AS ofonev ) AS D"
         . "   ON (F.diak=D.id)"
         . " WHERE F.fid=" . $fid . " AND (F.diak>0 OR F.diak=-2) ORDER BY ido";
@@ -106,7 +105,7 @@ $mind->execute();
 my (@tabla, @paratlan);
 while (my $t = $mind->fetchrow_hashref) {
     (my $onev = $t->{onev}) =~ s{ }{}g;
-    from_to($t->{dnev}, "utf-8", "iso-8859-2");
+#    from_to($t->{dnev}, "utf-8", "iso-8859-2");
     $tabla[$t->{tanar}][$t->{ido}] = $t->{dnev} . " " . $onev;
     if ( ($t->{ido}%2) && ($t->{dnev} ne "") && (unac_string('iso-8859-2', $t->{dnev}) ne "Szuloi") ) {
         $paratlan[$t->{tanar}] = true;
@@ -120,7 +119,7 @@ my @book;
 my $formatOsszDiak = $workBook->add_format(text_wrap => 1);
 my $formatTanarNev = $workBook->add_format(bold => 1, size => 18);
 my $formatListaDiak = $workBook->add_format(bottom => 1);
-my $formatListaSzuloi = $workBook->add_format(bottom => 1, italic => 1);
+my $formatListaSzuloi = $workBook->add_format(bottom => 1, italic => 1, bold => 1);
 my $formatListaTanar = $workBook->add_format(bold => 1, size => 16, top => 2, bottom => 1, text_wrap => 1, valign  => 'top');
 
 my $osszesitoNev = 'Osszesitett';
@@ -197,20 +196,20 @@ for (my $i = 2; $i <= $darab+1; $i++) { # 0, 1 foglalt, 2-től kezdődnek a tan�
     for (my $ido = $minPerUser[$id]; $ido <= $maxPerUser[$id]; $ido += $paratlan[$id]?1:2) {
         $egyeniSor++;
         $format = $formatListaDiak;
-        $diak = $tabla[$id][$ido]; # diák neve vagy "Szuloi ertekezlet"
+        $diak = decode('utf8', $tabla[$id][$ido]); # diák neve vagy "x" (Szülői értekezlet)
 
         $book[$i]->write ($egyeniSor, 0, fiveToString($ido));
         $book[$i]->write ($egyeniSor, 1, $diak);
 
-        if ($diak ne '' && ($diak !~ /Szuloi/ || $elsoSzuloi)){
-            if ($diak =~ /Szuloi/) { # Csak az első szülőit jelenítse meg
+        if ($diak ne '' && ($diak !~ /\bx\b/ || $elsoSzuloi)){ # diák, vagy szülői esetén az első
+            if ($diak =~ /\bx\b/) { # Csak az első szülőit jelenítse meg
                 $elsoSzuloi = 0;
                 $format = $formatListaSzuloi;
-                $diak = '   Szülői értekezlet';
+                $diak = 'Szülői értekezlet';
             }
-            $book[1]->write($listaSor, 0, fiveToString($ido), $format);
-            $book[1]->write_utf16be_string($listaSor, 1, $diak, $format);
-            $book[1]->write($listaSor, 3, fiveToString($ido), $format);
+            $book[1]->write($listaSor, 0, fiveToString($ido), $formatListaDiak);
+            $book[1]->write($listaSor, 1, $diak, $format);
+            $book[1]->write($listaSor, 3, fiveToString($ido), $formatListaDiak);
             $book[1]->write($listaSor, 4, $diak, $format);
             $listaSor += 1;
         }
