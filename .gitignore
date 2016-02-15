@@ -8,3 +8,5 @@ cl
 *.[0-9]
 OSZTALY
 html
+local/jelszo.csv
+local/local.sql
