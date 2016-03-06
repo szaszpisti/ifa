@@ -38,7 +38,8 @@ def Exit(msg = ''):
     print 'Hiba: ', msg
     sys.exit(1)
 
-md5 = lambda pw: hashlib.md5(pw).hexdigest()
+def sha(pw):
+    return hashlib.sha256(pw.encode('utf-8')).hexdigest()
 
 # Based on PHP code of Ell Gree <ellgree@gmx.net>, http://unix.freshmeat.net/projects/gen_password/
 def gen_password(p='', l=8, f=4):
@@ -96,7 +97,7 @@ for sor in List[0].split('\n'):
     jelszo = gen_password()
 
     OUT.append('%s;%s' % (nev, jelszo))
-    INSERT.append(Insert % ('Tanar', 'tnev', uid, md5(jelszo), nev))
+    INSERT.append(Insert % ('Tanar', 'tnev', uid, sha(jelszo), nev))
 
 OUT.append('===')
 INSERT.append('')
@@ -125,7 +126,7 @@ for sor in List[2].split('\n'):
     jelszo = gen_password()
 
     OUT.append('%s;%s;%s' % (nev, listOsztaly[oszt], jelszo))
-    INSERT.append("INSERT INTO Diak_base (id, jelszo, dnev, oszt) VALUES (%s, '%s', '%s', '%s');" % (uid, md5(jelszo), nev, oszt))
+    INSERT.append("INSERT INTO Diak_base (id, jelszo, dnev, oszt) VALUES (%s, '%s', '%s', '%s');" % (uid, sha(jelszo), nev, oszt))
 
 
 open(userFile + '.insert', 'w').write('\n'.join(INSERT))
@@ -133,4 +134,4 @@ open(userFile + '.pw', 'w').write('\n'.join(OUT))
 
 # Admin jelszo generalasa
 jelszo = gen_password()
-open('admin.pw', 'w').write('admin;%s;%s' % (jelszo, md5(jelszo)))
+open('admin.pw', 'w').write('admin;%s;%s' % (jelszo, sha(jelszo)))

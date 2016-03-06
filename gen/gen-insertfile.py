@@ -30,9 +30,11 @@ nKnev = len(aKnev)
 # Az azonosítók kezdőértékei
 nTanar, nDiak = 10, 10000
 
-md5 = lambda pw: hashlib.md5(pw).hexdigest()
-tJelszo = md5('t');
-dJelszo = md5('d');
+def sha(pw):
+    return hashlib.sha256(pw.encode('utf-8')).hexdigest()
+
+tJelszo = sha('t');
+dJelszo = sha('d');
 
 nev = lambda: aVnev[randint(0, nVnev-1)] + ' ' + aKnev[randint(0, nKnev-1)]
 

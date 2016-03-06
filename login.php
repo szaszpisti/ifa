@@ -135,7 +135,7 @@ if ( isset($_POST['jelszo']) ) {
                     $jo = (pam_auth($user['emil'], $_POST['jelszo'], $error));
                     break;
                 case 'DB':
-                    $jo = (md5($_POST['jelszo']) == $user['jelszo']);
+                    $jo = (hash('sha256', $_POST['jelszo']) == $user['jelszo']);
                     break;
                 case 'LDAP':
                     if ((strlen(trim($_POST['jelszo'])) != 0) && $connect = ldap_connect($ldap['host'])) {
@@ -154,11 +154,11 @@ if ( isset($_POST['jelszo']) ) {
             break;
 
         case 'diak':
-            $jo = (md5($_POST['jelszo']) == $user['jelszo']);
+            $jo = (hash('sha256', $_POST['jelszo']) == $user['jelszo']);
             break;
 
         case 'admin':
-            $jo = (md5($_POST['jelszo']) == $user['jelszo']);
+            $jo = (hash('sha256', $_POST['jelszo']) == $user['jelszo']);
             if ($jo) $_SESSION['admin'] = true;
             break;
     }
