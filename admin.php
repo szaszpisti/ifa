@@ -51,11 +51,18 @@ if ($_REQUEST['page'] == 4) {
     $_REQUEST['page'] = 0;
 }
 
+/** Ha van tcpdf, akkor azt használjuk, egyébként az xls-t */
+if (@include_once('tcpdf/tcpdf.php')) {
+    define('__TABLE__', 'fogado-pdf.php');
+} else {
+    define('__TABLE__', 'fogado-xls.cgi');
+}
+
 switch ($_REQUEST['page']) {
     case 0:
         if ($FA) $Out .= "<h3>Az aktuális (legutóbb bejegyzett) fogadóóra: &nbsp;" . $FA->datum_str . "</h3>\n<ul>\n";
                  $Out .= "<li><a href=\"admin.php?page=1\">Új időpont létrehozása</a>\n";
-        if ($FA) $Out .= "<li><a href=\"fogado-xls.cgi\">Táblázat letöltése</a>\n</ul>\n\n";
+        if ($FA) $Out .= "<li><a href=\"".__TABLE__."\">Táblázat letöltése</a>\n</ul>\n\n";
         break;
 
     case 1:  // 1. ADMIN OLDAL
