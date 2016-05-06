@@ -23,10 +23,20 @@
 
 require_once('ifa.ini.php');
 
-session_start();
-// Ha "admin", azt a session-ban tároltuk, itt visszaolvassuk.
-if (isset($_SESSION['admin'])) { define ('ADMIN', true); }
-else { define('ADMIN', false); }
+if (php_sapi_name() == "cli") {
+    define('__DEBUG__', true);
+} else {
+    define('__DEBUG__', false);
+}
+
+if (__DEBUG__) {
+    define('ADMIN', true);
+} else {
+    session_start();
+    // Ha "admin", azt a session-ban tároltuk, itt visszaolvassuk.
+    if (isset($_SESSION['admin'])) { define ('ADMIN', true); }
+    else { define('ADMIN', false); }
+}
 
 set_include_path(get_include_path() . ':./classes');
 
