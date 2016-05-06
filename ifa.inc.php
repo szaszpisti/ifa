@@ -194,6 +194,7 @@ function Tail() {
  * @param string $s a bejegyzendő szöveg
  */
 function ulog($uid, $s) {
+    if (__DEBUG__) return 0;
     global $db;
     $res = $db->prepare("INSERT INTO Ulog (ido, uid, host, log) VALUES (?, ?, ?, ?)");
     $res->execute(array(date("Y-m-d H:i:s"), ADMIN?0:$uid, $_SERVER['REMOTE_ADDR'], $s));
