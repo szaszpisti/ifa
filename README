@@ -6,12 +6,14 @@ Iskolai Fogadóóra Adminisztráció
 A különböző adatbázisok használatához telepíteni kell a megfelelő php modulokat.
 Pl. a PostgreSQL használatához a php5-pgsql, a SQLite-hez a php5-sqlite.
 
-Az excel-táblázat generáló perl scripthez szükség van néhány perl modulra:
-libspreadsheet-writeexcel-perl
-libtext-unaccent-perl
+A táblázat generáló perl scripthez szükség van néhány perl modulra:
+ libspreadsheet-writeexcel-perl
+ libtext-unaccent-perl
+VAGY ha elég a lista (elég), akkor elég csak pdf-et generálni (újabb rendszereken):
+ php-tcpdf
 
 valamint az adatbáziskapcsolatnak megfelelő perl DBD komponensre, pl.:
-libdbd-sqlite3-perl
+ libdbd-sqlite3-perl
 
 Az táblázat generáló CGI scripthez engedélyezni kell a web szerveren
 a CGI modult (a2enmod cgi) és a futtatást az adott könyvtárra:
