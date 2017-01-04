@@ -152,7 +152,6 @@ foreach($res->fetchAll() as $tanar) {
 
 
 $outputFilename = 'fogadoora-' . date('Y.m.d-His') . '.pdf';
-#$pdf->Output($outputDir . $outputFilename, $outputTarget);
-$pdf->Output($outputDir . 'a.pdf', $outputTarget);
+$pdf->Output($outputDir . $outputFilename, $outputTarget);
 
 ?>
