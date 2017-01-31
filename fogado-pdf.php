@@ -23,7 +23,9 @@ class PDF extends TCPDF
     var $timeTab = 15; /* az időpont és a szülő neve közti tabulálási pozíció */
 
     var $X1 = 10;  /* az első és második oszlop X koordinátája */
-    var $X2 = 115;
+    var $X2 = 110;
+    var $X, $baseY;
+#    private $X = $X1;
 
 #    var $defaultFont = 'times';
     var $defaultFont = 'dejavusans';
@@ -36,10 +38,12 @@ class PDF extends TCPDF
 
     function __construct(){
         parent::__construct();
+        $this->X = $this->X1;
         $this->print_header = false;
         $this->setPrintHeader(false);
         $this->setPrintFooter(false);
         $this->AddPage();
+        $this->baseY = $this->y;
     }
 
     private function mySetFont($font) {
@@ -50,6 +54,7 @@ class PDF extends TCPDF
         $this->startTransaction();
         /* Egyesével hozzáadjuk a sorokat. Ha lapváltás van, akkor rollback és az egészet új lapra */
         $oldPageNo = $this->PageNo();
+#        $oldX = $this->X;
 
         # Ha ez az első tanár, akkor nem kell a padding
         if($this->firstItem) {
@@ -57,23 +62,24 @@ class PDF extends TCPDF
         } else {
             $this->SetY($this->y + $this->itemPadding);
         }
+#        print $this->baseY . "\n";
         $Y = $this->y;
 
-        $this->putOszlop($tanar, $this->X1);
+        $this->putOszlop($tanar, $this->X);
 
         if ($this->PageNo() == $oldPageNo) {
-            $this->SetY($Y);
-            $this->putOszlop($tanar, $this->X2);
             $this->commitTransaction();
         } else {
             $this->rollbackTransaction(true);
-            $this->AddPage();
-            $Y = $this->y;
-            $this->putOszlop($tanar, $this->X1);
-            $this->SetY($Y);
-            $this->putOszlop($tanar, $this->X2);
+            if ($this->X == $this->X1) { // ha az első oszlopból futottunk ki, másik oszlopba írunk
+                $this->X = $this->X2;
+                $this->SetY($this->baseY); // vissza kell állítani az Y-t
+            } else { // ha a másodikból, akkor új lap kell
+                $this->X = $this->X1;
+                $this->AddPage();
+            }
+            $this->putOszlop($tanar, $this->X);
         }
-
     }
 
     private function putOszlop($tanar, $x) {
