@@ -51,13 +51,6 @@ if ($_REQUEST['page'] == 4) {
     $_REQUEST['page'] = 0;
 }
 
-/** Ha van tcpdf, akkor azt használjuk, egyébként az xls-t */
-if (@include_once('tcpdf/tcpdf.php')) {
-    define('__TABLE__', 'fogado-pdf.php');
-} else {
-    define('__TABLE__', 'fogado-xls.cgi');
-}
-
 switch ($_REQUEST['page']) {
     case 0:
         if ($FA) $Out .= "<h3>Az aktuális (legutóbb bejegyzett) fogadóóra: &nbsp;" . $FA->datum_str . "</h3>\n<ul>\n";

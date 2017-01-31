@@ -26,6 +26,13 @@ require_once('ifa.ini.php');
 @include_once('tcpdf/tcpdf.php'); // vagy csomagból
 @include_once('vendor/autoload.php'); // vagy composerből
 
+/** Ha van tcpdf, akkor azt használjuk, egyébként az xls-t */
+if (class_exists('TCPDF')) {
+    define('__TABLE__', 'fogado-pdf.php');
+} else {
+    define('__TABLE__', 'fogado-xls.cgi');
+}
+
 if (php_sapi_name() == "cli") {
     define('__DEBUG__', true);
 } else {
