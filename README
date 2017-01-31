@@ -1,5 +1,20 @@
 Iskolai Fogadóóra Adminisztráció
 
+TCPDF modul
+-----------
+Némely rendszerben csomagként van jelen (apt-get install php-tcpdf)
+máshol pl. composerrel kell játszani:
+
+ cd /usr/src
+ sudo apt-get install curl php5-cli
+ curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+ 
+ cd /var/ifa
+ composer --version
+ composer require tecnickcom/tcpdf
+
+Létrejött a „vendor” könyvtár, benne a csomag
+ @include_once('vendor/autoload.php');
 
 # phpdoc -dn 'IFA' -s -t ../doc -ti 'Iskolai Fogadóóra Adminisztráció' -d .
 

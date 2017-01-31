@@ -1,11 +1,9 @@
 <?php
-# -> apt install php-tcpdf
+# -> apt install php-tcpdf vagy composer...
 
 require_once('login.php');
 require_once('ifa.inc.php');
 require_once('tanar.class.php');
-
-require_once('tcpdf/tcpdf.php');
 
 if (__DEBUG__) {
     $outputDir = getcwd() . '/';

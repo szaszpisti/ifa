@@ -22,6 +22,9 @@
  */
 
 require_once('ifa.ini.php');
+# Valahonnan megpróbáljuk a tcpdf-et betölteni:
+@include_once('tcpdf/tcpdf.php'); // vagy csomagból
+@include_once('vendor/autoload.php'); // vagy composerből
 
 if (php_sapi_name() == "cli") {
     define('__DEBUG__', true);
