@@ -44,6 +44,7 @@ echo "\n<p><a href=\"admin.php?tip=admin&amp;id=0\" target=duma>ADMIN</a><br>\n"
 
 //! kiírjuk egyesével az osztályokat
 foreach ($OSZTALY as $oszt) {
+    if(sizeof($oszt) < 2) continue;
     for ($i=0; $i<sizeof($oszt)/2; $i++) {
         echo "<span><a href=\"?o=" . $oszt[2*$i] . "\">" . $oszt[2*$i+1] . "</a></span>";
     }
