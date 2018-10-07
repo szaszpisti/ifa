@@ -7,7 +7,8 @@ fi
 
 FILE=/pub/titkarsag/ifa-jelszo.csv
 
-su -c "psql iskola -A -q -t -F ';' -c 'select * from fogado_diak_kati'" szaszi | recode u8..l2/crlf > $FILE
+printf '\xEF\xBB\xBF' > $FILE
+su -c "psql iskola -A -q -t -F ';' -c 'select * from fogado_diak_kati'" szaszi | recode ../crlf >> $FILE
 chmod 660 $FILE
 chown adam:iroda $FILE
 
