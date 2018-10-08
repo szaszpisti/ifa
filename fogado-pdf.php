@@ -10,7 +10,7 @@ if (__DEBUG__) {
     $outputTarget = 'F';
 } else {
     $outputDir = '';
-    $outputTarget = 'D';
+    $outputTarget = 'I';
 }
 
 class PDF extends TCPDF
