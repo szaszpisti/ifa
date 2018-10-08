@@ -1,154 +1,175 @@
 Iskolai Fogadóóra Adminisztráció
+================================
 
-TCPDF modul
------------
-Némely rendszerben csomagként van jelen (apt-get install php-tcpdf)
-máshol pl. composerrel kell játszani:
-
- cd /usr/src
- sudo apt-get install curl php5-cli
- curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
- 
- cd /var/ifa
- composer --version
- composer require tecnickcom/tcpdf
-
-Létrejött a „vendor” könyvtár, benne a csomag
- @include_once('vendor/autoload.php');
-
-# phpdoc -dn 'IFA' -s -t ../doc -ti 'Iskolai Fogadóóra Adminisztráció' -d .
-
-A különböző adatbázisok használatához telepíteni kell a megfelelő php modulokat.
-Pl. a PostgreSQL használatához a php5-pgsql, a SQLite-hez a php5-sqlite.
-
-A táblázat generáló perl scripthez szükség van néhány perl modulra:
- libspreadsheet-writeexcel-perl
- libtext-unaccent-perl
-VAGY ha elég a lista (elég), akkor elég csak pdf-et generálni (újabb rendszereken):
- php-tcpdf
-
-valamint az adatbáziskapcsolatnak megfelelő perl DBD komponensre, pl.:
- libdbd-sqlite3-perl
-
-Az táblázat generáló CGI scripthez engedélyezni kell a web szerveren
-a CGI modult (a2enmod cgi) és a futtatást az adott könyvtárra:
-    <Directory "/valami/ifa/">
-        Options ExecCGI
-        AddHandler cgi-script .cgi
-        ...
-    </Directory>
-
-###############################################################################
+A program a fogadóóra jelentkezések alapján listákat generál, amiket a
+fogadóórát tartó tanárok szobaajtajára lehet kifüggeszteni.
 
 - a jelentkezés, adminisztráció web böngészővel kezelhető,
-- session-alapú, a szülőknek saját jelszavuk van,
+- session-alapú, a szülőknek (gyermekeknek) saját jelszavuk van,
 - a jelentkezések ellenőrzöttek, hiba esetén a jelentkező figyelmeztetést kap,
 - az adminisztrátor részletesen állíthatja egyes tanárok jelenlétét, fogadóidejét,
 - adatbázis-absztrakciós rétegen (PEAR DB) keresztül többféle RDBMS-t képes használni,
 - a tanári listázásokhoz képes PAM, LDAP és adatbázis authentikációt is kezelni.
 
-A csomagban található egy teszt adatbázis generáló script, és egy SQLite3
+A csomagban található egy teszt adatbázis generáló script és egy SQLite3
 példaadatbázis is.
 
 A program cookie-ban tárolt session-azonosítókat használ, anélkül nem
-működik. => engedélyezni kell: a szerveren a session-öket, a kliensen a
+működik. &rarr; Engedélyezni kell a szerveren a session-öket, a kliensen a
 sütiket.
 
-Az állományok:
+A különböző adatbázisok használatához telepíteni kell a megfelelő php modulokat.
+Pl. a PostgreSQL használatához a php5-pgsql, a SQLite-hez a php5-sqlite.
 
-README
+## Telepítés
 
-  Ez az állomány.
+Ha a tanárok és a diákok is sqlite3 adatbázisban vannak:
+```
+apt-get install php php-tcpdf php-intl php-sqlite3 sqlite3
+```
 
-COPYING
+Opcionálisan a más adatbázis-kapcsolatokhoz szükséges csomagok (mysql, pgsql, ldap,...)
 
-  Közreadási feltételek: GPL-2
+## PDF lista
 
-leiras.html
+Ha elég a lista (elég), akkor csak pdf-et kell generálni:
 
-  A kezdőlapon megjelenő rövid használati útmutató.
+```
+apt-get install php-tcpdf
+```
+(Ha nincs meg csomagként, akkor composerrel lehet telepíteni.)
 
-ifa.ini.php
+## Excel táblázat
 
-  Itt találhatók az általános beállítások, úgymint adatbázis kapcsolat,
-  tanári authentikációs modell, időpont alapértelmezések
+A teljes táblázat excel formában átírható – gyakorlatilag már *nem szükséges*. (Lásd: PDF lista)
 
-ifa.inc.php
+A táblázat generáló `perl` scripthez szükség van néhány perl modulra:
+```
+libspreadsheet-writeexcel-perl
+libtext-unaccent-perl
+```
 
-  Általános függvények: adatbázis kapcsolódás, fej- és lábléc, logolás,
-  időpont-átszámító, az űrlapokhoz konstans vezérlőelemek stb.
+A különböző adatbázisok használatához telepíteni kell az adatbáziskapcsolatnak
+megfelelő perl DBD komponensre, pl.:
 
-index.html
+```
+apt-get install libdbd-sqlite3-perl
+```
 
-  Ezt az állományt töltik be először, tartalmazza a kereteket.
+Az táblázat generáló CGI scripthez engedélyezni kell a web szerveren
+a CGI modult (a2enmod cgi) és a futtatást az adott könyvtárra:
+```
+ <Directory "/valami/ifa/">
+	  Options ExecCGI
+	  AddHandler cgi-script .cgi
+	  ...
+ </Directory>
+```
 
-OSZTALY
+<!---
+###############################################################################
 
-  Az iskolában található osztályok listája, ez egyben a megjelenítés
-  formátuma is.
+[//]: # phpdoc -dn 'IFA' -s -t ../doc -ti 'Iskolai Fogadóóra Adminisztráció' -d .
+-->
 
-osztaly.php
 
-  Az OSZTALY állomány alapján kirakja a bal oldali menübe az osztályok
-  listáját, ha paraméterként osztályazonosítót kap, akkor azt az osztályt
-  ki is listázza. (<-osztaly.css)
+## Az állományok:
 
-login.php
+<dl>
+<dt>README</dt>
 
-  Bejelentkezés, authentikáció. Ellenőrzi, hogy a kért azonosító létezik-e,
+  <dd>Ez az állomány.</dd>
+
+<dt>COPYING</dt>
+
+  <dd>Közreadási feltételek: GPL-2</dd>
+
+<dt>leiras.html</dt>
+
+  <dd>A kezdőlapon megjelenő rövid használati útmutató.</dd>
+
+<dt>ifa.ini.php</dt>
+
+  <dd>Itt találhatók az általános beállítások, úgymint adatbázis kapcsolat,
+  tanári authentikációs modell, időpont alapértelmezések</dd>
+
+<dt>ifa.inc.php</dt>
+
+  <dd>Általános függvények: adatbázis kapcsolódás, fej- és lábléc, logolás,
+  időpont-átszámító, az űrlapokhoz konstans vezérlőelemek stb.</dd>
+
+<dt>index.html</dt>
+
+  <dd>Ezt az állományt töltik be először, tartalmazza a kereteket.</dd>
+
+<dt>OSZTALY</dt>
+
+  <dd>Az iskolában található osztályok listája, ez egyben a megjelenítés
+  formátuma is.</dd>
+
+<dt>osztaly.php</dt>
+
+  <dd>Az OSZTALY állomány alapján kirakja a bal oldali menübe az osztályok
+  listáját. Ha paraméterként osztályazonosítót kap, akkor azt az osztályt
+  ki is listázza. (&larr;osztaly.css)</dd>
+
+<dt>login.php</dt>
+
+  <dd>Bejelentkezés, authentikáció. Ellenőrzi, hogy a kért azonosító létezik-e,
   beállítja a felhasználó identitását a session vagy a bejelentkezés
-  alapján. Ellenőrzi a bejelentkezési időszakot is (kivéve Adminnál).
+  alapján. Ellenőrzi a bejelentkezési időszakot is (kivéve Adminnál).</dd>
 
-  A bejelentkezés ideje a szülők felé korlátozott, csak az előre
+  <dd>A bejelentkezés ideje a szülők felé korlátozott, csak az előre
   beállított bejelentkezési időszakban jelentkezhet be és módosíthatja a
-  foglalásokat -- egyébként csak egy üzenetet kap, hogy nincs bejelentkezési
-  időszak. Az admin bármikor bejelentkezhet, módosíthat.
+  foglalásokat – egyébként csak egy üzenetet kap, hogy nincs bejelentkezési
+  időszak. Az admin bármikor bejelentkezhet, módosíthat.</dd>
 
-tanar.php
+<dt>tanar.php</dt>
 
-  Egy tanárhoz tartozó egyéni időpont-beállítási lehetőség, csak az admin
-  részére.
+  <dd>Egy tanárhoz tartozó egyéni időpont-beállítási lehetőség, csak az admin
+  részére.</dd>
 
-  Tanári bejelentkezés esetén a tanár egyéni listáját írja ki.
+  <dd>Tanári bejelentkezés esetén a tanár egyéni listáját írja ki.</dd>
 
-fogado.php
+<dt>fogado.php</dt>
 
-  A normál diák-bejelentkezés lapja, itt jelölhetik be a szülők és az
+  <dd>A normál diák-bejelentkezés lapja, itt jelölhetik be a szülők és az
   admin az egyes tanárokhoz való bejelentkezéseket. Elküldés után elvégzi
   a szükséges alapvető ellenőrzéseket: egy tanárhoz nem lehet kétszer
   feliratkozni, egyszerre nem lehet két tanárhoz jelentkezni, figyelmeztet,
-  ha az osztálynak abban az időben szülői értekezlete van stb.
+  ha az osztálynak abban az időben szülői értekezlete van stb.</dd>
 
-admin.php
+<dt>admin.php</dt>
 
-  Új fogadónap bejegyzés létrehozása, és alapértelmezett vagy beállított
-  értékekkel feltöltése. Innen lehet letölteni a kinyomtatandó táblázatot.
+  <dd>Új fogadónap bejegyzés létrehozása, és alapértelmezett vagy beállított
+  értékekkel feltöltése. Innen lehet letölteni a kinyomtatandó táblázatot.</dd>
 
-fogado-xls.cgi
+<dt>fogado-xls.cgi</dt>
 
-  Az aktuális fogadóóra adataiból készít egy excel táblázatot. Az admin
-  oldalról érhető el.
+  <dd>Az aktuális fogadóóra adataiból készít egy excel táblázatot. Az admin
+  oldalról érhető el.</dd>
 
-osszesit.php
+<dt>osszesit.php</dt>
 
-  Szülői összesített lista, a szülői bejelentkezés oldaláról érhető el.
+  <dd>Szülői összesített lista, a szülői bejelentkezés oldaláról érhető el.</dd>
 
-ifa.db
+<dt>ifa.db</dt>
 
-  Fogadóóra példaadatbázis SQLite3 formátumban.
+  <dd>Fogadóóra példaadatbázis SQLite3 formátumban.</dd>
 
-default.css
-osztaly.css
-dugo.png
-favicon.ico
+<dt>default.css<br>
+osztaly.css<br>
+dugo.png<br>
+favicon.ico</dt>
 
-  Dekorációk, stílusfájlok az általános lapra ill. az osztálylistára.
+  <dd>Dekorációk, stílusfájlok az általános lapra ill. az osztálylistára.</dd>
 
-classes
+<dt>classes</dt>
 
-  A használt osztályok: fogadoora, tanar, diak
+  <dd>A használt osztályok: fogadoora, tanar, diak</dd>
 
-gen
+<dt>gen</dt>
 
-  Teszt adatbázist és jelszót generáló programok. Ld.: gen/README
+  <dd>Teszt adatbázist és jelszót generáló programok. Ld.: gen/README</dd>
 
+</dl>
