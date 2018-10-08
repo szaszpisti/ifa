@@ -125,17 +125,19 @@ class TanarLista
 $pdf = new PDF();
 $res = $db->query( "SELECT id FROM Tanar ORDER BY tnev;" );
 foreach($res->fetchAll() as $tanar) {
+    # Vesszük az összes tanárt és tanáronként annak összes bejegyzésével pdf-be rakjuk
     $TANAR = new Tanar($tanar['id']);
 
     # Ha egyáltalán itt van...
     if (isset($TANAR->IDO_min)) {
         $voltSzuloi = false;
         $t = new TanarLista($TANAR->tnev);
-        for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido++) {
-            if (isset($TANAR->fogado_ido[$ido]['diak'])) {
+
+        foreach ($TANAR->fogado_ido as $ido => $bejegyzes) {
+            if (isset($bejegyzes['diak'])) {
                 $fogadoIdo = FiveToString($ido);
-                $fogadoNev = $TANAR->fogado_ido[$ido]['dnev'];
-                if ($TANAR->fogado_ido[$ido]['diak'] == '-2') {
+                $fogadoNev = $bejegyzes['dnev'];
+                if ($bejegyzes['diak'] == '-2') {
                     if (!$voltSzuloi) {
                         $fogadoNev = 'Szülői értekezlet';
                         $voltSzuloi = true;
@@ -143,11 +145,11 @@ foreach($res->fetchAll() as $tanar) {
                 }
             }
             if ($fogadoNev) {
-                $t->putSzulo($fogadoIdo, $fogadoNev);
+                $t->putSzulo($fogadoIdo, $fogadoNev); # ezt a bejegyzést hozzáadjuk a tanárhoz
             }
         }
 
-        $pdf->addTanar($t);
+        $pdf->addTanar($t); # ezt a tanárt jól beírjuk a pdf-be
     }
 }
 
