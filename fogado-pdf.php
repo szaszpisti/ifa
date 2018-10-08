@@ -54,7 +54,6 @@ class PDF extends TCPDF
         $this->startTransaction();
         /* Egyesével hozzáadjuk a sorokat. Ha lapváltás van, akkor rollback és az egészet új lapra */
         $oldPageNo = $this->PageNo();
-#        $oldX = $this->X;
 
         # Ha ez az első tanár, akkor nem kell a padding
         if($this->firstItem) {
@@ -62,12 +61,11 @@ class PDF extends TCPDF
         } else {
             $this->SetY($this->y + $this->itemPadding);
         }
-#        print $this->baseY . "\n";
         $Y = $this->y;
 
-        $this->putOszlop($tanar, $this->X);
+        $this->putTanar($tanar, $this->X);
 
-        if ($this->PageNo() == $oldPageNo) {
+        if ($this->PageNo() == $oldPageNo) { // ha nem váltott közben oldalt, rendben vagyunk
             $this->commitTransaction();
         } else {
             $this->rollbackTransaction(true);
@@ -78,11 +76,11 @@ class PDF extends TCPDF
                 $this->X = $this->X1;
                 $this->AddPage();
             }
-            $this->putOszlop($tanar, $this->X);
+            $this->putTanar($tanar, $this->X);
         }
     }
 
-    private function putOszlop($tanar, $x) {
+    private function putTanar($tanar, $x) {
         $this->mySetFont($this->nameFont);
 
         /* A kezdő vonalat vastagabban rajzoljuk */
