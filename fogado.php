@@ -200,6 +200,7 @@ $res = $db->query( "SELECT tanar, tnev FROM Fogado, Tanar "
                 . "    GROUP BY tanar, tnev "
                 . "    ORDER BY tnev");
 
+$FOGADO = array();
 foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $tanar) {
     $FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
 }
