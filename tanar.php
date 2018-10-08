@@ -33,8 +33,8 @@ if (isset($_REQUEST['mod'])) switch ($_REQUEST['mod']) {
     case 1:
         reset($_POST);
         $db->beginTransaction();
-        while (list($key, $diak) = each($_POST)) {
-            if ( ereg ("^r([0-9]+)$", $key, $match) ) {
+        foreach($_POST as $key => $diak) {
+            if ( preg_match ("/^r([0-9]+)$/", $key, $match) ) {
                 unset($q);
                 $ido = $match[1];
                 if (isset($TANAR->fogado_ido[$ido]['diak'])) {

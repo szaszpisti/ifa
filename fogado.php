@@ -283,8 +283,8 @@ if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
 //
 reset($_POST);
 $db->beginTransaction();
-while (list($k, $v) = each($_POST)) {
-    if ( ereg ("^r([0-9]+)$", $k, $match) ) {
+foreach($_POST as $k => $v){
+    if ( preg_match ("/^r([0-9]+)$/", $k, $match) ) {
         $Teacher = $match[1];
         $Time = $v;
         $validate = ValidateRadio ($Teacher, $Time);

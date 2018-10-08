@@ -25,7 +25,7 @@ require_once('ifa.inc.php');
 
 class Tanar {
 
-    function Tanar($tid) {
+    function __construct($tid) {
         global $db;
 
         $this->id = $tid;
@@ -58,7 +58,9 @@ class Tanar {
 
         if (count($rows) == 0) { die("Nincs ilyen tanár: $tid"); }
 
-        while(list($k, $v) = each($rows[0])) { $this->$k = $v; }
+        foreach($rows[0] as $key => $value) {
+            $this->$key = $value;
+        }
 
         $q = "SELECT ido, diak, dnev || ' (' || onev || ')' AS dnev"
                 . "    FROM Fogado AS F"

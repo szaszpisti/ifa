@@ -72,7 +72,7 @@ if (isset($_REQUEST['o'])) {
     setlocale(LC_ALL, "hu_HU.UTF-8"); 
     asort($index, SORT_LOCALE_STRING);
     reset($index);
-    while (list($id, $dnev) = each($index)) {
+    foreach($index as $id => $dnev){
         print "<p><a href=\"" . ($o=='t'?'tanar.php?tip=tanar&amp;':'fogado.php?tip=diak&amp;')
             . "id=" . $id . "\" target=duma>" . $dnev . "</a>\n";
     }

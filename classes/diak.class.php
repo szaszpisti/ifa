@@ -25,7 +25,7 @@ require_once('ifa.inc.php');
 
 class Diak {
 
-    function Diak($did) {
+    function __construct($did) {
         global $db;
 
         // Az azonosítóhoz tartozó adatbázis bejegyzés beolvasása,
@@ -36,8 +36,8 @@ class Diak {
         // nem is kellene ellenőrizni, csak jó id-k jönnek
         if (count($row) == 0) { die("Nincs ilyen diák: $did"); }
 
-        while(list($k, $v) = each($row)) {
-            $this->$k = $v;
+        foreach($row as $key => $value) {
+            $this->$key = $value;
         }
     }
 }

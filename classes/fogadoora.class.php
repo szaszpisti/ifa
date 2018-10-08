@@ -36,15 +36,15 @@ class Fogadoora {
      * - IDO_max  ezt a páros időpontot már nem kell kiírni
      * - datum_str, valid_kezd_str, valid_veg_str: az idők stringben
      */
-    function Fogadoora() {
+    function __construct() {
         global $db;
 
         // beolvassuk az legnagyobb id sorát, az éppen aktuális fogadóórát
         $row = $db->query("SELECT * FROM Admin ORDER BY id DESC LIMIT 1;")->fetch(PDO::FETCH_ASSOC);
 
         // az adatbázis sor minden mezőjét beemeljük
-        while(list($k, $v) = each($row)) {
-            $this->$k = $v;
+        foreach($row as $key => $value) {
+            $this->$key = $value;
         }
         // magyarul legyen a dátumszöveg
         setlocale(LC_TIME, 'hu_HU.UTF-8');
