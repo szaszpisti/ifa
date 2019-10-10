@@ -79,7 +79,7 @@ function WindowLoad() {
     dc.DateChooser.setCloseTime(400);
     dc.DateChooser.setWeekStartDay(1);
     dc.DateChooser.setUpdateField('datum', 'Y-m-d');
-    dc.DateChooser.setUpdateFunction(hetfo_beir);
+    dc.DateChooser.setUpdateFunction(valid_beir);
     dc.DateChooser.setIcon('js/datechooser.png', 'datum', true, 'Válasszon dátumot!');
 }
 function datum_copy() {
@@ -87,20 +87,36 @@ function datum_copy() {
    ora = old.substr(old.indexOf(' '), 10);
    document.forms[0].valid_veg.value = document.forms[0].datum.value + ora;
 }
-function hetfo_beir() {
+
+function valid_beir() {
+   /* kezd = 1 (hétfő), veg = 4 (csütörtök) */
+   var kezd_nap = 1;
+   var veg_nap = 4;
    d = document.forms[0].datum.value;
    // a firefox csak mm/dd/yyyy formában szereti a dátumot
    var datum = new Date(d.substr(5,2) + '/' + d.substr(8,2) + '/' + d.substr(0,4));
    day = datum.getDay()==0?7:datum.getDay();
-   epoch = datum.getTime() - (day-1)*86400000; // ennyi napot visszaszámolunk a hétfőig
+   epoch = datum.getTime() - (day-kezd_nap)*86400000; // ennyi napot visszaszámolunk a hétfőig
    datum = new Date(epoch); // ez az előző hétfő
    y = datum.getFullYear();
    m = datum.getMonth()+1;
    d = datum.getDate();
-   hetfo = y+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;
-   document.forms[0].valid_kezd.value = hetfo + ' 08:00';
-   datum_copy();
+   var kezd_datum = y+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;
+   document.forms[0].valid_kezd.value = kezd_datum + ' 08:00';
+
+   d = document.forms[0].datum.value;
+   // a firefox csak mm/dd/yyyy formában szereti a dátumot
+   var datum = new Date(d.substr(5,2) + '/' + d.substr(8,2) + '/' + d.substr(0,4));
+   day = datum.getDay()==0?7:datum.getDay();
+   epoch = datum.getTime() + (veg_nap-day)*86400000; // ennyi napot visszaszámolunk a hétfőig
+   datum = new Date(epoch); // ez az előző hétfő
+   y = datum.getFullYear();
+   m = datum.getMonth()+1;
+   d = datum.getDate();
+   var veg_datum = y+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;
+   document.forms[0].valid_veg.value = veg_datum + ' 12:00';
 }
+
 //--></script>
 
 <h3>Új időpont létrehozása</h3>
@@ -109,13 +125,13 @@ function hetfo_beir() {
 <tr><td class="left" colspan="2"><hr><b><i>Fogadóóra napja:</i></b></td>
 <tr><td>&nbsp;</td>
     <td class="left" id="pdatum"><input name="datum" id="datum" type="text" size="10" value="$MaiDatum"
-        onKeyUp="datum_copy();" onChange="hetfo_beir();"></td>
+        onKeyUp="datum_copy();" onChange="valid_beir();"></td>
 
 <tr><td class="left" colspan="2"><hr><b><i>Bejelentkezési időszak:</i></b></td>
 <tr><td class="right"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; kezdete:</td>
     <td><input name="valid_kezd" type="text" size="20" value="$MaiDatum 08:00"></td>
 <tr><td class="right">vége:</td>
-    <td><input name="valid_veg" type="text" size="20" value="$MaiDatum 14:00"></td>
+    <td><input name="valid_veg" type="text" size="20" value="$MaiDatum 12:00"></td>
 
 <tr><td class="left" colspan="2"><hr><b><i>Alapértelmezések:</i></b></td>
 <tr><td class="right">jelenlét: <td>\n$Ido_kora$Ido_vora</td>
@@ -128,7 +144,7 @@ function hetfo_beir() {
 </table>
 </form></div>
 <script type="text/javascript"><!--
-hetfo_beir();
+valid_beir();
 //--></script>
 Vege;
 
