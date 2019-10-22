@@ -36,7 +36,7 @@ function admin() {
     // Ha valami hiba történt, visszadob a 0. oldalra egy hibakóddal
     if(isset($_REQUEST['error'])) {
         switch ($_REQUEST['error']) {
-            case "1": hiba("Nem sikerült regisztrálni a fogadóórát - nézd meg a webszerver error.log-ját!");
+            case "1": return hiba("Nem sikerült regisztrálni a fogadóórát - nézd meg a webszerver error.log-ját!");
                 break;
         }
     }
@@ -161,7 +161,7 @@ function admin() {
             */
 
             if ( !isset($_REQUEST['datum']) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $_REQUEST['datum'])) {
-                hiba ("Nincs dátum megadva"); return 1;
+                return hiba ("Nincs dátum megadva");
             }
 
             $res = $db->prepare("SELECT * FROM Admin WHERE datum=?");
@@ -175,9 +175,9 @@ function admin() {
                     $_REQUEST['vora'] + $_REQUEST['vperc']
                 );
 
-                if (!$_REQUEST['tartam']) { hiba ("Tartam nincs megadva"); return 1; }
-                if (!$_REQUEST['valid_kezd']) { hiba ("Érvényesség kezdete nincs megadva"); return 1; }
-                if (!$_REQUEST['valid_veg']) { hiba ("Érvényesség vége nincs megadva"); return 1; }
+                if (!$_REQUEST['tartam']) { return hiba ("Tartam nincs megadva"); }
+                if (!$_REQUEST['valid_kezd']) { return hiba ("Érvényesség kezdete nincs megadva"); }
+                if (!$_REQUEST['valid_veg']) { return hiba ("Érvényesség vége nincs megadva"); }
 
                 $res = $db->prepare('INSERT INTO Admin (datum, kezd, veg, tartam, valid_kezd, valid_veg) VALUES (?, ?, ?, ?, ?, ?)');
                 $ret = $res->execute(array(
@@ -192,11 +192,10 @@ function admin() {
 
                 $res = $db->prepare("SELECT COUNT(*) FROM Fogado WHERE fid=?");
                 $res->execute(array($rows[0]['id']));
-                if ($res->fetchColumn() > 0) { hiba ("E napon már vannak bejegyzések"); return 1; }
+                if ($res->fetchColumn() > 0) { return hiba ("E napon már van bejegyzés"); }
             }
             else {
-                hiba ("HAJAJ! Nagy GÁZ van... (több egyforma dátum?)");
-                return 1;
+                return hiba ("HAJAJ! Nagy GÁZ van... (több egyforma dátum?)");
             }
 
             // túl vagyunk az időpontbejegyzésen, újból beolvassuk az aktuálisat
@@ -260,15 +259,15 @@ function admin() {
         case 3:
 
             // ha nem tudjuk, melyik fogadó-azonosítóhoz kell bejegyzéseket csinálni
-            if (!isset($_REQUEST['fid'])) { hiba ("Nincs fogadó-azonosító"); return 1; }
+            if (!isset($_REQUEST['fid'])) { return hiba ("Nincs fogadó-azonosító"); }
 
             $res = $db->prepare("SELECT COUNT(*) FROM Admin WHERE id=?");
             $res->execute(array($_REQUEST['fid']));
-            if ($res->fetchColumn() != 1) { hiba ("Nincs ilyen nap regisztrálva"); return 1; }
+            if ($res->fetchColumn() != 1) { return hiba ("Nincs ilyen nap regisztrálva"); }
 
             $res = $db->prepare("SELECT COUNT(*) FROM Fogado WHERE fid=?");
             $res->execute(array($_REQUEST['fid']));
-            if ($res->fetchColumn() > 0) { hiba ("E napon már vannak bejegyzések"); return 1; }
+            if ($res->fetchColumn() > 0) { return hiba ("E napon már vannak bejegyzések"); }
 
             // A kapott űrlap-változókat rendezzük használható tömbökbe
             //    $JelenVan['id'] (id, kezd, veg, tartam)
@@ -336,8 +335,7 @@ function admin() {
 
         // Rossz paraméterek
         default:
-            hiba ("Érvénytelen oldal: " . $_REQUEST['page']);
-            return 1;
+            return hiba ("Érvénytelen oldal: " . $_REQUEST['page']);
             break;
     }
 

@@ -75,10 +75,9 @@ define('fid', $FA->id);
  * @param string $err A kiírandó hibaüzenet
  * @param boot $utf Kell-e utf-8 headert küldeni?                                                                               
  */
-function hiba($err, $utf=false) {
-    if ($utf) header('Content-Type: text/html; charset=utf-8');
-    print "<p><hr><b>!!! - $err - !!!</b><hr>\n";
+function hiba($err) {
     Ulog (0, $err);
+    return "<p><hr><b>!!! - $err - !!!</b><hr>\n";
 }
 
 //! az ini fájlban található default fogadóidők átszámolása
