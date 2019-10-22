@@ -31,7 +31,6 @@ class User
     public $tip = '';
     public $id = -1;
     private $db = NULL;
-#    public $menu = '';
     private $fields = array('tip', 'id', 'nev', 'logged_in', 'admin', 'jelszo', 'dnev', 'tnev', 'oszt', 'onev', 'ofo', 'ofonev');
 
     function __construct($request=NULL) {
@@ -48,17 +47,14 @@ class User
             foreach ($this->fields as $key) {
                 if (isset($_SESSION[$key])) {
                     $this->$key = $_SESSION[$key];
-#                    print $this->$key . " = " . $_SESSION[$key];
                 }
             }
         }
-#        print_r($request);
 
         if (isset($request['id'])) {
             // Ha kaptunk id-t, de az más mint eddig
             if ($this->logged_in && ($request['id'] != $this->id) && !$this->admin) {
                 $this->logout();
-                #$this->logged_in = FALSE;
             } else {
                 $this->get_user($request['tip'], $request['id']);
             }
@@ -143,7 +139,6 @@ class User
             . "  <input type=\"hidden\" name=\"id\" value=\"" . $this->id . "\">\n"
             . "  <input type=\"hidden\" name=\"tip\" value=\"" . $this->tip . "\">\n"
             . "  <input type=\"submit\" value=\"Belépés\">\n"
-            . "  " . $this->tip . " (" . $this->id . ")\n"
             . "</form>\n\n"
             . "<td align=\"right\" valign=\"top\" class=\"sans\"><a href=\"?leiras\"> Leírás </a>\n</table>\n";
 
@@ -156,7 +151,6 @@ class User
         global $google_domain;
 
         // $_SESSION-ban már minden bent van, csak a jelszót kell ellenőrizni
-        #if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === TRUE) {
         if (isset($this->logged_in) && $this->logged_in === TRUE) {
             return TRUE;
         }
@@ -258,21 +252,6 @@ class User
         $this->ODD = false;
         $this->fogad = false;
 
-        /*
-        # Feltöltjük a tanár tulajdonságait
-        try {
-            $res = $db->prepare("SELECT * FROM Tanar WHERE id=?");
-            $res->execute(array($this->id));
-            $rows = $res->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) { die($e->getMessage()); }
-
-        if (count($rows) == 0) { die("Nincs ilyen tanár: $tid"); }
-
-        foreach($rows[0] as $key => $value) {
-            $this->$key = $value;
-        }
-         */
-
         $q = "SELECT ido, diak, dnev || ' (' || onev || ')' AS dnev"
                 . "    FROM Fogado AS F"
                 . "  LEFT OUTER JOIN"
@@ -285,7 +264,7 @@ class User
             $res = $this->db->query($q);
 
             $rows = $res->fetchAll(PDO::FETCH_ASSOC);
-            if (count($rows) > 0) $this->fogad = true;             // ha van időpontja akkor fogad
+            if (count($rows) > 0) $this->fogad = true; // ha van időpontja akkor fogad
             else $this->fogad = false;
             foreach ($rows as $f) {
                 $this->fogado_ido[$f['ido']] = array('diak'=>$f['diak'], 'dnev'=>$f['dnev']);

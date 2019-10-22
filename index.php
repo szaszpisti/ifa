@@ -78,7 +78,6 @@ elseif (isset($_REQUEST['jelszo']))
 // Ha legalább típus van, akkor kirakjuk a bejelentkező ablakot
 elseif (isset($_REQUEST['tip']) && isset($_REQUEST['id']))
 {
-    print '<br>' . "login_form (" . $_REQUEST['tip'] . ")" . '<br>';
     print $user->login_form() . '<br>';
 }
 
