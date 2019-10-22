@@ -74,18 +74,23 @@ PERL_DSN = "DBI:SQLite:dbname=db/ifa.db"
 #
 #   A tanárok authentikációjának módja a listájuk megtekintéséhez.
 #
-#   PAM:  Ha a helyi rendszeren van pam telepítve, akkor használható.
-#         (Használatához telepíteni kell a php4-auth-pam modult.)
-#   LDAP: Ha a tanárok LDAP-on keresztül akarnak authentikálni.
-#         (Használatához ld. a $ldap változót!)
-#   DB:   Ha a tanárok jelszója is ebben az adatbázisban van tárolva.
+#   PAM:    Ha a helyi rendszeren van pam telepítve, akkor használható.
+#           (Használatához telepíteni kell a php4-auth-pam modult.)
+#   LDAP:   Ha a tanárok LDAP-on keresztül akarnak authentikálni.
+#           (Használatához ld. a $ldap változót!)
+#   DB:     Ha a tanárok jelszója is ebben az adatbázisban van tárolva.
+#   GOOGLE: A tanároknak Google Suite azonosítója van.
+#           Ekkor kell a $google_domain is.
 #
 #   Példa:
 #
 #   $tanar_auth = 'DB';
+#   $google_domain = '';
 #
 
-$tanar_auth = 'LDAP';
+$tanar_auth = 'GOOGLE';
+$tanar_auth = 'DB';
+$google_domain = 'szeged.piarista.hu';
 
 #
 # $ldap:

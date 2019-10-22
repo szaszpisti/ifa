@@ -42,7 +42,7 @@ if (php_sapi_name() == "cli") {
 if (__DEBUG__) {
     define('ADMIN', true);
 } else {
-    session_start();
+#    session_start();
     // Ha "admin", azt a session-ban tároltuk, itt visszaolvassuk.
     if (isset($_SESSION['admin'])) { define ('ADMIN', true); }
     else { define('ADMIN', false); }
@@ -123,7 +123,7 @@ function TimeToFive($ora, $perc) { return $ora*12+floor($perc/5); }
  */
 $SELECT = "  <select name=#NAME#>\n";
 for ($i=$Kiir_tartam[0]; $i<=$Kiir_tartam[1]; $i++) {
-    $SELECT .= "    <option value=\"" . $i*12 . "\">$i\n";
+    $SELECT .= "    <option value='" . $i*12 . "'>$i\n";
 }
 $SELECT .= "  </select>\n";
 
@@ -140,12 +140,12 @@ function SelectIdo($name_ora, $name_perc, $ido){
     $ora = 12*floor($ido/12);
     $perc = $ido - $ora;
 
-    $ret = preg_replace("/value=\"$ora\">/", "value=\"$ora\" selected>", $SELECT);
-    $ret = preg_replace("/#NAME#/", "\"$name_ora\"", $ret);
+    $ret = preg_replace("/value='$ora'>/", "value='$ora' selected>", $SELECT);
+    $ret = preg_replace("/#NAME#/", "'$name_ora'", $ret);
 
-    $ret .= preg_replace("/value=\"$perc\">/", "value=\"$perc\" selected>",
-                "  <select name=\"$name_perc\">\n    <option value=\"0\">00\n    <option value=\"2\">10\n    <option value=\"4\">20" .
-                "\n    <option value=\"6\">30\n    <option value=\"8\">40\n    <option value=\"10\">50\n  </select>\n");
+    $ret .= preg_replace("/value='$perc'>/", "value='$perc' selected>",
+                "  <select name='$name_perc'>\n    <option value='0'>00\n    <option value='2'>10\n    <option value='4'>20" .
+                "\n    <option value='6'>30\n    <option value='8'>40\n    <option value='10'>50\n  </select>\n");
     return $ret;
 }
 
@@ -155,10 +155,13 @@ function SelectIdo($name_ora, $name_perc, $ido){
  * @return string
  * @param string $name a HTML tag "name" értéke
  */
-function SelectTartam($name) {
-    return preg_replace("/#NAME#/", "\"$name\"", "  <select name=#NAME#>\n"
-        . "    <option value=\"1\">5\n    <option value=\"2\" selected>10\n"
-        . "    <option value=\"3\">15\n    <option value=\"4\">20\n  </select>\n");
+function SelectTartam($name, $select=2) {
+    $select = "  <select name=#NAME#>\n"
+        . "    <option value='1'>5\n    <option value='2' selected>10\n"
+        . "    <option value='3'>15\n    <option value='4'>20\n  </select>\n");
+    $select = preg_replace("/#NAME#/", "'$name'", $select);
+    $select = preg_replace("'$select'", "'$select' selected", $select);
+    return $select;
 }
 
 
@@ -193,7 +196,13 @@ print "\n\n<body$onload>\n";
  *
  */
 function Tail() {
-    print "\n\n<p><hr><img src=\"dugo.png\" align=\"top\" alt=\"dugo@szepi_PONT_hu\">\n";
+    print "</div><!-- duma -->\n";
+    print "</div><!-- duma-container -->\n";
+    print "<div class='spacer'></div>\n";
+
+    print "\n<div class='noprint'>\n";
+    print "<p><hr><img src='dugo.png' align='top' alt='dugo@szepi_PONT_hu'>\n";
+    print "</div>\n";
     print "</body>\n</html>\n";
 }
 
@@ -213,13 +222,14 @@ function ulog($uid, $s) {
 /**
  * Kiírja a diák összesítő táblázatát.
  *
- * @param user $USER - a felhasználó adatai
+ * @param user $user - a felhasználó adatai
  * @param FA $FA - az aktuális fogadóóra
  * @param db $db - az adatbázis-leíró
  *
  * @return string - az összeállított HTML táblázat
  */
-function osszesit($USER, $FA, $db){
+function osszesit() {
+    global $user, $FA, $db;
     # a szülői értekezlet eleje és vége
     $res = $db->prepare(
                   "SELECT MIN(ido) AS eleje, MAX(ido) AS vege"
@@ -228,7 +238,7 @@ function osszesit($USER, $FA, $db){
                 . "        AND tanar=?"
                 . "        AND diak=-2"
                 );
-    $res->execute(array(fid, $USER->ofo));
+    $res->execute(array(fid, $user->ofo));
     $szuloi = $res->fetch(PDO::FETCH_ASSOC);
 
     $SzuloiEleje  = 0;
@@ -248,7 +258,7 @@ function osszesit($USER, $FA, $db){
                 . "        AND diak=?"
                 . "      ORDER BY ido"
                 );
-    $res->execute(array(fid, $USER->id));
+    $res->execute(array(fid, $user->id));
     $rows = $res->fetchAll(PDO::FETCH_ASSOC);
 
     $SzuloiKesz = false;
@@ -261,7 +271,10 @@ function osszesit($USER, $FA, $db){
     }
     if (!$SzuloiKesz) { $Output[] = $SzuloiSor; }
 
-    return join ("\n<br>", $Output) . "\n";
+    return $user->fejlec() . join ("\n<br>", $Output) . "\n";
 }
 
-?>
+function leiras() {
+    return file_get_contents('leiras.html');
+}
+

@@ -20,71 +20,16 @@
  * vagy az összesítést.
  */
 
-require_once('login.php');
-require_once('ifa.inc.php');
-require_once('diak.class.php');
+#require_once('login.php');
+#require_once('ifa.inc.php');
 
-/** @brief Már foglalt időpont */
-define ('foglalt', 'foglalt');
-/** @brief A blokkban az első szabad időpont */
-define ('szabad', 'szabad');
-/** @brief Ha a megelőző időpont szabad volt */
-define ('szabad2', 'szabad2');
-/** @brief Szülői értekezlet */
-define ('szuloi', 'szuloi');
-/* @brief A blokkban az első saját időpont */
-define ('sajat', 'sajat'); //!<@brief A blokkban az első saját időpont
-/** @brief Ha a megelőző időpont saját volt */
-define ('sajat2', 'sajat2');
+# Egy saján összehasonlítást készítünk, ezzel fogjuk a $FOGADO-t a nevek szerint rendezni
+# Kell hozzá a php5-intl csomag
+$coll = collator_create( 'hu_HU.UTF-8' );
 
-/*
- * Egy diák számára kiírja a fogadóóra táblázatot az összes tanárral
- */
-
-$user = new Diak($_SESSION['id']);
-
-Head("Fogadóóra - " . $user->dnev . " (" . $FA->datum . ")");
-
-$USER_LOG = array();
-
-$queryString = "?tip=diak&amp;id=" . $user->id;
-$Fejlec = 
-      "  <script language=JavaScript type='text/javascript'><!--\n"
-    . "    function torol(sor) {\n"
-    . "    eval('var s = document.tabla.'+sor);\n"
-    . "    for (var i=0; i<s.length; i++)\n"
-    . "      s[i].checked=0;\n"
-    . "    }\n"
-    . "  //--></script>\n\n"
-    . "<table width='100%'><tr><td>\n"
-    . "<h3>" . $user->dnev . " " . $user->onev
-    . " <span class=\"kicsi\">(" . $FA->datum . ")</span><br>\n"
-    . "<span class=\"kicsi\">(Osztályfőnök: " . $user->ofonev . ")</span></h3>\n"
-    . "<td align=right valign=top><span class='noprint sans'>\n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "'>Táblázat</a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&amp;tartalom=osszesit'>Összesítés</a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . $queryString . "&amp;tartalom=leiras'>Leírás</a> | \n"
-    . "  <a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n<!--#--></span></td></tr></table>\n";
-
-// Ha a "leírást" kell kitenni:
-if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'leiras') {
-    print $Fejlec;
-    print "<hr>\n";
-    $content = file_get_contents ('leiras.html');
-    $tmp = preg_split ('/\n{2,}/', trim($content));
-    print join ("\n\n", ( array_slice($tmp, 1, -1 )) ); # head és tail nélkül a leírás.html tartalma
-    Tail();
-    return 0;
-}
-
-// Ha az összesítést kell kiírni (akkor is, ha nincs bejelentkezési idő):
-if ((!ADMIN && !$FA->valid) || (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'osszesit')) {
-    # ide berakjuk még a "Nyomtatás" gombot:
-    print preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
-    print osszesit($user, $FA, $db);
-    Tail();
-    if (!$FA->valid) @session_destroy();
-    return 0;
+function myCmp($a, $b){
+    global $coll;
+    return collator_compare( $coll, $a['nev'], $b['nev'] );
 }
 
 // egy tanár-sor a táblázatban
@@ -111,8 +56,8 @@ function table_row($K, $tid, $t) {
  *
  * @param tanar $tanar - az ő sorát írjuk ki
  */
-function tanar_ki($tanar) {
-    global $FA, $user, $K;
+function tanar_ki($user, $tanar) {
+    global $FA, $K;
     // TANAR: [0]['diak']=25, [1]['diak']=-1, ...
 
     /* $K A színezéshez használjuk, ebben vannak számolva az egymás utáni
@@ -155,11 +100,11 @@ function tanar_ki($tanar) {
     }
 
     $tmp = "\n<tr><th align='left' nowrap" . (isset($tanar['paratlan'])?" rowspan='2' valign='top'":"") . ">&nbsp;"
-        . (ADMIN?"<a href='tanar.php?tip=tanar&amp;id=" . $tanar['id'] . "'>" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
+        . (ADMIN?"<a href='?o=" . $user->oszt . "&tip=tanar&amp;id=" . $tanar['id'] . "'>" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
 
 // párosak:
     $tmp .= table_row($K[0], $tanar['id'], $FA->IDO_min);
-    $tmp .= "  <td><input type=button value=x onClick='torol(\"r" . $tanar['id'] . "\")'>\n";
+    $tmp .= "  <td><input type=button value=x onClick='torol('r" . $tanar['id'] . "')'>\n";
 
 // páratlanok:
     if (isset($tanar['paratlan'])) {
@@ -168,55 +113,6 @@ function tanar_ki($tanar) {
 
     return $tmp;
 
-}
-
-/*
-A fejléc sorok kiíratásához
-IDO: ebben lesznek a kiírandó időpontok
-IDO[16] = (30, 40, 50)
-IDO[17] = (00, 10, 20, ...)
-*/
-for ($ido=$FA->IDO_min; $ido<$FA->IDO_max; $ido+=2) {
-    $ora = floor($ido/12);
-    if (!isset($IDO[$ora]))
-        $IDO[$ora] = array();
-    array_push ($IDO[$ora], ($ido % 12)/2);
-}
-
-$A = "\n<tr bgcolor='lightblue'><td rowspan='2'>";
-$B = "\n<tr bgcolor='lightblue'>";
-
-if (!sizeof($IDO)) die('Nincsenek még időpontok!');
-foreach (array_keys($IDO) as $ora) {
-    $A .= "<th colspan=" . count ($IDO[$ora]) . ">" . $ora;
-    foreach (array_values($IDO[$ora]) as $perc )
-        $B .= "<td>" . $perc . "0";
-}
-$TablazatIdosor = $A . $B;
-
-// Az összes fogadó tanár nevét kigyűjtjük // FOGADO[id]=('id', 'nev')
-$res = $db->query( "SELECT tanar, tnev FROM Fogado, Tanar "
-                . "  WHERE fid=" . fid . " AND tanar=id "
-                . "    GROUP BY tanar, tnev "
-                . "    ORDER BY tnev");
-
-$FOGADO = array();
-foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $tanar) {
-    $FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
-}
-
-// mindegyikhez az összes idő => elfoglaltságot (A FOGADO-hoz rakunk még mezőket)
-// FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
-$res = $db->query( "SELECT tanar, ido, diak FROM Fogado "
-                . "  WHERE fid=" . fid
-                . "    ORDER BY ido");
-
-foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $sor) {
-    // Ha egy páratlan sorszámú időpontban lehet érték..., azt jelezzük
-    if ( ($sor['ido']%2 == 1) && ($sor['diak']>=0) ) { #  && ($sor['diak'] != "") ) {
-        $FOGADO[$sor['tanar']]['paratlan'] = 1;
-    }
-    $FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
 }
 
 /**
@@ -255,21 +151,164 @@ function ValidateRadio ( $Teacher, $Time ) {
     return array(true, NULL);
 }
 
-// Az Ulog-ot mög köllene csinálni, hogy az adminnál 0 legyen az id
-// és figyelmeztetéseket ne logolja
-//
-// checkboxok ellenőrzése (leiratkozás)
-//
-if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
+
+
+function fogado($osszesit=FALSE) {
+    require_once('user.class.php');
+
+    global $FA;
+    global $db;
+    global $user;
+
+    /** @brief Már foglalt időpont */
+    define ('foglalt', 'foglalt');
+    /** @brief A blokkban az első szabad időpont */
+    define ('szabad', 'szabad');
+    /** @brief Ha a megelőző időpont szabad volt */
+    define ('szabad2', 'szabad2');
+    /** @brief Szülői értekezlet */
+    define ('szuloi', 'szuloi');
+    /* @brief A blokkban az első saját időpont */
+    define ('sajat', 'sajat'); //!<@brief A blokkban az első saját időpont
+    /** @brief Ha a megelőző időpont saját volt */
+    define ('sajat2', 'sajat2');
+
+    /*
+     * Egy diák számára kiírja a fogadóóra táblázatot az összes tanárral
+     */
+
+    $out = '';
+
+    $USER_LOG = array();
+
+    $queryString = "?tip=diak&amp;id=" . $user->id;
+    $Fejlec = 
+          "  <script language=JavaScript type='text/javascript'><!--\n"
+        . "    function torol(sor) {\n"
+        . "    eval('var s = document.tabla.'+sor);\n"
+        . "    for (var i=0; i<s.length; i++)\n"
+        . "      s[i].checked=0;\n"
+        . "    }\n"
+        . "  //--></script>\n\n"
+        . "<table width='100%'><tr><td>\n"
+        . "<h3>" . $user->dnev . " " . $user->onev
+        . " <span class='kicsi'>(" . $FA->datum . ")</span><br>\n"
+        . "<span class='kicsi'>(Osztályfőnök: " . $user->ofonev . ")</span></h3>\n"
+        . "<td align=right valign=top><span class='noprint sans'></tr></table>\n";
+
+    // Ha a "leírást" kell kitenni:
+    if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'leiras') {
+        $out .= $Fejlec;
+        $out .= "<hr>\n";
+        $content = file_get_contents ('leiras.html');
+        $tmp = preg_split ('/\n{2,}/', trim($content));
+        $out .= join ("\n\n", ( array_slice($tmp, 1, -1 )) ); # head és tail nélkül a leírás.html tartalma
+        #Tail();
+        return 0;
+    }
+
+    // Ha az összesítést kell kiírni (akkor is, ha nincs bejelentkezési idő):
+    if ((!ADMIN && !$FA->valid) || $osszesit) {
+        # ide berakjuk még a "Nyomtatás" gombot:
+        $out .= preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
+        $out .= osszesit($user, $FA, $db);
+        #Tail();
+        if (!$FA->valid) @session_destroy();
+        return $out;
+    }
+
+    /*
+    A fejléc sorok kiíratásához
+    IDO: ebben lesznek a kiírandó időpontok
+    IDO[16] = (30, 40, 50)
+    IDO[17] = (00, 10, 20, ...)
+    */
+    for ($ido=$FA->IDO_min; $ido<$FA->IDO_max; $ido+=2) {
+        $ora = floor($ido/12);
+        if (!isset($IDO[$ora]))
+            $IDO[$ora] = array();
+        array_push ($IDO[$ora], ($ido % 12)/2);
+    }
+
+    $A = "\n<tr bgcolor='lightblue'><td rowspan='2'>";
+    $B = "\n<tr bgcolor='lightblue'>";
+
+    if (!sizeof($IDO)) die('Nincsenek még időpontok!');
+    foreach (array_keys($IDO) as $ora) {
+        $A .= "<th colspan=" . count ($IDO[$ora]) . ">" . $ora;
+        foreach (array_values($IDO[$ora]) as $perc )
+            $B .= "<td>" . $perc . "0";
+    }
+    $TablazatIdosor = $A . $B;
+
+    // Az összes fogadó tanár nevét kigyűjtjük // FOGADO[id]=('id', 'nev')
+    $res = $db->query( "SELECT tanar, tnev FROM Fogado, Tanar "
+                    . "  WHERE fid=" . fid . " AND tanar=id "
+                    . "    GROUP BY tanar, tnev "
+                    . "    ORDER BY tnev");
+
+    $FOGADO = array();
+    foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $tanar) {
+        $FOGADO[$tanar['tanar']] = array('id' => $tanar['tanar'], 'nev' => $tanar['tnev']);
+    }
+
+    // mindegyikhez az összes idő => elfoglaltságot (A FOGADO-hoz rakunk még mezőket)
+    // FOGADO[id]=('id', 'nev', 'paratlan', 'ido1', 'ido2', ... )
+    $res = $db->query( "SELECT tanar, ido, diak FROM Fogado "
+                    . "  WHERE fid=" . fid
+                    . "    ORDER BY ido");
+
+    foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $sor) {
+        // Ha egy páratlan sorszámú időpontban lehet érték..., azt jelezzük
+        if ( ($sor['ido']%2 == 1) && ($sor['diak']>=0) ) { #  && ($sor['diak'] != "") ) {
+            $FOGADO[$sor['tanar']]['paratlan'] = 1;
+        }
+        $FOGADO[$sor['tanar']][$sor['ido']] = $sor['diak'];
+    }
+
+    // Az Ulog-ot mög köllene csinálni, hogy az adminnál 0 legyen az id
+    // és figyelmeztetéseket ne logolja
+    //
+    // checkboxok ellenőrzése (leiratkozás)
+    //
+    if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
+        $db->beginTransaction();
+        foreach ( $FOGADO as $tanar ) {
+            $v = "c" . $tanar['id'];
+            foreach ( array_keys($tanar) as $Time ) {
+                if ( ( $tanar[$Time] == $user->id ) && !isset($_POST[$v]) ) {
+                    $q = "UPDATE Fogado SET diak=0 WHERE fid=" . fid . " AND tanar=" . $tanar['id'] . " AND ido=$Time";
+                    if ( $db->query($q) ) {
+                        $FOGADO[$tanar['id']][$Time] = "0";
+                        $USER_LOG[] = "--- RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - törölve.";
+                        Ulog($user->id, $q);
+                    }
+                    else { Ulog($user->id, "Légy került a levesbe: $q!"); }
+                }
+            }
+        }
+        $db->commit();
+    }
+
+    //
+    // rádiógombok ellenőrzése (feliratkozás)
+    //
+    reset($_POST);
     $db->beginTransaction();
-    foreach ( $FOGADO as $tanar ) {
-        $v = "c" . $tanar['id'];
-        foreach ( array_keys($tanar) as $Time ) {
-            if ( ( $tanar[$Time] == $user->id ) && !isset($_POST[$v]) ) {
-                $q = "UPDATE Fogado SET diak=0 WHERE fid=" . fid . " AND tanar=" . $tanar['id'] . " AND ido=$Time";
+    foreach($_POST as $k => $v){
+        if ( preg_match ("/^r([0-9]+)$/", $k, $match) ) {
+            $Teacher = $match[1];
+            $Time = $v;
+            $validate = ValidateRadio ($Teacher, $Time);
+            if ( $validate[1] ) {
+                Ulog($user->id, $validate[1]);
+                $USER_LOG[] = $validate[1];
+            }
+            if ( $validate[0] ) { // rendben, lehet adatbázisba rakni
+                $q = "UPDATE Fogado SET diak=" . $user->id . " WHERE fid=" . fid . " AND tanar=$Teacher AND ido=$Time";
                 if ( $db->query($q) ) {
-                    $FOGADO[$tanar['id']][$Time] = "0";
-                    $USER_LOG[] = "--- RENDBEN: " . $FOGADO[$tanar['id']]['nev'] . ", " . FiveToString($Time) . " - törölve.";
+                    $FOGADO[$Teacher][$Time] = $user->id;
+                    $USER_LOG[] = "--- RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . FiveToString($Time) . " - bejegyezve.";
                     Ulog($user->id, $q);
                 }
                 else { Ulog($user->id, "Légy került a levesbe: $q!"); }
@@ -277,80 +316,44 @@ if ( isset($_POST['page']) &&  $_POST['page'] == 'mod' ) {
         }
     }
     $db->commit();
-}
 
-//
-// rádiógombok ellenőrzése (feliratkozás)
-//
-reset($_POST);
-$db->beginTransaction();
-foreach($_POST as $k => $v){
-    if ( preg_match ("/^r([0-9]+)$/", $k, $match) ) {
-        $Teacher = $match[1];
-        $Time = $v;
-        $validate = ValidateRadio ($Teacher, $Time);
-        if ( $validate[1] ) {
-            Ulog($user->id, $validate[1]);
-            $USER_LOG[] = $validate[1];
-        }
-        if ( $validate[0] ) { // rendben, lehet adatbázisba rakni
-            $q = "UPDATE Fogado SET diak=" . $user->id . " WHERE fid=" . fid . " AND tanar=$Teacher AND ido=$Time";
-            if ( $db->query($q) ) {
-                $FOGADO[$Teacher][$Time] = $user->id;
-                $USER_LOG[] = "--- RENDBEN: " . $FOGADO[$Teacher]['nev'] . ", " . FiveToString($Time) . " - bejegyezve.";
-                Ulog($user->id, $q);
-            }
-            else { Ulog($user->id, "Légy került a levesbe: $q!"); }
+    # 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
+    $szamlalo = 0;
+    # $TablaOutput .= $TablazatIdosor;
+    $TablaOutput = '';
+
+    if (count($FOGADO) > 0) {
+        uasort($FOGADO, "myCmp");
+        foreach ( $FOGADO as $tanar ) {
+            if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;
+            $TablaOutput .= tanar_ki($user, $tanar);
+            $szamlalo++;
         }
     }
-}
-$db->commit();
 
-# Egy saján összehasonlítást készítünk, ezzel fogjuk a $FOGADO-t a nevek szerint rendezni
-# Kell hozzá a php5-intl csomag
-$coll = collator_create( 'hu_HU.UTF-8' );
-function myCmp($a, $b){
-    global $coll;
-    return collator_compare( $coll, $a['nev'], $b['nev'] );
-}
 
-# 10 vagy valahány soronként kirakjuk a fejlécet, hogy lehessen követni
-$szamlalo = 0;
-# $TablaOutput .= $TablazatIdosor;
-$TablaOutput = '';
+    // Itt jön az összes kiírás
 
-if (count($FOGADO) > 0) {
-    uasort($FOGADO, "myCmp");
-    foreach ( $FOGADO as $tanar ) {
-        if (($szamlalo%8) == 0) $TablaOutput .= $TablazatIdosor;
-        $TablaOutput .= tanar_ki($tanar);
-        $szamlalo++;
+    $out .= $user->fejlec();
+
+    if ($USER_LOG) {
+        $out .= "<hr>\n";
+        $out .= "<div class='userlog'>\n";
+        foreach ($USER_LOG as $log) $out .= "$log<br>\n";
+        $out .= "</div>\n";
     }
+
+    $out .= "\n<form name='tabla' method='post' action=''><table border='1'>"
+        . "<tr><td colspan='" . (($FA->IDO_max-$FA->IDO_min)/2+2) . "' align='right' class='right'>\n"
+        . "  <input type='submit' value=' Mehet '>\n"
+        . $TablaOutput
+        . "<tr><td colspan='" . (($FA->IDO_max-$FA->IDO_min)/2+2) . "' align='right' class='right'>\n"
+        . "  <input type='hidden' name='page' value='mod'>\n"
+        . "  <input type='submit' value=' Mehet '>\n"
+        . "</table>\n\n"
+        . "</form>\n";
+
+#    Tail();
+    return $out;
+
 }
-
-
-// Itt jön az összes kiírás
-
-print $Fejlec;
-
-if ($USER_LOG) {
-    print "<hr>\n";
-    print "<div class=\"userlog\">\n";
-    foreach ($USER_LOG as $log) print "$log<br>\n";
-    print "</div>\n";
-}
-
-print "\n<form name='tabla' method='post' action=''><table border='1'>"
-    . "<tr><td colspan='" . (($FA->IDO_max-$FA->IDO_min)/2+2) . "' align='right' class='right'>\n"
-    . "  <input type='submit' value=' Mehet '>\n"
-    . $TablaOutput
-    . "<tr><td colspan='" . (($FA->IDO_max-$FA->IDO_min)/2+2) . "' align='right' class='right'>\n"
-    . "  <input type='hidden' name='page' value='mod'>\n"
-    . "  <input type='submit' value=' Mehet '>\n"
-    . "</table>\n\n"
-    . "</form>\n";
-
-Tail();
-
-?>
-

@@ -1,9 +1,10 @@
 <?php
 # -> apt install php-tcpdf vagy composer...
 
-require_once('login.php');
+#require_once('login.php');
 require_once('ifa.inc.php');
-require_once('tanar.class.php');
+#require_once('tanar.class.php');
+require_once('user.class.php');
 
 if (__DEBUG__) {
     $outputDir = getcwd() . '/';
@@ -126,7 +127,7 @@ $pdf = new PDF();
 $res = $db->query( "SELECT id FROM Tanar ORDER BY tnev;" );
 foreach($res->fetchAll() as $tanar) {
     # Vesszük az összes tanárt és tanáronként annak összes bejegyzésével pdf-be rakjuk
-    $TANAR = new Tanar($tanar['id']);
+    $TANAR = new User(array('tip'=>'tanar', 'id'=>$tanar['id']));
 
     # Ha egyáltalán itt van...
     if (isset($TANAR->IDO_min)) {
