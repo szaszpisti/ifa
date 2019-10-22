@@ -1,7 +1,9 @@
 body {
-    background-color: white;
-    padding: .5em;
-/*    border-left: 10px double #00688b; */
+	background-color: white;
+	margin: 0;
+/*    
+	padding: .2em;
+	*    border-left: 10px double #00688b; */
 }
 
 p { text-indent: 1.0em; margin: 0.15em; }
@@ -12,7 +14,7 @@ a { text-decoration: none; color: maroon; }
 a:hover { background: #cccccc; }
 
 @media print {
-  .noprint { visibility: hidden; }
+	.noprint { visibility: hidden; display: none; }
 }
 
 .justify { text-align: justify; text-indent: 0em; }
@@ -45,19 +47,70 @@ span.nincs, span.idoKezd, span.idoFolytat, span.szuloi, span.foglalt { padding-l
 /* az admin.php stílusai */
 
 table.tanar {
-    border-spacing: 0px;
+	border-spacing: 0px;
 }
-tr.paratlan { background-color: #EEEEEE; }
+tr.paratlan { background-color: #eeeeee; }
 
 address { font-size: 8pt; }
 
 div.kiemelt {
-    padding: .2em;
-    border: solid thin;
-    margin: .5em 0;
-    background: #ddd;
+	padding: .2em;
+	border: solid thin;
+	margin: .5em 0;
+	background: #ddd;
 }
 div.userlog {
-    font-size: 90%;
-    background: #e8e8e8;
+	font-size: 90%;
+	background: #e8e8e8;
+}
+
+div.float { float: left; padding: 5pt; }
+div.container { padding: 0 10pt; }
+div.spacer { clear: both; }
+
+#duma-container {
+	overflow: hidden;
+}
+
+#duma {
+	margin: 1em;
+
+}
+
+#osztaly {
+	float: left;
+	width: 180px;
+	font-size: 12px;
+	font-family: Helvetica, Arial, Sans-Serif;
+	font-weight: bold;
+	background: #004656;
+	color: white;
+	padding: .5em;
+	padding-right: 1em;
+}
+
+#osztaly a { padding: .2ex .2em; text-decoration: none; color: white;  }
+#osztaly a:hover { color: maroon; background: white; }
+
+#osztaly span { display: inline-block; width: 3em; }
+
+#osztaly p {
+	text-indent: -.7em;
+	margin: 0;
+	padding: 0;
+	padding-bottom: .8em;
+	margin-left: .7em;
+}
+#osztaly p+p {
+	text-indent: -.7em;
+	padding-bottom: 0;
+margin-left: .7em;
+}
+
+#menu {
+	position: fixed;
+	z-index: 5;
+	top: 0;
+	right: 0;
+	margin: .5em;
 }
