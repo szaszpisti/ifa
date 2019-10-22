@@ -155,12 +155,16 @@ function SelectIdo($name_ora, $name_perc, $ido){
  * @return string
  * @param string $name a HTML tag "name" értéke
  */
-function SelectTartam($name, $select=2) {
-    $select = "  <select name=#NAME#>\n"
-        . "    <option value='1'>5\n    <option value='2' selected>10\n"
-        . "    <option value='3'>15\n    <option value='4'>20\n  </select>\n");
+function SelectTartam($name, $selected=2) {
+    $select =
+          "  <select name=#NAME#>\n"
+        . "    <option value='1'>5\n"
+        . "    <option value='2'>10\n"
+        . "    <option value='3'>15\n"
+        . "    <option value='4'>20\n"
+        . "  </select>\n";
     $select = preg_replace("/#NAME#/", "'$name'", $select);
-    $select = preg_replace("'$select'", "'$select' selected", $select);
+    $select = preg_replace("/'$selected'/", "'$selected' selected", $select);
     return $select;
 }
 
