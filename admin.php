@@ -230,9 +230,9 @@ function admin() {
 
                 $Out .= "\n<tr" . ($paratlan?" class=paratlan":"") . "><td>" . $t['tnev'] . $t['onev'] . "\n"
                     . "  <td><input type=checkbox name=a$id checked>\n"
-                    . "  <td>\n" . SelectIdo("b$id", "c$id", $FogadoIdo[0]) . " &nbsp;\n"
-                    . "      " . SelectIdo("d$id", "e$id", $FogadoIdo[1]) . " &nbsp;\n"
-                    . "  <td align=center>\n" . SelectTartam("f$id") . "<td>\n";
+                    . "  <td>\n" . SelectIdo("b$id", "c$id", $_REQUEST['kora'] + $_REQUEST['kperc']) . " &nbsp;\n"
+                    . "      " . SelectIdo("d$id", "e$id", $_REQUEST['vora'] + $_REQUEST['vperc']) . " &nbsp;\n"
+                    . "  <td align=center>\n" . SelectTartam("f$id", $_REQUEST['tartam']) . "<td>\n";
 
                 if ( $t['ofo'] > 0 ) {
                     $Out .= "  <td><input type=checkbox name=g$id checked>\n"
