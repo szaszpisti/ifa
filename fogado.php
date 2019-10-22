@@ -159,6 +159,7 @@ function fogado($osszesit=FALSE) {
     global $FA;
     global $db;
     global $user;
+    global $FOGADO;
 
     /** @brief Már foglalt időpont */
     define ('foglalt', 'foglalt');
