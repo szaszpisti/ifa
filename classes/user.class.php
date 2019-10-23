@@ -202,7 +202,6 @@ class User
             $this->logged_in = TRUE;
             $_SESSION['logged_in'] = TRUE;
             foreach ($this->fields as $key) {
-                print $key . " ";
                 if (isset($this->$key)) {
                     $_SESSION[$key] = $this->$key;
                 }
