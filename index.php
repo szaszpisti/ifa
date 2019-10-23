@@ -24,6 +24,12 @@ require_once('tanar.php');
 
 $user = new User($_REQUEST);
 
+// Ha van jelszó input, akkor ellenőrizzük
+if (isset($_REQUEST['jelszo']))
+{
+    $user->login($_REQUEST['jelszo']);
+}
+
 $baseurl = $_SERVER['SCRIPT_URI'];
 
 # Ha a linkeket nem GET-tel hanem POST-tal akarom:
@@ -67,12 +73,6 @@ if ($user->logged_in())
     }
     print $user->menu();
 
-}
-
-// Ha van jelszó input, akkor ellenőrizzük
-elseif (isset($_REQUEST['jelszo']))
-{
-    $user->login($_REQUEST['jelszo']);
 }
 
 // Ha legalább típus van, akkor kirakjuk a bejelentkező ablakot
