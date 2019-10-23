@@ -42,10 +42,7 @@ function admin() {
     }
 
     /** $Out - ebbe gyűjtjük a kimenetet */
-    $Out = "\n<table width=\"100%\"><tr><td>\n"
-        . "<b><font color=\"#777777\">" . $_SESSION['nev'] . "</font></b>\n"
-        . '<td align="right" valign="top" class="sans"><a href="' . $_SERVER['PHP_SELF'] . "?kilep=\">Kilépés</a>\n</table>\n\n"
-        . "<hr>\n\n";
+    $Out = "<h3>Admin</h3>\n<hr>\n";
 
     if ($_REQUEST['page'] == 4) {
         $Out .= "Fogadóóra bejegyezve: " . $_REQUEST['datum'] . "\n\n";
