@@ -44,7 +44,7 @@ if (__DEBUG__) {
 } else {
 #    session_start();
     // Ha "admin", azt a session-ban tároltuk, itt visszaolvassuk.
-    if (isset($_SESSION['admin'])) { define ('ADMIN', true); }
+    if (isset($_SESSION['admin']) && $_SESSION['admin'] == true ) { define ('ADMIN', true); }
     else { define('ADMIN', false); }
 }
 
