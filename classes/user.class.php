@@ -55,9 +55,8 @@ class User
             // Ha kaptunk id-t, de az más mint eddig
             if ($this->logged_in && ($request['id'] != $this->id) && !$this->admin) {
                 $this->logout();
-            } else {
-                $this->get_user($request['tip'], $request['id']);
             }
+            $this->get_user($request['tip'], $request['id']);
         }
         /*
         if (isset($request['id']) && ($request['id'] != $this->id)) {
