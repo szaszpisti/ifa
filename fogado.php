@@ -197,17 +197,6 @@ function fogado($osszesit=FALSE) {
         . "<span class='kicsi'>(Osztályfőnök: " . $user->ofonev . ")</span></h3>\n"
         . "<td align=right valign=top><span class='noprint sans'></tr></table>\n";
 
-    // Ha a "leírást" kell kitenni:
-    if (isset($_REQUEST['tartalom']) && $_REQUEST['tartalom'] == 'leiras') {
-        $out .= $Fejlec;
-        $out .= "<hr>\n";
-        $content = file_get_contents ('leiras.html');
-        $tmp = preg_split ('/\n{2,}/', trim($content));
-        $out .= join ("\n\n", ( array_slice($tmp, 1, -1 )) ); # head és tail nélkül a leírás.html tartalma
-        #Tail();
-        return 0;
-    }
-
     // Ha az összesítést kell kiírni (akkor is, ha nincs bejelentkezési idő):
     if ((!ADMIN && !$FA->valid) || $osszesit) {
         # ide berakjuk még a "Nyomtatás" gombot:
