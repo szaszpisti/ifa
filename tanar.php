@@ -126,7 +126,9 @@ function tanar() {
                 . "    <td colspan='2' align='right'><input type='hidden' name='mod' value='1'>\n"
                 . "       <input type='reset' value='RESET'>\n"
                 . "       <input type='submit' value=' Mehet '>\n";
+            $idok = array();
             for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido++) {
+                $idok[] = 'r' . $ido;
                 $TABLA .= ($ido%2?"<tr class='paratlan'>":"<tr>");
                 if (array_key_exists($ido, $TANAR->fogado_ido)) $diak = $TANAR->fogado_ido[$ido]['diak'];
                 else $diak = NULL;
@@ -159,8 +161,10 @@ function tanar() {
             . "   <li><span class='szuloi'    >D</span>: szülői értekezlet<br>\n"
             . "   <li><span class='foglalt'   >E</span>: már bejelentkezett diák\n"
             . "</ul>\n"
-            . "<script language=JavaScript type='text/javascript'><!--\n"
-            . "function fivedel() {\n"
+            . "<script language=JavaScript type='text/javascript'><!--\n";
+        $TABLA .= "var idok = ['" . implode("', '", $idok) . "']; // a létező időpontok\n";
+        $TABLA .=
+              "function fivedel() {\n"
             . "  for (var i=0; i<document.tabla.length; i++) {\n"
             . "    o = document.tabla.elements[i]; // az űrlap elemeit veszi sorra\n"
             . "    if (o.value == '-1') {          // ha éppen '-1'-es gombnál tartunk\n"
