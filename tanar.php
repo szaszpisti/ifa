@@ -175,7 +175,7 @@ function tanar() {
             . "function nincs() {\n"
             . "  for (const ido of idok) {\n"
             . "    val = document.querySelector('input[name=' + ido + ']:checked').value;\n"
-            . "    if (val < 2) {\n"
+            . "    if (val < 1) {\n"
             . "      document.getElementsByName(ido)[0].checked = true;\n"
             . "    }\n"
             . "  }\n"
