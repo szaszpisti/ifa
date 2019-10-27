@@ -165,11 +165,10 @@ function tanar() {
         $TABLA .= "var idok = ['" . implode("', '", $idok) . "']; // a létező időpontok\n";
         $TABLA .=
               "function fivedel() {\n"
-            . "  for (var i=0; i<document.tabla.length; i++) {\n"
-            . "    o = document.tabla.elements[i]; // az űrlap elemeit veszi sorra\n"
-            . "    if (o.value == '-1') {          // ha éppen '-1'-es gombnál tartunk\n"
-            . "      ido = parseInt(o.name.substr(1,10));\n"
-            . "      if (o.checked) eval ('document.tabla.' + o.name + '[1].checked = 1');\n"
+            . "  for (const ido of idok) {\n"
+            . "    val = document.querySelector('input[name=' + ido + ']:checked').value;\n"
+            . "    if (val == -1) {\n"
+            . "      document.getElementsByName(ido)[1].checked = true;\n"
             . "    }\n"
             . "  }\n"
             . "}\n"
