@@ -48,6 +48,11 @@ if (__DEBUG__) {
     else { define('ADMIN', false); }
 }
 
+define('URI', 'http'
+    . ($_SERVER['HTTPS'] == 'on' ? 's' : '')
+    . '://' . $_SERVER['SERVER_NAME']
+    . $_SERVER['REQUEST_URI']);
+
 set_include_path(get_include_path() . ':./classes');
 
 try {
