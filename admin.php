@@ -144,7 +144,7 @@ function admin() {
     <script type="text/javascript"><!--
     valid_beir();
     //--></script>
-    Vege;
+Vege;
 
             break;
 
