@@ -48,10 +48,14 @@ if (__DEBUG__) {
     else { define('ADMIN', false); }
 }
 
-define('URI', 'http'
-    . ($_SERVER['HTTPS'] == 'on' ? 's' : '')
-    . '://' . $_SERVER['SERVER_NAME']
-    . $_SERVER['REQUEST_URI']);
+define('URI',
+     ($_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://')
+     . $_SERVER['SERVER_NAME']
+     . $_SERVER['SCRIPT_NAME'] #. '?'
+#     . $_SERVER['QUERY_STRING']
+
+ );
+#    . $_SERVER['REQUEST_URI']);
 
 set_include_path(get_include_path() . ':./classes');
 
@@ -180,19 +184,20 @@ function SelectTartam($name, $selected=2) {
  * @param string $onload A BODY tag kiegészítői - ha kell
  * @param string $css A használandó stíluslap neve kiterjesztés nélkül
  */
-function Head($cimsor, $onload = '', $css = 'default') {
+function Head($cimsor, $onload='', $css='default') {
     header('Pragma: no-cache');
     header('Cache-Control: no-store, no-cache, must-revalidate, post-c heck=0, pre-check=0');
     header('Expires: Mon,26 Jul 1980 05:00:00 GMT');
 
 print <<< EnD
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
   <title>$cimsor</title>
   <meta name="Author" content="Szász Imre">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta http-equiv="Expires" content="Tue, 20 Aug 1996 14:25:27 GMT">
+  <meta http-equiv="Content-Language" content="hu">
   <link rel="stylesheet" href="$css.css" type="text/css">
 </head>
 EnD;
