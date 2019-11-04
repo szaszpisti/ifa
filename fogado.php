@@ -104,7 +104,7 @@ function tanar_ki($user, $tanar) {
 
 // párosak:
     $tmp .= table_row($K[0], $tanar['id'], $FA->IDO_min);
-    $tmp .= "  <td><input type=button value=x onClick='torol('r" . $tanar['id'] . "')'>\n";
+    $tmp .= "  <td><input type=button value=x onClick='torol(\"r" . $tanar['id'] . "\")'>\n";
 
 // páratlanok:
     if (isset($tanar['paratlan'])) {
