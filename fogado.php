@@ -186,9 +186,9 @@ function fogado($osszesit=FALSE) {
     $Fejlec = 
           "  <script language=JavaScript type='text/javascript'><!--\n"
         . "    function torol(sor) {\n"
-        . "    eval('var s = document.tabla.'+sor);\n"
-        . "    for (var i=0; i<s.length; i++)\n"
-        . "      s[i].checked=0;\n"
+        . "      for (const radio of document.getElementsByName(sor)) {\n"
+        . "        radio.checked = 0;\n"
+        . "      }\n"
         . "    }\n"
         . "  //--></script>\n\n"
         . "<table width='100%'><tr><td>\n"
