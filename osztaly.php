@@ -48,21 +48,21 @@ function osztaly() {
     foreach ($OSZTALY as $oszt) {
         if(sizeof($oszt) < 2) continue;
         for ($i=0; $i<sizeof($oszt)/2; $i++) {
-            $out .= "<span><a href=\"?o=" . $oszt[2*$i] . "\">" . $oszt[2*$i+1] . "</a></span>";
+            $out .= "<span><a href=\"?oszt=" . $oszt[2*$i] . "\">" . $oszt[2*$i+1] . "</a></span>";
         }
         for ( ; $i<$oMax; $i++) {
             $out .= "<span>&nbsp;</span>";
         }
         $out .= "<br>\n";
     }
-    $out .= "<a href=\"?o=t\">tanárok</a><br>\n\n";
+    $out .= "<a href=\"?oszt=t\">tanárok</a><br>\n\n";
 
     // Ha van osztály paraméter, akkor az adott osztály listáját írjuk ki
 
-    if (isset($_REQUEST['o'])) {
-        $o = preg_replace('/\W/', '', $_REQUEST['o']);
-        if ($o == "t") $q = "SELECT id, tnev AS dnev FROM Tanar";
-        else $q = "SELECT * FROM Diak WHERE oszt='$o'";
+    if (isset($_REQUEST['oszt'])) {
+        $oszt = preg_replace('/\W/', '', $_REQUEST['oszt']);
+        if ($oszt == "t") $q = "SELECT id, tnev AS dnev FROM Tanar";
+        else $q = "SELECT * FROM Diak WHERE oszt='$oszt'";
 
         try { $res = $db->query($q); }
         catch (PDOException $e) { $out .= $e->getMessage(); }
@@ -75,8 +75,8 @@ function osztaly() {
         asort($index, SORT_LOCALE_STRING);
         reset($index);
         foreach($index as $id => $dnev){
-            $href = '<p><a href="' . $baseurl . "?o=$o&amp;tip=";
-            $href .= $o=='t' ? 'tanar' : 'diak';
+            $href = '<p><a href="' . $baseurl . "?oszt=$oszt&amp;tip=";
+            $href .= $oszt=='t' ? 'tanar' : 'diak';
             $href .= "&amp;id=$id\">" . $dnev . "</a>\n";
             $out .= $href;
         }
