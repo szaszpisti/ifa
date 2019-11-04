@@ -1,15 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<base target="_top">
-<head>
-  <title>Fogadóóra</title>
-  <meta name="Author" content="Szász Imre">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Language" content="hu">
-  <link rel="stylesheet" href="default.css" type="text/css">
-</head>
-
-<body>
 <?php
 
 session_start();
@@ -23,6 +11,8 @@ require_once('fogado.php');
 require_once('tanar.php');
 
 $user = new User($_REQUEST);
+
+Head('Fogadóóra - Szegedi Piaristák');
 
 // Ha van jelszó input, akkor ellenőrizzük
 if (isset($_REQUEST['jelszo']))
