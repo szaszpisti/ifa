@@ -182,20 +182,20 @@ function fogado($osszesit=FALSE) {
 
     $USER_LOG = array();
 
-    $queryString = "?tip=diak&amp;id=" . $user->id;
+    $queryString = "?oszt=" . $user->oszt . "&tip=diak&amp;id=" . $user->id;
     $Fejlec = 
-          "  <script language=JavaScript type='text/javascript'><!--\n"
+          "  <script language='JavaScript' type='text/javascript'><!--\n"
         . "    function torol(sor) {\n"
         . "      for (const radio of document.getElementsByName(sor)) {\n"
         . "        radio.checked = 0;\n"
         . "      }\n"
         . "    }\n"
         . "  //--></script>\n\n"
-        . "<table width='100%'><tr><td>\n"
+        . "<table widt='100%'><tr><td>\n"
         . "<h3>" . $user->dnev . " " . $user->onev
         . " <span class='kicsi'>(" . $FA->datum . ")</span><br>\n"
         . "<span class='kicsi'>(Osztályfőnök: " . $user->ofonev . ")</span></h3>\n"
-        . "<td align=right valign=top><span class='noprint sans'></tr></table>\n";
+        . "<td align='right' valign='top'><span class='noprint sans'></tr></table>\n";
 
     // Ha az összesítést kell kiírni (akkor is, ha nincs bejelentkezési idő):
     if ((!ADMIN && !$FA->valid) || $osszesit) {

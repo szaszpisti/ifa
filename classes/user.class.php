@@ -58,17 +58,6 @@ class User
             }
             $this->get_user($request['tip'], $request['id']);
         }
-        /*
-        if (isset($request['id']) && ($request['id'] != $this->id)) {
-
-            if (!$this->admin) {
-                $this->logout();
-            }
-            else {
-                $this->get_user($request['tip'], $request['id']);
-            }
-        }
-         */
         if ($this->tip == 'tanar') {
             $this->get_tanar();
         }
@@ -302,7 +291,7 @@ class User
     function fejlec() {
         global $FA;
         $Fejlec =
-              "  <script language=JavaScript type='text/javascript'><!--\n"
+              "  <script language='JavaScript' type='text/javascript'><!--\n"
             . "    function torol(sor) {\n"
             . "      for (const radio of document.getElementsByName(sor)) {\n"
             . "        radio.checked = 0;\n"
@@ -313,7 +302,7 @@ class User
             . "<h3>" . $this->dnev . " " . $this->onev
             . " <span class='kicsi'>(" . $FA->datum . ")</span><br>\n"
             . "<span class='kicsi'>(Osztályfőnök: " . $this->ofonev . ")</span></h3>\n"
-            . "<td align=right valign=top><span class='noprint sans'></tr></table>\n";
+            . "<td align='right' valign='top'><span class='noprint sans'></tr></table>\n";
         return $Fejlec;
     }
 
