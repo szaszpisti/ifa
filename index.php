@@ -15,12 +15,9 @@ $user = new User($_REQUEST);
 Head('Fogadóóra - Szegedi Piaristák');
 
 // Ha van jelszó input, akkor ellenőrizzük
-if (isset($_REQUEST['jelszo']))
-{
+if (isset($_REQUEST['jelszo'])) {
     $user->login($_REQUEST['jelszo']);
 }
-
-$baseurl = $_SERVER['SCRIPT_URI'];
 
 # Ha a linkeket nem GET-tel hanem POST-tal akarom:
 # https://stackoverflow.com/a/426417
