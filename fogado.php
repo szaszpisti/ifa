@@ -100,7 +100,7 @@ function tanar_ki($user, $tanar) {
     }
 
     $tmp = "\n<tr><th align='left' nowrap" . (isset($tanar['paratlan'])?" rowspan='2' valign='top'":"") . ">&nbsp;"
-        . (ADMIN?"<a href='?o=" . $user->oszt . "&tip=tanar&amp;id=" . $tanar['id'] . "'>" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
+        . (ADMIN?"<a href='?oszt=" . $user->oszt . "&oszt=t&tip=tanar&amp;id=" . $tanar['id'] . "'>" . $tanar['nev'] . "</a>":$tanar['nev']) . "\n";
 
 // párosak:
     $tmp .= table_row($K[0], $tanar['id'], $FA->IDO_min);
