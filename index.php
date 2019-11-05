@@ -14,6 +14,9 @@ $user = new User($_REQUEST);
 
 Head('Fogadóóra - Szegedi Piaristák');
 
+if (isset($_GET['code'])) {
+    oauth();
+}
 // Ha van jelszó input, akkor ellenőrizzük
 if (isset($_REQUEST['jelszo'])) {
     $user->login($_REQUEST['jelszo']);
