@@ -138,8 +138,8 @@ function tanar() {
                 $TABLA .= "  <td class='idoFolytat'><input type='radio' name='r$ido' value='-1'" . ($diak=="-1"?" checked":"") . ">\n";
                 $TABLA .= "  <td class='szuloi'><input type='radio' name='r$ido' value='-2'" . ($diak=="-2"?" checked":"") . ">\n";
                 if ($diak>0) {
-                    $TABLA .= "  <td class='sajat'><input type='radio' name=r$ido value='$diak' checked><td><a class='diak' href='fogado.php?"
-                        . "tip=diak&amp;id=" . $diak . "'>" . $TANAR->fogado_ido[$ido]['dnev'] . "</a>\n";
+                    $TABLA .= "  <td class='sajat'><input type='radio' name=r$ido value='$diak' checked><td><a class='diak' href='"
+                        . URI . "?tip=diak&amp;id=" . $diak . "'>" . $TANAR->fogado_ido[$ido]['dnev'] . "</a>\n";
                 } else {
                     $TABLA .= "  <td colspan='2'>&nbsp;\n";
                 }
