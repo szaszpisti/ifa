@@ -32,7 +32,7 @@ class User
     public $tip = '';
     public $id = -1;
     private $db = NULL;
-    private $fields = array('tip', 'id', 'nev', 'logged_in', 'admin', 'jelszo', 'dnev', 'tnev', 'oszt', 'onev', 'ofo', 'ofonev');
+    private $fields = array('tip', 'id', 'nev', 'emil', 'logged_in', 'admin', 'jelszo', 'dnev', 'tnev', 'oszt', 'onev', 'ofo', 'ofonev');
 
     function __construct($request=NULL) {
         global $db;
