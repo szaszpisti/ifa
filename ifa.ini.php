@@ -89,7 +89,6 @@ PERL_DSN = "DBI:SQLite:dbname=db/ifa.db"
 #
 
 $tanar_auth = 'GOOGLE';
-$tanar_auth = 'DB';
 $google_domain = 'szeged.piarista.hu';
 
 #
