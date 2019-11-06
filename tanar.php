@@ -149,9 +149,9 @@ function tanar() {
                 . "       <input type='submit' value=' Mehet '>\n"
                 . "</table>\n"
                 . "</form>\n"
-        # A külső táblázat második cellája
+                # A külső táblázat második cellája (Jelmagyarázat)
                 . "<td>&nbsp;\n"
-                . "<td valign=top>\n";
+                . "<td valign=top class='noprint'>\n";
         }
 
         $TABLA .= "<br><b>Jelmagyarázat:</b><ul>\n"
