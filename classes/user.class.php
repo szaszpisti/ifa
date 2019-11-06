@@ -287,13 +287,19 @@ class User
     }
 
     function menu() {
-        $out = ''
-            . '<div id="menu" class="noprint sans">'
-            . "  <a href='" . $_SERVER['PHP_SELF'] . '?tip=' . $this->tip . '&id=' . $this->id . "'>Táblázat</a> | \n"
-            . "  <a href='" . $_SERVER['PHP_SELF'] . '?osszesit' . "'>Összesítés</a> | \n"
-            . "  <a href='" . $_SERVER['PHP_SELF'] . '?leiras' . "'>Leírás</a> | \n"
-            . " <a href='" . $_SERVER['PHP_SELF'] . "?kilep='>Kilépés</a>\n"
-            . '</div>';
+        $query_string = get('oszt') . '&' . get('tip') . '&' . get('id');
+        $this->link = $_SERVER['PHP_SELF'] . '?' . $query_string;
+        $out = "<div id='menu' class='noprint sans'>\n";
+        if (isset($_REQUEST['osszesit']) || $this->tip == 'tanar') {
+            $out .= "  " . "<input type='button' value='Nyomtatás' onClick='window.print()'> |\n";
+        }
+        if ($this->tip != 'tanar') {
+            $out .= "  " . get_link($this->link, 'Táblázat') . " |\n";
+            $out .= "  " . get_link($this->link . "&osszesit", 'Összesítés') . " |\n";
+            $out .= "  " . get_link($this->link . "&leiras", 'Leírás') . " |\n";
+        }
+        $out .= "  " . get_link(URI . "?kilep", 'Kilépés') . "\n";
+        $out .= "</div>\n";
         return $out;
     }
 
