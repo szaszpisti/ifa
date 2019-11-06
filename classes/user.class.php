@@ -56,6 +56,7 @@ class User
             // Ha kaptunk id-t, de az más mint eddig
             if ($this->logged_in && ($request['id'] != $this->id) && !$this->admin) {
                 $this->logout();
+                header('Location: ' . URIQ);
             }
             $this->get_user($request['tip'], $request['id']);
         }
