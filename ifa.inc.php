@@ -287,6 +287,16 @@ function osszesit() {
     return $user->fejlec() . join ("\n<br>", $Output) . "\n";
 }
 
+function get_osztaly($oszt) {
+    $now = new DateTime('-180 days');
+    $tanev = $now->format('Y');
+    preg_match('/^d(\d\d)(\w$)/', $oszt, $m);
+    $vegzes = intval($m[1]);
+    $ab = strtoupper($m[2]);
+    $evfolyam = $tanev - 2000 - $vegzes + 13;
+    return "$evfolyam. $ab";
+}
+
 function leiras() {
     return file_get_contents('leiras.html');
 }
