@@ -22,6 +22,7 @@
 
 #require_once('login.php');
 require_once('ifa.inc.php');
+require_once('oauth.php');
 
 class User
 {
@@ -120,6 +121,11 @@ class User
             return $out;
         }
 
+        if ($this->tip == 'tanar' && preg_match('/@/', $this->emil)) {
+            $out .= oauth($this->emil);
+            return $out;
+        }
+
         $out .= "<table width=\"100%\"><tr><td>\n";
         $out .= "\n<h3>" . $this->nev . ($this->tip =='diak'?' ('.$this->onev.')':'') . "</h3>\n"
             . "<form name=\"login\" action=\"" . $_SERVER['REQUEST_URI'] . "\" method=\"POST\">\n"
@@ -145,6 +151,7 @@ class User
 
         $jelszo = stripslashes($jelszo);
         $jo = FALSE;
+        oauth();
         switch ($this->tip) {
             case 'tanar':
                 switch ($tanar_auth) {
@@ -165,9 +172,6 @@ class User
                             $jo = @ldap_bind($connect, $dn, $jelszo);
                             @ldap_unbind ($connect);
                         }
-                        break;
-                    case 'GOOGLE':
-                            $jo = TRUE;
                         break;
                 }
                 break;
@@ -204,9 +208,14 @@ class User
     }
 
     function logout() {
+        global $tanar_auth;
+        oauth();
         $_SESSION = array();
         session_destroy();
         $this->logged_in = FALSE;
+        if ($this->tip == 'tanar' && $tanar_auth == 'GOOGLE') {
+            header('Location: https://gmail.com');
+        }
     }
 
     function logged_in() {
