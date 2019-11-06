@@ -193,6 +193,7 @@ class User
 
         // végül logoljuk és kilépünk
         if ($jo) {
+            $_SESSION = array();
             $this->logged_in = TRUE;
             $_SESSION['logged_in'] = TRUE;
             foreach ($this->fields as $key) {
