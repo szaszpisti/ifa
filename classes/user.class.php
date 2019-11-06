@@ -91,6 +91,7 @@ class User
                 if ($table_name == 'tanar') {
                     $this->nev = $user['tnev'];
                     $_SESSION['nev'] = $user['tnev'];
+                    $_SESSION['oszt'] = 't';
                 } else {
                     $this->nev = $user['dnev'];
                     $_SESSION['nev'] = $user['dnev'];
