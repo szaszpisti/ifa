@@ -298,3 +298,17 @@ function leiras() {
     return file_get_contents('leiras.html');
 }
 
+function get($key) {
+    $val = '';
+    if (isset($_SESSION[$key])) {
+        $val = $_SESSION[$key];
+    } elseif (isset($_REQEST[$key])) {
+        $val = $_REQEST[$key];
+    }
+    return "$key=$val";
+}
+
+function get_link($url, $text) {
+    return "<a href='$url'>$text</a>";
+}
+
