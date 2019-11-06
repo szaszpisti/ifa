@@ -48,14 +48,11 @@ if (__DEBUG__) {
     else { define('ADMIN', false); }
 }
 
-define('URI',
-     ($_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://')
+define('URI', ($_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://')
      . $_SERVER['SERVER_NAME']
-     . $_SERVER['SCRIPT_NAME'] #. '?'
-#     . $_SERVER['QUERY_STRING']
+     . $_SERVER['SCRIPT_NAME']);
 
- );
-#    . $_SERVER['REQUEST_URI']);
+define('URIQ', URI . '?' . $_SERVER['QUERY_STRING']);
 
 set_include_path(get_include_path() . ':./classes');
 
