@@ -216,7 +216,7 @@ class User
         $_SESSION = array();
         session_destroy();
         $this->logged_in = FALSE;
-        if ($this->tip == 'tanar' && $tanar_auth == 'GOOGLE') {
+        if (!$this->admin && $this->tip == 'tanar' && $tanar_auth == 'GOOGLE') {
             header('Location: https://gmail.com');
         }
     }
