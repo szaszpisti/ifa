@@ -199,11 +199,8 @@ function fogado($osszesit=FALSE) {
 
     // Ha az összesítést kell kiírni (akkor is, ha nincs bejelentkezési idő):
     if ((!ADMIN && !$FA->valid) || $osszesit) {
-        # ide berakjuk még a "Nyomtatás" gombot:
-        $out .= preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
-        $out .= osszesit($user, $FA, $db);
-        #Tail();
-        if (!$FA->valid) @session_destroy();
+        $out = osszesit($user, $FA, $db);
+#        if (!$FA->valid) @session_destroy();
         return $out;
     }
 

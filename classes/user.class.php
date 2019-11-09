@@ -120,7 +120,6 @@ class User
                 . "<h3>Fogadóóra napja: " . $FA->datum_str . "\n"
                 . "<br><span class=\"kicsi\">" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
                 . $FA->valid_veg_str . "</b> &nbsp; között lehet feliratkozni.</span>\n<hr>\n";
-            return $out;
         }
 
         if ($this->tip == 'tanar' && preg_match('/@/', $this->emil)) {
