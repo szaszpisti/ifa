@@ -206,10 +206,6 @@ print "\n\n<body$onload>\n";
  *
  */
 function Tail() {
-    print "</div><!-- duma -->\n";
-    print "</div><!-- duma-container -->\n";
-    print "<div class='spacer'></div>\n";
-
     print "\n<div class='noprint'>\n";
     print "<p><hr><img src='dugo.png' align='top' alt='dugo@szepi_PONT_hu'>\n";
     print "</div>\n";

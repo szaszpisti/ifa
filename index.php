@@ -76,5 +76,9 @@ else
     print leiras();
 }
 
+print "</div><!-- duma -->\n";
+print "</div><!-- duma-container -->\n";
+print "<div class='spacer'></div>\n";
+
 Tail();
 
