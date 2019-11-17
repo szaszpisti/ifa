@@ -29,7 +29,6 @@ print "<div id='osztaly' class='noprint'>\n";
 print osztaly() . "\n";
 print "</div>\n";
 
-print "<div id='duma-container'>\n";
 print "<div id='duma'>\n";
 
 if (array_key_exists('kilep', $_REQUEST)) {
@@ -77,7 +76,6 @@ else
 }
 
 print "</div><!-- duma -->\n";
-print "</div><!-- duma-container -->\n";
 print "<div class='spacer'></div>\n";
 
 Tail();
