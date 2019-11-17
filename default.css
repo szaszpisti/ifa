@@ -6,16 +6,28 @@ body {
 	*    border-left: 10px double #00688b; */
 }
 
+@media print {
+	.noprint { visibility: hidden; display: none; }
+}
+
+#osztaly {
+	width: 200px;
+}
+
+@media not print {
+	#duma {
+		width: -webkit-calc(100% - 250px);
+		width:    -moz-calc(100% - 250px);
+		width:         calc(100% - 250px);
+	}
+}
+
 p { text-indent: 1.0em; margin: 0.15em; }
 p.elso { margin-top: .7em; text-indent: 0em; }
 p.so { margin-top: .7em; text-indent: 0em; }
 
 a { text-decoration: none; color: maroon; }
 a:hover { background: #cccccc; }
-
-@media print {
-	.noprint { visibility: hidden; display: none; }
-}
 
 .justify { text-align: justify; text-indent: 0em; }
 .center { text-align: center; text-indent: 0em; }
@@ -68,18 +80,13 @@ div.float { float: left; padding: 5pt; }
 div.container { padding: 0 10pt; }
 div.spacer { clear: both; }
 
-#duma-container {
-	overflow: hidden;
-}
-
 #duma {
 	margin: 1em;
-
+	float: left;
 }
 
 #osztaly {
 	float: left;
-	width: 180px;
 	font-size: 12px;
 	font-family: Helvetica, Arial, Sans-Serif;
 	font-weight: bold;
