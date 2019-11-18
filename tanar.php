@@ -185,11 +185,11 @@ function tanar() {
             . "  <input type='hidden' name='mod' value='2'>\n";
 
         if ($TANAR->fogad) {
-            $TABLA .= "<p>Bővítés: "
+            $TABLA .= "<p>Bővítés: <span class='nowrap'>"
                 . SelectIdo("kora", "kperc", $TANAR->IDO_min) . " - \n"
                 . SelectIdo("vora", "vperc", $TANAR->IDO_max) . "\n &nbsp; &nbsp;"
                 . SelectTartam('tartam') . "\n"
-                . "  <input type='submit' value=' Uccu! '></p><br><br>\n"
+                . "  <input type='submit' value=' Uccu! '></span></p><br><br>\n"
                 . "</form>\n"
                 . "<p class='elso'><i>Gombok gyors állítása:</i>\n<ul>\n"
                 . "  <li>Ha mégsem fog fogadni (összes -> A):\n"
