@@ -49,6 +49,7 @@ td.sajat { background-color: red !important; }
 #tanar tr:nth-child(odd)    { background-color: #eee; }
 #tanar tr:nth-child(even)   { background-color: white; }
 #tanar tr:first-child, tr:last-child { background-color: white; }
+#tanar tr td:nth-child(7)    { white-space: nowrap; }
 
 .nincs { background: #d0e0e0; }
 .idoKezd, .idoFolytat { background: inherit; }
