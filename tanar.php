@@ -113,7 +113,7 @@ function tanar() {
     $onev = $res->fetchColumn();
 
     $Fejlec = "\n<table width='100%'><tr>\n"
-        . "<td><h3>" . $TANAR->nev .  " (" . $FA->datum . ")$onev</h3></td></tr></table>\n";
+        . "<td><h3 class='nowrap'>" . $TANAR->nev .  " (" . $FA->datum . ")$onev</h3></td></tr></table>\n";
 #        . "<td align='right'><span class='noprint sans'>\n"
 #        . "<a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n<!--#--></span></td></tr></table>\n";
 

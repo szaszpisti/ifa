@@ -116,10 +116,10 @@ class User
 //függvény: valid_term: ha diák, akkor az időszakot is nézni kell
 
         if ($this->tip == 'diak' && !$FA->valid) {
-            $out .= "<h2 style='color: red;'>Nincs feliratkozási időszak!</h2>\n"
-                . "<h3>Fogadóóra napja: " . $FA->datum_str . "\n"
+            $out .= "<h2 class='nowrap' style='color: red;'>Nincs feliratkozási időszak!</h2>\n"
+                . "<h3 class='nowrap'>Fogadóóra napja: " . $FA->datum_str . "\n"
                 . "<br><span class=\"kicsi\">" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
-                . $FA->valid_veg_str . "</b> &nbsp; között lehet feliratkozni.</span>\n<hr>\n";
+                . $FA->valid_veg_str . "</b><br>között lehet feliratkozni.</span>\n<hr>\n";
         }
 
         if ($this->tip == 'tanar' && preg_match('/@/', $this->emil)) {
@@ -128,7 +128,7 @@ class User
         }
 
         $out .= "<table width=\"100%\"><tr><td>\n";
-        $out .= "\n<h3>" . $this->nev . ($this->tip =='diak'?' ('.$this->onev.')':'') . "</h3>\n"
+        $out .= "\n<h3 class='nowrap'>" . $this->nev . ($this->tip =='diak'?' ('.$this->onev.')':'') . "</h3>\n"
             . "<form name=\"login\" action=\"" . $_SERVER['REQUEST_URI'] . "\" method=\"POST\">\n"
             . "  Jelszó: <input type=\"password\" size=\"8\" name=\"jelszo\" autofocus>\n"
             . "  <input type=\"hidden\" name=\"id\" value=\"" . $this->id . "\">\n"
@@ -316,7 +316,7 @@ class User
             . "    }\n"
             . "  //--></script>\n\n"
             . "<table width='100%'><tr><td>\n"
-            . "<h3>" . $this->dnev . " " . $this->onev
+            . "<h3 class='nowrap'>" . $this->dnev . " " . $this->onev
             . " <span class='kicsi'>(" . $FA->datum . ")</span><br>\n"
             . "<span class='kicsi'>(Osztályfőnök: " . $this->ofonev . ")</span></h3>\n"
             . "<td align='right' valign='top'><span class='noprint sans'></tr></table>\n";
