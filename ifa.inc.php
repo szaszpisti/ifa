@@ -187,7 +187,7 @@ function Head($cimsor, $onload='', $css='default') {
     header('Expires: Mon,26 Jul 1980 05:00:00 GMT');
 
 print <<< EnD
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
   <title>$cimsor</title>
