@@ -18,44 +18,27 @@
  * @file
  * Kiírja a bal menüt: az osztályokat, és ha kell, az osztály ill. tanári névsort.
  *
- * Az osztályok azonosítója és megjelenítési módja az OSZTALY fájlban van,
- * soronként id1;nev1;id2;nev2 stb. alakban - ezt dolgozzuk fel itt
+ * Az osztályok azonosítóját az adatbázis "osztaly" táblájából veszi
  */
 
 function osztaly() {
     global $db;
     global $baseurl;
-    $out = '';
-
-    //! Az OSZTALY-t beolvassuk soronként
-    $OSZTALY_file = file('OSZTALY', FILE_IGNORE_NEW_LINES);
-
-    //! a soronkénti osztályszámok maximuma
-    $oMax = 0;
-    foreach ($OSZTALY_file as $oszt) {
-        // $O = array('id1', 'nev1', 'id2', 'nev2'), vagyis kétszer hosszabb
-        $O = explode(';', $oszt);
-
-        // megkeressük a max sorhosszt a táblázat méretéhez
-        if (sizeof($O) > $oMax) $oMax = sizeof($O);
-        $OSZTALY[] = $O;
-    }
-    $oMax /= 2; // dupláját számoltuk
-
-    $out .= "\n<p><a href=\"$baseurl?tip=admin&amp;id=0\">ADMIN</a><br>\n";
-
-    //! kiírjuk egyesével az osztályokat
-    foreach ($OSZTALY as $oszt) {
-        if(sizeof($oszt) < 2) continue;
-        for ($i=0; $i<sizeof($oszt)/2; $i++) {
-            $out .= "<span><a href=\"?oszt=" . $oszt[2*$i] . "\">" . $oszt[2*$i+1] . "</a></span>";
+    $ret = "\n<p><a href='$baseurl?tip=admin&amp;id=0'>ADMIN</a><br>\n";
+    $q = "SELECT * FROM Osztaly ORDER BY CAST(onev AS INTEGER), onev";
+    $osztalyok = $db->query($q);
+    $prev = '';
+    foreach($osztalyok as $osztaly) {
+        $oszt = $osztaly[0];
+        $onev = $osztaly[1];
+        $ev = substr($oszt, 1, 2);
+        if ($prev != $ev && $prev != '') {
+            $ret .= "<br>\n";
         }
-        for ( ; $i<$oMax; $i++) {
-            $out .= "<span>&nbsp;</span>";
-        }
-        $out .= "<br>\n";
+        $ret .= "  <span class='osztaly_nev'><a href='?oszt=$oszt'>$onev</a></span>";
+        $prev = $ev;
     }
-    $out .= "<a href=\"?oszt=t\">tanárok</a><br>\n\n";
+    $ret .= "<br>\n  <a href=\"?oszt=t\">tanárok</a><br>\n";
 
     // Ha van osztály paraméter, akkor az adott osztály listáját írjuk ki
 
@@ -65,7 +48,7 @@ function osztaly() {
         else $q = "SELECT * FROM Diak WHERE oszt='$oszt'";
 
         try { $res = $db->query($q); }
-        catch (PDOException $e) { $out .= $e->getMessage(); }
+        catch (PDOException $e) { $ret .= $e->getMessage(); }
 
         $index = array();
         while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -78,10 +61,11 @@ function osztaly() {
             $href = '<p><a href="' . $baseurl . "?oszt=$oszt&amp;tip=";
             $href .= $oszt=='t' ? 'tanar' : 'diak';
             $href .= "&amp;id=$id\">" . $dnev . "</a>\n";
-            $out .= $href;
+            $ret .= $href;
         }
-        $out .= "\n";
+        $ret .= "\n";
     }
 
-    return $out;
-    }
+    return $ret;
+}
+
