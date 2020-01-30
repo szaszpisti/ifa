@@ -1,8 +1,0 @@
-
-# A Fogado_diak_view táblából veszi azokat, akiknek még nincs jelszója,
-# generál hozzá jelszót és beírja a PostgreSQL-be.
-
-for i in $( psql -A -q -t iskola -c 'SELECT id FROM Fogado_diak_view WHERE jelszo IS NULL;' ); do
-	echo "INSERT INTO Fogado_diak VALUES ($i, '$( gpw 1 )');"
-done | tee /dev/tty | psql iskola
-
