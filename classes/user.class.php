@@ -289,10 +289,11 @@ class User
     }
 
     function menu() {
+        global $FA;
         $query_string = get('oszt') . '&' . get('tip') . '&' . get('id');
         $this->link = $_SERVER['PHP_SELF'] . '?' . $query_string;
         $out = "<div id='menu' class='noprint sans'>\n";
-        if (isset($_REQUEST['osszesit']) || $this->tip == 'tanar') {
+        if (isset($_REQUEST['osszesit']) || $this->tip == 'tanar' || !$FA->valid) {
             $out .= "  " . "<input type='button' value='Nyomtatás' onClick='window.print()'> |\n";
         }
         if ($this->tip != 'tanar') {
