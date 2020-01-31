@@ -119,7 +119,8 @@ class User
             $out .= "<h2 class='nowrap' style='color: red;'>Nincs feliratkozási időszak!</h2>\n"
                 . "<h3 class='nowrap'>Fogadóóra napja: " . $FA->datum_str . "\n"
                 . "<br><span class=\"kicsi\">" . $FA->valid_kezd_str . "</b> &nbsp; és &nbsp; <b>"
-                . $FA->valid_veg_str . "</b><br>között lehet feliratkozni.</span>\n<hr>\n";
+                . $FA->valid_veg_str . "</b><br>között lehet feliratkozni.</span></h3>\n<hr>\n"
+                . "Az érvényes feliratkozások megtekintéséhez jelentkezzen be:<br>\n";
         }
 
         if ($this->tip == 'tanar' && preg_match('/@/', $this->emil)) {
