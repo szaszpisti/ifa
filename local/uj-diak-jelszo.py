@@ -28,7 +28,12 @@ def main():
         sys.exit()
 
     # a KIR-ben létező összes oid
-    oids = [sor.split(',')[0] for sor in open(utils.KIR)]
+    try:
+        oids = [sor.split(',')[0] for sor in open(utils.KIR)]
+    except PermissionError:
+        print('Ezzel a felhasználóval nem megy! sudo -u szaszi bash')
+        sys.exit()
+
 
     diak = set() # a régi diákok oid-jeit gyújtjük ide
     osztalyok = {} # {'12A': [[1234, 'jelszo', 'Pumpa Pál', 'd18b', '12. A'], ['1234', ...], ...], '12B': [[... ], ... ] }
