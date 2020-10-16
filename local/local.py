@@ -9,6 +9,10 @@ fájlokat. Az első kettő a google könyvárban van,
 a "diak-jelszo.csv"-t az uj-diak-jelszo.py generálja.
 """
 
+import sys
+base_dir = '/home/szaszi/g/'
+sys.path.append(base_dir)
+
 import hashlib
 import utils
 import os.path
@@ -24,18 +28,19 @@ if os.path.isfile(LOCAL):
 i = 1000
 tanarok = []
 tanar = {} # oid -> id összerendelés
-for sor in open(utils.base_dir + '%d/KIR-tanar.csv' % utils.tanev):
+for sor in open(base_dir + '%d/KIR-tanar.csv' % utils.tanev):
     i += 1
     oid, vnev, knev = sor.strip().split(',')
     tanar[oid] = i
     nev = vnev + ' ' + knev
     # kell az email
     email = 'szasz.imre@szeged.piarista.hu'
+    email = utils.get_email(oid)
     tanarok.append("INSERT INTO 'Tanar' VALUES (%s, NULL, '%s', '%s');" % (i, email, nev))
 
 osztalyok = []
-for sor in open(utils.base_dir + 'osztalyfonok.csv'):
-    oszt, oid = sor.strip().split(',')
+for sor in open(base_dir + 'osztalyfonok.csv'):
+    oszt, oid, nev, email = sor.strip().split(',')
     o = utils.Osztaly(oszt)
     if o.evfolyam > 12:
         continue
