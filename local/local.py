@@ -34,7 +34,6 @@ for sor in open(base_dir + '%d/KIR-tanar.csv' % configuration.tanev):
     tanar[oid] = i
     nev = vnev + ' ' + knev
     # kell az email
-    email = 'szasz.imre@szeged.piarista.hu'
     email = utils.get_email(oid)
     tanarok.append("INSERT INTO 'Tanar' VALUES (%s, NULL, '%s', '%s');" % (i, email, nev))
 
