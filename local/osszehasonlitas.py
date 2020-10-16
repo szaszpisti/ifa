@@ -3,11 +3,16 @@
 # Összehasonlítja a diak_jelszo fájl aktuális névsorát
 # az ifa.db névsorával.
 
+import sys
+base_dir = '/home/szaszi/g/'
+sys.path.append(base_dir)
+
 import sqlite3
 import utils
 import hashlib
 
 DB = '../db/ifa.db'
+diak_jelszo = 'diak-jelszo.csv'
 
 conn = sqlite3.connect(DB)
 cur = conn.cursor()
@@ -20,7 +25,7 @@ for row in cur.execute(q):
 
 # Az aktuális diákok adatai
 diak_aktualis = {} # {'d12a-Pumpa Pál': 'titok', ... }
-for row in open(utils.diak_jelszo):
+for row in open(diak_jelszo):
     oid, jelszo, nev, oszt = row.strip().split(',')
     diak_aktualis[oszt + '-' + nev] = {'nev': nev, 'oszt': oszt, 'jelszo': jelszo}
 

@@ -16,7 +16,7 @@ sys.path.append(base_dir)
 import hashlib
 import utils
 import os.path
-import sys
+import configuration
 
 LOCAL = 'local.sql'
 
@@ -28,7 +28,7 @@ if os.path.isfile(LOCAL):
 i = 1000
 tanarok = []
 tanar = {} # oid -> id összerendelés
-for sor in open(base_dir + '%d/KIR-tanar.csv' % utils.tanev):
+for sor in open(base_dir + '%d/KIR-tanar.csv' % configuration.tanev):
     i += 1
     oid, vnev, knev = sor.strip().split(',')
     tanar[oid] = i
