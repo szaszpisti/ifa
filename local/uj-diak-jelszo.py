@@ -3,6 +3,7 @@
 """
 Elkészíti az aktuális jelszó fájlokat:
 - diak-jelszo.csv
+  * az előző diak-jelszo.csv állományról mentést készít
 - ifa-jelszo.csv - a titkárságnak
 A diak-jelszo.csv alapján fogjuk később a local.sql-t csinálni.
 """
