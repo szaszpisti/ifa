@@ -1,9 +1,7 @@
 body {
 	background-color: white;
 	margin: 0;
-/*    
-	padding: .2em;
-	*    border-left: 10px double #00688b; */
+	white-space: nowrap;
 }
 
 @media print {
@@ -26,8 +24,17 @@ p { text-indent: 1.0em; margin: 0.15em; }
 p.elso { margin-top: .7em; text-indent: 0em; }
 p.so { margin-top: .7em; text-indent: 0em; }
 
-a { text-decoration: none; color: maroon; }
-a:hover { background: #cccccc; }
+a {
+	text-decoration: none;
+	color: maroon;
+	padding: 2px 4px;
+}
+#menu a {
+	padding: 5px 3px 1px 3px;
+}
+a:hover {
+	background: #bdcfd3;
+}
 
 .justify { text-align: justify; text-indent: 0em; }
 .center { text-align: center; text-indent: 0em; }
@@ -85,6 +92,13 @@ div.spacer { clear: both; }
 	margin: 1em;
 	float: left;
 }
+#duma ol, #duma ul {
+	margin-top: .2em;
+}
+#duma p {
+	margin-top: .5em;
+	text-indent: 0em;
+}
 
 #osztaly {
 	float: left;
@@ -97,8 +111,8 @@ div.spacer { clear: both; }
 	padding-right: 1em;
 }
 
-#osztaly a { padding: .2ex .2em; text-decoration: none; color: white;  }
-#osztaly a:hover { color: maroon; background: white; }
+#osztaly a { padding: 3px 3px 0 3px; text-decoration: none; color: white;  }
+#osztaly a:hover { color: #a00; background: white; }
 
 #osztaly span { display: inline-block; width: 3em; }
 
