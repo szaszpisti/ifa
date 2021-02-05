@@ -25,7 +25,9 @@ if (isset($_REQUEST['jelszo'])) {
 # Ha a linkeket nem GET-tel hanem POST-tal akarom:
 # https://stackoverflow.com/a/426417
 
-print "<div id='osztaly' class='noprint'>\n";
+# Ha már be van jelentkezve, nem kell az osztálylista
+$hidden = ($user->logged_in() && !$user->admin) ? ' rejtett' : '';
+print "<div id='osztaly' class='noprint$hidden'>\n";
 print osztaly() . "\n";
 print "</div>\n";
 
