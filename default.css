@@ -147,6 +147,17 @@ margin-left: .7em;
 	margin-right: 5px;
 }
 
+#meetList {
+	padding: .5em 2em;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+#meetList .meetlink {
+	font-family: "monospace";
+	font-size: 90%;
+	padding-right: 1em;
+}
+
 @media only screen and (max-device-width: 800px) {
 	.rejtett { display: none; }
 	#duma { margin-top: 2.5em; }

@@ -51,9 +51,16 @@ function admin() {
 
     switch ($_REQUEST['page']) {
         case 0:
-            if ($FA) $Out .= "<h3>Az aktuális (legutóbb bejegyzett) fogadóóra: &nbsp;" . $FA->datum_str . "</h3>\n<ul>\n";
-                     $Out .= "<li><a href=\"?tip=admin&page=1\">Új időpont létrehozása</a>\n";
-            if ($FA) $Out .= "<li><a href=\"".__TABLE__."\" target=\"_blank\">Táblázat letöltése (" . preg_replace('/.*-(.*)\..*/', '\1', __TABLE__) . ")</a>\n</ul>\n\n";
+            if ($FA) {
+                $Out .= "<h3>Az aktuális (legutóbb bejegyzett) fogadóóra: &nbsp;" . $FA->datum_str . "</h3>\n<ul>\n";
+            }
+            $Out .= "<li><a href=\"?tip=admin&page=1\">Új időpont létrehozása</a>\n";
+            if ($FA) {
+                $Out .= "<li><a href=\"".__TABLE__."\" target=\"_blank\">Táblázat letöltése (" . preg_replace('/.*-(.*)\..*/', '\1', __TABLE__) . ")</a>\n";
+                $Out .= "<li><a onClick='showMeet()'>Tanári meet</a>\n";
+                $Out .= '<div id="meetList"></div>';
+            }
+            $Out .= "</ul>\n\n";
             break;
 
         case 1:  // 1. ADMIN OLDAL

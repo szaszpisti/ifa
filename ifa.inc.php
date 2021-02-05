@@ -198,6 +198,7 @@ print <<< EnD
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Language" content="hu">
   <link rel="stylesheet" href="$css.css?$time" type="text/css">
+  <script type="text/javascript" src="js/ifa.js"></script>
 </head>
 EnD;
 print "\n\n<body$onload>\n";
