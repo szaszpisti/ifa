@@ -182,6 +182,7 @@ function SelectTartam($name, $selected=2) {
  * @param string $css A használandó stíluslap neve kiterjesztés nélkül
  */
 function Head($cimsor, $onload='', $css='default') {
+    $time = time();
     header('Pragma: no-cache');
     header('Cache-Control: no-store, no-cache, must-revalidate, post-c heck=0, pre-check=0');
     header('Expires: Mon,26 Jul 1980 05:00:00 GMT');
@@ -196,7 +197,7 @@ print <<< EnD
   <meta http-equiv="Expires" content="Tue, 20 Aug 1996 14:25:27 GMT">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Language" content="hu">
-  <link rel="stylesheet" href="$css.css" type="text/css">
+  <link rel="stylesheet" href="$css.css?$time" type="text/css">
 </head>
 EnD;
 print "\n\n<body$onload>\n";
