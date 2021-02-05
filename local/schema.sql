@@ -19,7 +19,8 @@ CREATE TABLE Tanar (
         id INTEGER NOT NULL PRIMARY KEY,
         jelszo CHARACTER(32),
         emil TEXT,
-        tnev TEXT
+        tnev TEXT.
+        meet TEXT
     );
 CREATE TABLE Osztaly (
         oszt TEXT NOT NULL PRIMARY KEY,

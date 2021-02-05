@@ -227,6 +227,26 @@ function ulog($uid, $s) {
 }
 
 /**
+ * A tanar_id-hez tartozó linket keresi elő.
+ *
+ * @param int $tanar_id - a tanár azonosítója
+ * @param string $felirat - ez lesz a link szövege
+ *
+ * @return string - az összeállított HTML link, ha van meet, egyébként a felirat
+ */
+function get_meet($tanar_id, $felirat) {
+    global $db;
+    $res = $db->prepare("SELECT * FROM tanar WHERE id=?");
+    $res->execute(array($tanar_id));
+    $tanar = $res->fetch(PDO::FETCH_ASSOC);
+
+    if($tanar['meet'] != "") {
+        return "<a href='" . $tanar['meet'] . "'>$felirat</a>";
+    } else {
+        return "<span class='halvany'>$felirat</span>";
+    }
+}
+/**
  * Kiírja a diák összesítő táblázatát.
  *
  * @param user $user - a felhasználó adatai
@@ -253,12 +273,12 @@ function osszesit() {
     if (isset($szuloi['eleje'])) {
         $SzuloiSor = "<b>" . FiveToString($szuloi['eleje'])
             . "-" . FiveToString($szuloi['vege']+1)
-            . " &ndash; szülői értekezlet</b>";
+            . " &ndash; " . get_meet($user->ofo, 'szülői értekezlet') . "</b>";
         $SzuloiEleje = $szuloi['eleje'];
     }
 
     $res = $db->prepare(
-                  "SELECT ido, tnev"
+                  "SELECT ido, tnev, tanar"
                 . "  FROM Fogado, Tanar"
                 . "    WHERE fid=?"
                 . "        AND Tanar.id=tanar"
@@ -274,7 +294,7 @@ function osszesit() {
             $Output[] = $SzuloiSor;
             $SzuloiKesz = true;
         }
-        $Output[] = FiveToString($row['ido']) . " &ndash; " . $row['tnev'];
+        $Output[] = FiveToString($row['ido']) . " &ndash; " . get_meet($row['tanar'], $row['tnev']);
     }
     if (!$SzuloiKesz) { $Output[] = $SzuloiSor; }
 
