@@ -8,19 +8,27 @@ Elkészíti az aktuális jelszó fájlokat:
 A diak-jelszo.csv alapján fogjuk később a local.sql-t csinálni.
 """
 
-from subprocess import Popen, PIPE
 import sys
+base_dir = '/home/szaszi/g/'
+sys.path.append(base_dir)
+
+from subprocess import Popen, PIPE
 import os
 import locale
 import datetime
 import utils
+import configuration
+
+diak_jelszo = 'diak-jelszo.csv'
+config = configuration.config
 
 locale.setlocale(locale.LC_ALL, 'hu_HU.UTF-8')
 
 def main():
+    Users = utils.Users()
 
     date = datetime.datetime.now().strftime('%F')
-    regifile = utils.diak_jelszo[:-4] + '-' + date + '.csv' # majd átnevezzük: diak-jelszo.csv -> diak-jelszo-2019-10-09.csv
+    regifile = diak_jelszo[:-4] + '-' + date + '.csv' # majd átnevezzük: diak-jelszo.csv -> diak-jelszo-2019-10-09.csv
 
     # Ha van már ilyen fájl (ma már játszottunk), akkor kilép
     if os.path.isfile(regifile):
@@ -28,37 +36,37 @@ def main():
         sys.exit()
 
     # a KIR-ben létező összes oid
-    try:
-        oids = [sor.split(',')[0] for sor in open(utils.KIR)]
-    except PermissionError:
-        print('Ezzel a felhasználóval nem megy! sudo -u szaszi bash')
-        sys.exit()
-
+    oids = Users.oids
 
     diak = set() # a régi diákok oid-jeit gyújtjük ide
-    osztalyok = {} # {'12A': [[1234, 'jelszo', 'Pumpa Pál', 'd18b', '12. A'], ['1234', ...], ...], '12B': [[... ], ... ] }
+    osztalyok = {utils.Osztaly(oszt).signal: [] for oszt in Users.osztalyok} # {'12A': [[1234, 'jelszo', 'Pumpa Pál', 'd18b', '12. A'], ['1234', ...], ...], '12B': [[... ], ... ] }
 
-    for sor in open(utils.diak_jelszo):
+    # Ezek vannak most, ezen végigmegyünk:
+    for sor in open(diak_jelszo):
         d = sor.strip().split(',')
-        oid, jelszo, nev, osztaly = tuple(d)
+        oid, jelszo, nev, oszt = tuple(d)
+
+        o = utils.Osztaly(oszt, upper=True)
+        signal = o.signal
+
+        if oszt != oids[oid]['ou']:
+            print(sor.strip(), '=>', oids[oid]['ou'])
 
         # az elment diákokat nem őrizgetjük
         if not oid in oids:
             continue
 
-        o = utils.Osztaly(osztaly, upper=True)
-        signal = o.signal
-
         diak.add(oid)
-        if not signal in osztalyok:
-            osztalyok[signal] = []
         osztalyok[signal].append([oid, jelszo, nev, o.oszt, o.osztaly])
 
-    # végignézzük a KIR-t; ha még nem találkoztunk az oid-del, generálunk neki jelszót és beillesztjük
-    for sor in open(utils.KIR):
+    # Végignézzük a KIR-t; ha még nem találkoztunk az oid-del, generálunk neki jelszót és beillesztjük
+    # Ha ugyan találkoztunk az id-del, de nem jó az osztály, jelezzük. Ezt kézzel kell javítani.
+
+    for sor in open('%s/%s/%s' % (base_dir, configuration.stanev, config['kir'])):
         d = sor.strip().split(',')
         oid, vnev, knev, osztaly = tuple(d)
 
+        # if oid in diak:
         # Ha már van ez a diák, továbblépünk
         if oid in diak:
             continue
@@ -80,8 +88,8 @@ def main():
         sys.exit()
 
     # az eddigi diak-jelszo-t átnevezzük, archiváljuk a mai dátumra
-    os.rename(utils.diak_jelszo, regifile)
-    out = open(utils.diak_jelszo, 'w')
+    os.rename(diak_jelszo, regifile)
+    out = open(diak_jelszo, 'w')
 
     # kati: a titkárságra is kell egy excelben megnyitható állomány - a telefonos segítséghez
     kati = open('ifa-jelszo.csv', 'w', encoding='latin1') # Addig van latin1-ben nyitva, amíg az excel BOM-ot kiírjuk
@@ -95,7 +103,7 @@ def main():
             print(','.join(d[:-1]), file=out)
             print(';'.join([d[1], d[2], d[4]]), file=kati)
 
-    os.chmod(utils.diak_jelszo, 0o400)
+    os.chmod(diak_jelszo, 0o400)
 
 main()
 
