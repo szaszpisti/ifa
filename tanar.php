@@ -103,10 +103,7 @@ function tanar() {
       }
     }
 
-#    $TANAR = new User($_REQUEST['id']); # újra beolvassuk az adatbázisból
     $TANAR = new User($user->id); # újra beolvassuk az adatbázisból
-
-    #Head("Fogadóóra - " . $TANAR->nev);
 
     $res = $db->prepare("SELECT ' &ndash; ' || onev AS onev FROM Tanar, Osztaly WHERE Tanar.id=? AND Tanar.id=Osztaly.ofo");
     $res->execute(array($TANAR->id));
