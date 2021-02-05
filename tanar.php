@@ -109,12 +109,11 @@ function tanar() {
     $res->execute(array($TANAR->id));
     $onev = $res->fetchColumn();
 
-    $Fejlec = "\n<table width='100%'><tr>\n"
-        . "<td><h3 class='nowrap'>" . $TANAR->nev .  " (" . $FA->datum . ")$onev</h3></td></tr></table>\n";
-#        . "<td align='right'><span class='noprint sans'>\n"
-#        . "<a href='" . $_SERVER['PHP_SELF'] . "?id=" . $TANAR->id . "&amp;kilep='> Kilépés </a>\n<!--#--></span></td></tr></table>\n";
-
     if (ADMIN) {
+        # A tanár nevéhez nem kell link
+        $Fejlec = "\n<table width='100%'><tr>\n"
+            . "<td><h3 class='nowrap'>" . $TANAR->nev .  " ("
+            . $FA->datum . ")$onev</h3></td></tr></table>\n";
         # A külső táblázat első cellájában az időpont-lista
         $TABLA = "<table border='0'><tr><td>\n";
         if ($TANAR->fogad) {
@@ -207,6 +206,10 @@ function tanar() {
         }
 
     } else { // nem admin, hanem tanár -> a listát írjuk ki
+        # A tanár nevéhez kell link, tudja magát online ellenőrizni
+        $Fejlec = "\n<table width='100%'><tr>\n"
+            . "<td><h3 class='nowrap'>" . get_meet($TANAR->id, $TANAR->nev)
+            .  " (" . $FA->datum . ")$onev</h3></td></tr></table>\n";
         $TABLA = "<table id=\"lista\">\n";
         # Ha egyáltalán itt van...
         if (isset($TANAR->IDO_min)) {
