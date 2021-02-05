@@ -291,18 +291,26 @@ class User
 
     function menu() {
         global $FA;
+        $felirat = array(
+            'print'      => '<img class="menuicon" src="icons/print.png"><span class="menufelirat">Nyomtatás</span>',
+            'tablazat'   => '<img class="menuicon" src="icons/table.png"><span class="menufelirat">Táblázat</span>',
+            'osszesit'   => '<img class="menuicon" src="icons/list.png"><span class="menufelirat">Összesítés</span>',
+            'leiras'     => '<img class="menuicon" src="icons/info.png"><span class="menufelirat">Leírás</span>',
+            'exit'       => '<img class="menuicon" src="icons/exit.png"><span class="menufelirat">Kilépés</span>',
+        );
         $query_string = get('oszt') . '&' . get('tip') . '&' . get('id');
         $this->link = $_SERVER['PHP_SELF'] . '?' . $query_string;
         $out = "<div id='menu' class='noprint sans'>\n";
         if (isset($_REQUEST['osszesit']) || $this->tip == 'tanar' || !$FA->valid) {
-            $out .= "  " . "<input type='button' value='Nyomtatás' onClick='window.print()'> |\n";
+            //$out .= "  " . "<input type='button' value='Nyomtatás' onClick='window.print()'> |\n";
+            $out .= "<button id='printbutton' onClick='window.print()'>" . $felirat['print'] . "</button><span class='sep'>|</span>";
         }
         if ($this->tip != 'tanar') {
-            $out .= "  " . get_link($this->link, 'Táblázat') . " |\n";
-            $out .= "  " . get_link($this->link . "&osszesit", 'Összesítés') . " |\n";
-            $out .= "  " . get_link($this->link . "&leiras", 'Leírás') . " |\n";
+            $out .= get_link($this->link, $felirat['tablazat']) . "<span class='sep'>|</span>";
+            $out .= get_link($this->link . "&osszesit", $felirat['osszesit']) . "<span class='sep'>|</span>";
+            $out .= get_link($this->link . "&leiras", $felirat['leiras']) . "<span class='sep'>|</span>";
         }
-        $out .= "  " . get_link(URI . "?kilep", 'Kilépés') . "\n";
+        $out .= get_link(URI . "?kilep", $felirat['exit']);
         $out .= "</div>\n";
         return $out;
     }
