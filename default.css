@@ -28,6 +28,7 @@ a {
 	text-decoration: none;
 	color: maroon;
 	padding: 2px 4px;
+	cursor: pointer;
 }
 #menu a {
 	padding: 5px 3px 1px 3px;
