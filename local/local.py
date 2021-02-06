@@ -55,10 +55,14 @@ for sor in open('diak-jelszo.csv'):
 
 
 with open(LOCAL, 'w') as out:
+    print('PRAGMA foreign_keys=ON;\nBEGIN TRANSACTION;', file=out)
+    print(file=out)
     print('\n'.join(tanarok), file=out)
     print(file=out)
     print('\n'.join(osztalyok), file=out)
     print(file=out)
     print('\n'.join(diakok), file=out)
+    print(file=out)
+    print('END TRANSACTION;', file=out)
 
 print('./gen-db.php', LOCAL)
