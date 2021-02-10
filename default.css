@@ -134,6 +134,10 @@ div.spacer { clear: both; }
 margin-left: .7em;
 }
 
+#leiras {
+	white-space: normal;
+}
+
 #menu {
 	position: fixed;
 	z-index: 5;
