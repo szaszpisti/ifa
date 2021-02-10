@@ -164,8 +164,11 @@ margin-left: .7em;
 }
 
 @media only screen and (max-device-width: 800px) {
+	#duma {
+		margin-top: 2.5em;
+		width: auto;
+	}
 	.rejtett { display: none; }
-	#duma { margin-top: 2.5em; }
 	.menufelirat { display: none; }
 	.sep { display: none; }
 	.menuicon {
