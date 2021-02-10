@@ -42,7 +42,7 @@ if ($user->logged_in())
     if (array_key_exists('leiras', $_REQUEST)) {
         print leiras();
     }
-    if (array_key_exists('tablazat', $_REQUEST)) {
+    elseif (array_key_exists('tablazat', $_REQUEST)) {
         print tablazat();
     }
     elseif (array_key_exists('osszesit', $_REQUEST)) {
