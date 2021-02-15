@@ -48,7 +48,7 @@ if (__DEBUG__) {
     else { define('ADMIN', false); }
 }
 
-define('URI', ($_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://')
+define('URI', 'https://'
      . $_SERVER['SERVER_NAME']
      . $_SERVER['SCRIPT_NAME']);
 
