@@ -104,6 +104,7 @@ def main():
                 print(','.join(d[:-1]), file=out)
                 print(';'.join([d[1], d[2], d[4]]), file=kati)
 
+    print('scp', ifa_jelszo, 'boxer:"/pub/titkarsag/fogadó\ óra"')
     os.chmod(diak_jelszo, 0o400)
 
 main()
