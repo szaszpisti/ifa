@@ -20,6 +20,7 @@ import utils
 import configuration
 
 diak_jelszo = 'diak-jelszo.csv'
+ifa_jelszo = 'ifa-jelszo.csv'
 config = configuration.config
 
 locale.setlocale(locale.LC_ALL, 'hu_HU.UTF-8')
@@ -92,10 +93,10 @@ def main():
     out = open(diak_jelszo, 'w')
 
     # kati: a titkárságra is kell egy excelben megnyitható állomány - a telefonos segítséghez
-    kati = open('ifa-jelszo.csv', 'w', encoding='latin1') # Addig van latin1-ben nyitva, amíg az excel BOM-ot kiírjuk
+    kati = open(ifa_jelszo, 'w', encoding='latin1') # Addig van latin1-ben nyitva, amíg az excel BOM-ot kiírjuk
     kati.write('\xEF\xBB\xBF')
     kati.close()
-    with open('ifa-jelszo.csv', 'a') as kati:
+    with open(ifa_jelszo, 'a') as kati:
         for signal in sorted(osztalyok):
             nevsor = osztalyok[signal]
             nevsor.sort(key=lambda d: locale.strxfrm(d[2]))
