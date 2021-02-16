@@ -95,13 +95,13 @@ def main():
     kati = open('ifa-jelszo.csv', 'w', encoding='latin1') # Addig van latin1-ben nyitva, amíg az excel BOM-ot kiírjuk
     kati.write('\xEF\xBB\xBF')
     kati.close()
-    kati = open('ifa-jelszo.csv', 'a')
-    for signal in sorted(osztalyok):
-        nevsor = osztalyok[signal]
-        nevsor.sort(key=lambda d: locale.strxfrm(d[2]))
-        for d in nevsor:
-            print(','.join(d[:-1]), file=out)
-            print(';'.join([d[1], d[2], d[4]]), file=kati)
+    with open('ifa-jelszo.csv', 'a') as kati:
+        for signal in sorted(osztalyok):
+            nevsor = osztalyok[signal]
+            nevsor.sort(key=lambda d: locale.strxfrm(d[2]))
+            for d in nevsor:
+                print(','.join(d[:-1]), file=out)
+                print(';'.join([d[1], d[2], d[4]]), file=kati)
 
     os.chmod(diak_jelszo, 0o400)
 
