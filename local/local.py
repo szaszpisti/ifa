@@ -38,12 +38,10 @@ for sor in open(base_dir + '%d/KIR-tanar.csv' % configuration.tanev):
     tanarok.append("INSERT INTO 'Tanar' VALUES (%s, NULL, '%s', '%s');" % (i, email, nev))
 
 osztalyok = []
-for sor in open(base_dir + 'osztalyfonok.csv'):
-    oszt, oid, nev, email = sor.strip().split(',')
-    o = utils.Osztaly(oszt)
-    if o.evfolyam > 12:
-        continue
-    osztalyok.append("INSERT INTO 'Osztaly' VALUES ('%s', '%s', %s);" % (oszt, o.osztaly, tanar[oid]))
+for fonok in utils.osztalyfonok:
+    fonok['osztaly'] = utils.Osztaly(fonok['oszt']).osztaly
+    fonok['id'] = tanar[fonok['oid']]
+    osztalyok.append("INSERT INTO 'Osztaly' VALUES ('%(oszt)s', '%(osztaly)s', %(id)s);" % fonok)
 
 i = 2000
 diakok = []
