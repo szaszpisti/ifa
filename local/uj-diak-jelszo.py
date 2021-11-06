@@ -50,12 +50,12 @@ def main():
         o = utils.Osztaly(oszt, upper=True)
         signal = o.signal
 
-        if oszt != oids[oid]['ou']:
-            print(sor.strip(), '=>', oids[oid]['ou'])
-
         # az elment diákokat nem őrizgetjük
         if not oid in oids:
             continue
+
+        if oszt != oids[oid]['ou']:
+            print(sor.strip(), '=>', oids[oid]['ou'])
 
         diak.add(oid)
         osztalyok[signal].append([oid, jelszo, nev, o.oszt, o.osztaly])
