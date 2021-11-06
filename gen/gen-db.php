@@ -59,9 +59,9 @@ try {
     echo $e->getMessage();
 }
 
-$db->beginTransaction();
+# $db->beginTransaction();
 array_walk($ins, 'insert');
-$db->commit();
+# $db->commit();
 
 chmod ($IFA_db, 0660);
 chgrp ($IFA_db, 'www-data');
