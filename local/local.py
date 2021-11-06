@@ -25,6 +25,11 @@ if os.path.isfile(LOCAL):
     print('Töröld a %s filet!' % LOCAL)
     sys.exit()
 
+meets = {}
+for sor in open('meet.csv'):
+    email, meet = map(str.strip, sor.split(','))
+    meets[email] = meet
+
 i = 1000
 tanarok = []
 tanar = {} # oid -> id összerendelés
@@ -33,9 +38,9 @@ for sor in open(base_dir + '%d/KIR-tanar.csv' % configuration.tanev):
     oid, vnev, knev = sor.strip().split(',')
     tanar[oid] = i
     nev = vnev + ' ' + knev
-    # kell az email
     email = utils.get_email(oid)
-    tanarok.append("INSERT INTO 'Tanar' VALUES (%s, NULL, '%s', '%s');" % (i, email, nev))
+    meet = meets.get(email, '')
+    tanarok.append("INSERT INTO 'Tanar' VALUES (%s, NULL, '%s', '%s', '%s');" % (i, email, nev, meet))
 
 osztalyok = []
 for fonok in utils.osztalyfonok:
