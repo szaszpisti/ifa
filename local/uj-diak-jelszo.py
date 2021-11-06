@@ -57,6 +57,10 @@ def main():
         if oszt != oids[oid]['ou']:
             print(sor.strip(), '=>', oids[oid]['ou'], '(lehet, hogy bukott?)')
 
+        # Ha a diáknak nincs is itt osztálya, nem őrizgetjük
+        if not signal in osztalyok:
+            continue
+
         diak.add(oid)
         osztalyok[signal].append([oid, jelszo, nev, o.oszt, o.osztaly])
 
