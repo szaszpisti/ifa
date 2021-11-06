@@ -4,6 +4,11 @@
 $BASE = dirname(__FILE__);
 $IFA_db = 'ifa.db';
 
+if (file_exists($IFA_db)) {
+    print "Az $IFA_db létezik, törölni kéne.\n";
+    die();
+}
+
 if ($argc != 2) {
     print "Az INSERT-filet argumentumként kell megadni!\n";
     print "Létrehozza az aktuális könyvtárban a 'ifa.db' nevű sqlite adatbázist.\n";
