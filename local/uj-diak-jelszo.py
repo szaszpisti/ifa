@@ -55,7 +55,7 @@ def main():
             continue
 
         if oszt != oids[oid]['ou']:
-            print(sor.strip(), '=>', oids[oid]['ou'])
+            print(sor.strip(), '=>', oids[oid]['ou'], '(lehet, hogy bukott?)')
 
         diak.add(oid)
         osztalyok[signal].append([oid, jelszo, nev, o.oszt, o.osztaly])
