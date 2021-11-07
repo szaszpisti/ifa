@@ -242,7 +242,7 @@ function get_meet($tanar_id, $felirat) {
     $res->execute(array($tanar_id));
     $tanar = $res->fetch(PDO::FETCH_ASSOC);
 
-    if($tanar['meet'] != "") {
+    if($tanar['meet'] != "" && ONLINE) {
         return "<a href='" . $tanar['meet'] . "'>$felirat</a>";
     } else {
         return "<span class='halvany'>$felirat</span>";
