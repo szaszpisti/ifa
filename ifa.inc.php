@@ -314,7 +314,12 @@ function get_osztaly($oszt) {
 }
 
 function leiras() {
-    return file_get_contents('leiras.html');
+    $ret = '';
+    if (ONLINE) {
+        $ret .= file_get_contents('leiras-online.html');
+    }
+    $ret .= file_get_contents('leiras.html');
+    return $ret;
 }
 
 function get($key) {

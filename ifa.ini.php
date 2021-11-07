@@ -1,4 +1,5 @@
 <?php
+define('ONLINE', false);
 /*
  *   Ez a fájl az IFA (Iskolai Fogadóóra Adminisztráció) csomag része,
  *   This file is part of the IFA suite,
