@@ -116,13 +116,13 @@ function tanar() {
             . $FA->datum . ")$onev</h3></td></tr></table>\n";
         # A külső táblázat első cellájában az időpont-lista
         $TABLA = "<table border='0'><tr><td>\n";
+        $idok = array();
         if ($TANAR->fogad) {
             $TABLA .= "<form method='post' name='tabla' action=''>\n<table border='1' id=\"tanar\">\n"
                 . "<tr><th><th>A<th>B<th>C<th>D<th>E\n"
                 . "    <td colspan='2' align='right'><input type='hidden' name='mod' value='1'>\n"
                 . "       <input type='reset' value='RESET'>\n"
                 . "       <input type='submit' value=' Mehet '>\n";
-            $idok = array();
             for ($ido = $TANAR->IDO_min; $ido<$TANAR->IDO_max; $ido++) {
                 $idok[] = 'r' . $ido;
                 $TABLA .= ($ido%2?"<tr class='paratlan'>":"<tr>");
