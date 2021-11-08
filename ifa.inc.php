@@ -314,11 +314,10 @@ function get_osztaly($oszt) {
 }
 
 function leiras() {
-    $ret = '';
+    $ret = file_get_contents('leiras.html');
     if (ONLINE) {
-        $ret .= file_get_contents('leiras-online.html');
+        $ret = str_replace('<div id="leiras">', file_get_contents('leiras-online.html'), $ret);
     }
-    $ret .= file_get_contents('leiras.html');
     return $ret;
 }
 
