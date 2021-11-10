@@ -220,16 +220,20 @@ function tanar() {
                 $ora = floor($ido/12);
                 if ($ora != $elozoOra) {
                     $elozoOra = $ora;
-                    $TABLA .= '<tr class="borderTop">';
+                    $TABLA_row = '<tr class="borderTop">';
                 }
                 else {
-                    $TABLA .= '<tr>';
+                    $TABLA_row = '<tr>';
                 }
                 # ha ebben az időpontban van foglalás, akkor kiírjuk
-                if (isset($TANAR->fogado_ido[$ido]['diak'])) $diak = $TANAR->fogado_ido[$ido]['diak'];
-                else $diak = 0;
-                $TABLA .= '<td' . ($diak=='-2'?' class="szuloi"':'') . '>' . FiveToString($ido)
+                if (isset($TANAR->fogado_ido[$ido]['diak'])) {
+                    $diak = $TANAR->fogado_ido[$ido]['diak'];
+                } else {
+                    $diak = 0;
+                }
+                $TABLA_row .= '<td' . ($diak=='-2'?' class="szuloi"':'') . '>' . FiveToString($ido)
                     . '<td> &ndash; </td><td>' . ($diak>0?$TANAR->fogado_ido[$ido]['dnev']:'&nbsp;') . "</td></tr>\n";
+                $TABLA .= $TABLA_row;
             }
             $Fejlec = preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
         }
