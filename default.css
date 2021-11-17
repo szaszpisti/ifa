@@ -35,9 +35,6 @@ a {
 	padding: 2px 4px;
 	cursor: pointer;
 }
-#menu a {
-	padding: 5px 3px 1px 3px;
-}
 a:hover {
 	background: #bdcfd3;
 }
@@ -148,7 +145,8 @@ margin-left: .7em;
 	z-index: 5;
 	top: 0;
 	right: 0;
-	margin: .5em;
+	margin: 8px;
+	padding: 8px 1px 3px 1px;
 	background: white;
 }
 .nowrap { white-space: nowrap; }
