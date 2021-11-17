@@ -233,7 +233,7 @@ function tanar() {
                 }
                 $TABLA_row .= '<td' . ($diak=='-2'?' class="szuloi"':'') . '>' . FiveToString($ido)
                     . '<td> &ndash; </td><td>' . ($diak>0?$TANAR->fogado_ido[$ido]['dnev']:'&nbsp;') . "</td></tr>\n";
-                if ($diak=='-2') { $TABLA_row = preg_replace(',<td>&nbsp;(</td></tr>),', '<td> szülői\1', $TABLA_row); }
+                if ($diak=='-2') { $TABLA_row = preg_replace(',<td>&nbsp;(</td></tr>),', '<td style="padding-left: 1.5em;"> szülői\1', $TABLA_row); }
                 $TABLA .= $TABLA_row;
             }
             $Fejlec = preg_replace('/<!--#-->/', '<br><input type="button" value="Nyomtatás" onClick="window.print()">', $Fejlec);
