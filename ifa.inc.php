@@ -48,6 +48,10 @@ if (__DEBUG__) {
     else { define('ADMIN', false); }
 }
 
+$yaml = yaml_parse_file('ifa.yaml');
+define('CLIENT_ID', $yaml['CLIENT_ID']);
+define('CLIENT_SECRET', $yaml['CLIENT_SECRET']);
+
 define('URI', 'https://'
      . $_SERVER['SERVER_NAME']
      . $_SERVER['SCRIPT_NAME']);

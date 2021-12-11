@@ -7,8 +7,6 @@ function oauth() {
 
     $out = '';
     define('TITLE', 'IFA - Iskolai Fogadóóra Adminisztráció');
-    define('CLIENT_ID', '852761388240-1e9b5a72o8g70esa14ljqsg8mrld3n21.apps.googleusercontent.com');
-    define('CLIENT_SECRET', 'ywgzXeQ21HrRtKrnJdMTtLvy');
 
     $client = new Google_Client();
     $client->setApplicationName(TITLE);
