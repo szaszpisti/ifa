@@ -46,8 +46,6 @@ Néhány beállítás nem látható mindenkinek, ezek egy YAML fájlba kerülnek
 apt-get install php-yaml
 ```
 
-## Excel táblázat
-
 ## OAuth
 
 A tanárok authentikálhatnak OAuth segítségével is.
